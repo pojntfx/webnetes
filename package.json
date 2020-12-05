@@ -1,0 +1,45 @@
+{
+  "name": "@pojntfx/webnetes",
+  "version": "0.0.1",
+  "description": "Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "yarn build:lib && yarn build:bin && yarn build:docs && yarn build:diagram",
+    "build:lib": "esbuild index.ts --bundle --minify --sourcemap --outfile=dist/index.js --platform=node --target=node12",
+    "build:bin": "esbuild bin/webnetes_node/main.ts --bundle --minify --outfile=dist/main.js --platform=node --target=node12",
+    "build:docs": "mkdir -p docs && typedoc --tsconfig tsconfig.json --mode file --outDir docs --media docs/media --exclude '+(node_modules|docs|dist)' .",
+    "build:diagram": "mkdir -p docs/media && tplant -p tsconfig.json -i './**/*.ts*' --output 'docs/media/diagram.svg'",
+    "dev": "yarn dev:bin",
+    "dev:bin": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files bin/webnetes_node/main.ts",
+    "start": "yarn start:bin",
+    "start:bin": "./dist/main.js"
+  },
+  "bin": {
+    "webnetes_node": "dist/main.js"
+  },
+  "files": [
+    "dist/main.js",
+    "dist/index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pojntfx/webnetes.git"
+  },
+  "author": "Felicitas Pojtinger <felicitas@pojtinger.com>",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/pojntfx/webnetes/issues"
+  },
+  "homepage": "https://github.com/pojntfx/webnetes#readme",
+  "devDependencies": {
+    "@types/node": "^14.14.10",
+    "esbuild": "^0.8.19",
+    "tplant": "^2.3.6",
+    "ts-node-dev": "^1.0.0",
+    "typedoc": "^0.19.2",
+    "typescript": "^4.1.2"
+  },
+  "dependencies": {
+    "winston": "^3.3.3"
+  }
+}
