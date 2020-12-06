@@ -1146,10 +1146,10 @@
     "@parcel/utils" "^1.11.0"
     physical-cpu-count "^2.0.0"
 
-"@pojntfx/unisockets@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@pojntfx/unisockets/-/unisockets-0.0.9.tgz#fa029f71fa39747f2525ef212d20cd9fb9bffe20"
-  integrity sha512-GxYyw6vj4EymTb4Svrh6lfzqbMZzn3SZ2FuX1PJwE2767uOjWENh5xx6vaEj91ArTMEM25IGMsPSVUgjfbxlxQ==
+"@pojntfx/unisockets@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@pojntfx/unisockets/-/unisockets-0.0.11.tgz#4fd924f6e717dd60e3025ce58071575862958623"
+  integrity sha512-KU+ZjnSu5fBETCj6YbLbBLvIfP4nlUD1S3BtATrqtMolryfQSWm8nNCj7d+GJdnwabmSd8DcNhD3lyGxVfIHvA==
   dependencies:
     "@wasmer/wasi" "^0.12.0"
     "@wasmer/wasm-transformer" "^0.12.0"
