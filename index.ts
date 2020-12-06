@@ -1,1 +1,1 @@
-export { VirtualMachine } from "./lib/virtual-machine";
+export { NetworkInterface } from "./lib/network-interface";
