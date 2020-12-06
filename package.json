@@ -3,10 +3,11 @@
   "version": "0.0.1",
   "description": "Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "yarn build:lib && yarn build:declarations && yarn build:bin && yarn build:web && yarn build:docs && yarn build:diagram",
-    "build:lib": "esbuild index.ts --bundle --minify --sourcemap --outfile=dist/index.js --platform=node --target=node12 --external:wrtc",
-    "build:declarations": "tsc --project tsconfig.json --declaration --emitDeclarationOnly --outDir dist",
+    "build": "yarn build:lib && yarn build:bin && yarn build:web && yarn build:docs && yarn build:diagram",
+    "build:lib": "rollup -c",
     "build:bin": "esbuild bin/webnetes_node/main.ts --bundle --minify --outfile=dist/main.js --platform=node --target=node12 --external:wrtc",
     "build:web": "parcel build --out-dir browser ./bin/webnetes_web/index.html",
     "build:docs": "mkdir -p docs && typedoc --tsconfig tsconfig.json --mode file --outDir docs --media docs/media --exclude '+(node_modules|docs|dist)' .",
@@ -47,8 +48,11 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@pojntfx/unisockets": "^0.0.11",
+    "@pojntfx/unisockets": "^0.0.12",
     "emittery": "^0.7.2",
+    "rollup": "^2.34.2",
+    "rollup-plugin-dts": "^2.0.0",
+    "rollup-plugin-esbuild": "^2.6.0",
     "winston": "^3.3.3"
   },
   "browserslist": [
