@@ -1,10 +1,18 @@
 import { NetworkInterface } from "./network-interface";
 
+const testTransporterConfig = {
+  iceServers: [
+    {
+      urls: "stun:stun.l.google.com:19302",
+    },
+  ],
+};
+
 describe("NetworkInterface", () => {
   let instance: NetworkInterface;
 
   beforeEach(() => {
-    instance = new NetworkInterface();
+    instance = new NetworkInterface(testTransporterConfig);
   });
 
   describe("lifecycle", () => {
