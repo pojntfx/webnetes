@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 
-import { VirtualMachine } from "../../lib/virtual-machine";
+import { NetworkInterface } from "../../lib/network-interface";
 
 (async () => {
-  const vm = new VirtualMachine();
+  const iface = new NetworkInterface();
 
-  await vm.open();
+  try {
+    await iface.open();
+  } finally {
+    await iface.close();
+  }
 })();
