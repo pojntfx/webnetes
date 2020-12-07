@@ -37,3 +37,12 @@ jobs:
           BRANCH: gh-pages
           FOLDER: dist/docs
           CLEAN: true
+      - uses: jsmrcaga/action-netlify-deploy@master
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_DEPLOY_TO_PROD: true
+          build_directory: "dist/webApp"
+          install_command: "echo 0"
+          build_command: "echo 0"
