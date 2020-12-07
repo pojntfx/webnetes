@@ -1,4 +1,4 @@
-# webnetes
+# webnetes (w6s)
 
 Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.
 
@@ -8,6 +8,8 @@ Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.
 [![npm](https://img.shields.io/npm/v/@pojntfx/webnetes)](https://www.npmjs.com/package/@pojntfx/webnetes)
 
 ## Overview
+
+[![UML Diagram](https://pojntfx.github.io/webnetes/media/diagram.svg)](https://pojntfx.github.io/webnetes/media/diagram.svg)
 
 TODO: Add overview docs
 
