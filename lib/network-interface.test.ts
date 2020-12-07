@@ -18,6 +18,8 @@ describe("NetworkInterface", () => {
     );
   });
 
+  test.todo("Add tests");
+
   //   describe("lifecycle", () => {
   //     describe("open", () => {
   //       it("should open", async () => {
