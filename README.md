@@ -6,6 +6,7 @@ Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.
 ![Mirror](https://github.com/pojntfx/webnetes/workflows/Mirror/badge.svg)
 [![TypeDoc](https://img.shields.io/badge/TypeScript-Documentation-informational)](https://pojntfx.github.io/webnetes/)
 [![npm](https://img.shields.io/npm/v/@pojntfx/webnetes)](https://www.npmjs.com/package/@pojntfx/webnetes)
+[![Demo](https://img.shields.io/badge/Demo-webnetes.netlify.app-blueviolet)](https://webnetes.netlify.app/)
 
 ## Overview
 
