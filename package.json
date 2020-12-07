@@ -2,24 +2,27 @@
   "name": "@pojntfx/webnetes",
   "version": "0.0.1",
   "description": "Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "typings": "dist/index.d.ts",
+  "main": "dist/nodeLib/index.js",
+  "module": "dist/webLib/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "yarn build:lib && yarn build:bin && yarn build:web && yarn build:docs && yarn build:diagram",
-    "build:lib": "rollup -c",
-    "build:bin": "esbuild bin/webnetes_node/main.ts --bundle --minify --outfile=dist/main.js --platform=node --target=node12 --external:wrtc",
-    "build:web": "parcel build --target browser ./bin/webnetes_web/index.html",
-    "build:docs": "mkdir -p docs && typedoc --tsconfig tsconfig.json --mode file --outDir docs --media docs/media --exclude '+(node_modules|docs|dist)' .",
-    "build:diagram": "mkdir -p docs/media && tplant -p tsconfig.json -i './**/*.ts*' --output 'docs/media/diagram.svg'",
+    "build": "rm -rf dist && yarn build:types && yarn build:lib:node && yarn build:lib:web && yarn build:app:node && yarn build:app:web && yarn build:diagram && yarn build:docs",
+    "build:types": "parcel build --target types index.ts",
+    "build:lib:node": "parcel build --target nodeLib index.ts",
+    "build:lib:web": "parcel build --target webLib index.ts",
+    "build:app:node": "parcel build --target nodeApp ./app/webnetes_node/main.ts && chmod +x ./dist/nodeApp/main.js",
+    "build:app:web": "parcel build --target webApp ./app/webnetes_web/index.html",
+    "build:diagram": "mkdir -p dist/media && tplant -p tsconfig.json -i './**/*.ts*' --output 'dist/media/diagram.svg'",
+    "build:docs": "mkdir -p dist/docs && typedoc --tsconfig tsconfig.json --mode file --out dist/docs --media dist/media --exclude '+(node_modules|dist|jest.config.js)' .",
     "test": "jest",
-    "dev:bin": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files bin/webnetes_node/main.ts",
-    "dev:web": "parcel --hmr-port 1235 --target browser ./bin/webnetes_web/index.html",
-    "start:bin": "./dist/main.js",
-    "start:web": "serve dist/browser"
+    "dev:app:node": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files app/webnetes_node/main.ts",
+    "dev:app:web": "parcel --hmr-port 1235 --target webApp ./app/webnetes_web/index.html",
+    "start:app:node": "./dist/nodeApp/main.js",
+    "start:app:web": "serve dist/webApp",
+    "start:docs": "serve dist/docs"
   },
   "bin": {
-    "webnetes_node": "dist/main.js"
+    "webnetes_node": "dist/nodeApp/main.js"
   },
   "files": [
     "dist"
@@ -37,7 +40,6 @@
   "devDependencies": {
     "@types/jest": "^26.0.16",
     "@types/node": "^14.14.10",
-    "esbuild": "^0.8.19",
     "jest": "^26.6.3",
     "parcel": "^2.0.0-nightly.469",
     "serve": "^11.3.2",
@@ -50,16 +52,34 @@
   "dependencies": {
     "@pojntfx/unisockets": "^0.0.12",
     "emittery": "^0.7.2",
-    "rollup": "^2.34.2",
-    "rollup-plugin-dts": "^2.0.0",
-    "rollup-plugin-esbuild": "^2.6.0",
     "winston": "^3.3.3"
   },
   "targets": {
-    "browser": {
-      "distDir": "browser",
+    "nodeLib": {
+      "isLibrary": true,
+      "context": "node",
+      "includeNodeModules": {
+        "wrtc": false
+      },
       "engines": {
-        "browsers": "> 5%"
+        "node": ">=12.x"
+      }
+    },
+    "webLib": {
+      "isLibrary": true,
+      "context": "browser",
+      "engines": {
+        "browsers": ">=5%"
+      }
+    },
+    "nodeApp": {
+      "engines": {
+        "node": ">=12.x"
+      }
+    },
+    "webApp": {
+      "engines": {
+        "browsers": ">=5%"
       }
     }
   }

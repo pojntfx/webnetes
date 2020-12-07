@@ -1,6 +1,4 @@
 node_modules
-docs
-dist
 yarn-error.log
+dist
 .parcel-cache
-browser
