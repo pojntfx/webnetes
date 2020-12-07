@@ -9,14 +9,14 @@
     "build": "yarn build:lib && yarn build:bin && yarn build:web && yarn build:docs && yarn build:diagram",
     "build:lib": "rollup -c",
     "build:bin": "esbuild bin/webnetes_node/main.ts --bundle --minify --outfile=dist/main.js --platform=node --target=node12 --external:wrtc",
-    "build:web": "parcel build --out-dir browser ./bin/webnetes_web/index.html",
+    "build:web": "parcel build --target browser ./bin/webnetes_web/index.html",
     "build:docs": "mkdir -p docs && typedoc --tsconfig tsconfig.json --mode file --outDir docs --media docs/media --exclude '+(node_modules|docs|dist)' .",
     "build:diagram": "mkdir -p docs/media && tplant -p tsconfig.json -i './**/*.ts*' --output 'docs/media/diagram.svg'",
     "test": "jest",
     "dev:bin": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files bin/webnetes_node/main.ts",
-    "dev:web": "parcel --hmr-port 1235 --out-dir browser ./bin/webnetes_web/index.html",
+    "dev:web": "parcel --hmr-port 1235 --target browser ./bin/webnetes_web/index.html",
     "start:bin": "./dist/main.js",
-    "start:web": "serve browser"
+    "start:web": "serve dist/browser"
   },
   "bin": {
     "webnetes_node": "dist/main.js"
@@ -39,7 +39,7 @@
     "@types/node": "^14.14.10",
     "esbuild": "^0.8.19",
     "jest": "^26.6.3",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "^2.0.0-nightly.469",
     "serve": "^11.3.2",
     "tplant": "^2.3.6",
     "ts-jest": "^26.4.4",
@@ -55,7 +55,12 @@
     "rollup-plugin-esbuild": "^2.6.0",
     "winston": "^3.3.3"
   },
-  "browserslist": [
-    "last 1 Chrome version"
-  ]
+  "targets": {
+    "browser": {
+      "distDir": "browser",
+      "engines": {
+        "browsers": "> 5%"
+      }
+    }
+  }
 }
