@@ -7,14 +7,15 @@
   "module": "dist/webLib/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rm -rf dist && yarn build:types && yarn build:lib && yarn build:app:node && yarn build:app:web && yarn build:diagram && yarn build:docs",
-    "build:types": "parcel build --target types index.ts",
+    "build": "rm -rf dist && yarn build:lib && yarn build:app:node && yarn build:app:web && yarn build:diagram && yarn build:docs",
     "build:lib": "rollup -c",
     "build:app:node": "parcel build --target nodeApp app/webnetes_node/main.ts && chmod +x dist/nodeApp/main.js",
     "build:app:web": "parcel build --target webApp app/webnetes_web/index.html",
     "build:diagram": "mkdir -p dist/media && tplant -p tsconfig.json -i 'lib/**/*.ts*' --output 'dist/media/diagram.svg'",
     "build:docs": "mkdir -p dist/docs && typedoc --tsconfig tsconfig.json --mode file --outDir dist/docs --out dist/docs --media dist/media --exclude '+(node_modules|dist)' .",
     "test": "jest",
+    "dev:tests": "jest ---watchAll",
+    "dev:lib": "rollup -c -w",
     "dev:app:node": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files app/webnetes_node/main.ts",
     "dev:app:web": "parcel --hmr-port 1235 --target webApp app/webnetes_web/index.html",
     "start:app:node": "./dist/nodeApp/main.js",
@@ -27,8 +28,7 @@
   "files": [
     "dist/nodeLib",
     "dist/webLib",
-    "dist/index.d.ts",
-    "dist/index.d.ts.map"
+    "dist/index.d.ts"
   ],
   "repository": {
     "type": "git",
@@ -44,9 +44,11 @@
     "@types/jest": "^26.0.16",
     "@types/node": "^14.14.10",
     "esbuild": "^0.8.20",
+    "get-port": "^5.1.1",
     "jest": "^26.6.3",
     "parcel": "^2.0.0-nightly.469",
     "rollup": "^2.34.2",
+    "rollup-plugin-dts": "^2.0.0",
     "rollup-plugin-esbuild": "^2.6.0",
     "serve": "^11.3.2",
     "tplant": "^2.3.6",
@@ -56,7 +58,7 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@pojntfx/unisockets": "^0.0.16",
+    "@pojntfx/unisockets": "^0.0.17",
     "emittery": "^0.7.2",
     "winston": "^3.3.3"
   },
