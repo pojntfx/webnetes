@@ -1,10 +1,20 @@
+import { SignalingServer } from "@pojntfx/unisockets";
+import getPort from "get-port";
 import { NetworkInterface } from "./network-interface";
 
 describe("NetworkInterface", () => {
-  let instance: NetworkInterface;
+  let networkInterface: NetworkInterface;
+  const host = "localhost";
+  let port: number;
+  let signalingServer: SignalingServer;
 
-  beforeEach(() => {
-    instance = new NetworkInterface(
+  beforeEach(async () => {
+    port = await getPort();
+    signalingServer = new SignalingServer(host, port);
+
+    await signalingServer.open();
+
+    networkInterface = new NetworkInterface(
       {
         iceServers: [
           {
@@ -12,49 +22,35 @@ describe("NetworkInterface", () => {
           },
         ],
       },
-      "ws://localhost:6999",
+      `ws://${host}:${port}`,
       1000,
       "127.0.0"
     );
   });
 
-  test.todo("Add tests");
+  afterEach(async () => {
+    await signalingServer.close();
+  });
 
-  //   describe("lifecycle", () => {
-  //     describe("open", () => {
-  //       it("should open", async () => {
-  //         await instance.open();
-  //       });
+  describe("lifecycle", () => {
+    describe("open", () => {
+      it("should open", async () => {
+        await networkInterface.open();
+      });
 
-  //       it("should allow opening more than once", async () => {
-  //         await instance.open();
-  //         await instance.open();
-  //       });
+      afterEach(async () => {
+        await networkInterface.close();
+      });
+    });
 
-  //       afterEach(async () => {
-  //         await instance.close();
-  //       });
-  //     });
+    describe("close", () => {
+      beforeEach(async () => {
+        await networkInterface.open();
+      });
 
-  //     describe("close", () => {
-  //       beforeEach(async () => {
-  //         await instance.open();
-  //       });
-
-  //       it("should close", async () => {
-  //         await instance.close();
-  //       });
-  //     });
-
-  //     describe("close without opening", () => {
-  //       it("should close", async () => {
-  //         await instance.close();
-  //       });
-
-  //       it("should allow closing more than once", async () => {
-  //         await instance.close();
-  //         await instance.close();
-  //       });
-  //     });
-  //   });
+      it("should close", async () => {
+        await networkInterface.close();
+      });
+    });
+  });
 });
