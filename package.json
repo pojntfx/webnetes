@@ -60,7 +60,7 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@pojntfx/unisockets": "^0.0.17",
+    "@pojntfx/unisockets": "^0.0.18",
     "emittery": "^0.7.2",
     "webtorrent-hybrid": "^4.0.3",
     "winston": "^3.3.3"
@@ -80,6 +80,7 @@
   "jest": {
     "rootDir": "lib",
     "preset": "ts-jest",
+    "testEnvironment": "node",
     "testMatch": [
       "<rootDir>/**/*.test.ts"
     ],
