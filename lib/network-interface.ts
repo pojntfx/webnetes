@@ -228,6 +228,9 @@ export class NetworkInterface {
 
   async close() {
     this.logger.verbose("Closing network interface");
+
+    await this.transporter?.close();
+    await this.signalingClient?.close();
   }
 
   async getImports(): Promise<any> {
