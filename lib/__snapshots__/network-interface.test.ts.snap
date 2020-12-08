@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NetworkInterface non-lifecycle getImports positive should get the correct exports 1`] = `
+Object {
+  "imports": Object {
+    "berkeley_sockets_accept": [Function],
+    "berkeley_sockets_bind": [Function],
+    "berkeley_sockets_connect": [Function],
+    "berkeley_sockets_listen": [Function],
+    "berkeley_sockets_recv": [Function],
+    "berkeley_sockets_send": [Function],
+    "berkeley_sockets_socket": [Function],
+  },
+  "memoryId": null,
+}
+`;
