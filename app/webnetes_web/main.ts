@@ -8,8 +8,14 @@ import { NetworkInterface } from "../../lib/network-interface";
 
   try {
     await repo.open();
+
+    const magnetLink = await repo.seed(
+      new TextEncoder().encode("Hello, world!")
+    );
+
+    console.log(magnetLink);
   } finally {
-    await repo.close();
+    // await repo.close();
   }
 })();
 
