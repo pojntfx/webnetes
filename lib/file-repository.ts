@@ -1,4 +1,5 @@
 import WebTorrent from "webtorrent-hybrid";
+import { ClosedError } from "./errors/closed";
 import { getLogger } from "./logger";
 
 export class FileRepository {
@@ -21,7 +22,23 @@ export class FileRepository {
   }
 
   async seed(content: Uint8Array) {
-    return "";
+    if (this.client) {
+      return await new Promise((res, rej) => {
+        try {
+          const dataToSeed = Buffer.from(content);
+
+          (dataToSeed as any)["name"] = "data";
+
+          this.client!.seed(dataToSeed, {}, (torrent) =>
+            res(torrent.magnetURI)
+          );
+        } catch (e) {
+          rej(e);
+        }
+      });
+    } else {
+      throw new ClosedError("FileRepository");
+    }
   }
 
   async add(magnetURI: string) {

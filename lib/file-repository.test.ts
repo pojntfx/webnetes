@@ -28,4 +28,22 @@ describe("FileRepository", () => {
       });
     });
   });
+
+  describe("non-lifecycle", () => {
+    describe("seed", () => {
+      beforeEach(async () => {
+        await fileRepository.open();
+      });
+
+      afterEach(async () => {
+        await fileRepository.close();
+      });
+
+      it("should seed an empty Uint8Array", async () => {
+        const magnetLink = await fileRepository.seed(new Uint8Array());
+
+        expect(magnetLink).toMatchSnapshot();
+      }, 20000);
+    });
+  });
 });
