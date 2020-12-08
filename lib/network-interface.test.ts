@@ -1,5 +1,6 @@
 import { SignalingServer } from "@pojntfx/unisockets";
 import getPort from "get-port";
+import { ClosedError } from "./errors/closed";
 import { NetworkInterface } from "./network-interface";
 
 describe("NetworkInterface", () => {
@@ -50,6 +51,67 @@ describe("NetworkInterface", () => {
 
       it("should close", async () => {
         await networkInterface.close();
+      });
+    });
+  });
+
+  describe("non-lifecycle", () => {
+    describe("getImports", () => {
+      describe("positive", () => {
+        afterEach(async () => {
+          await networkInterface.close();
+        });
+
+        beforeEach(async () => {
+          await networkInterface.open();
+        });
+
+        it("should get the correct exports", async () => {
+          const imports = await networkInterface.getImports();
+
+          expect({
+            ...imports,
+            memoryId: null, // This one is a UUID
+          }).toMatchSnapshot();
+        });
+      });
+
+      describe("negative", () => {
+        it("should throw if not open", async () => {
+          expect(
+            async () => await networkInterface.getImports()
+          ).rejects.toBeInstanceOf(ClosedError);
+        });
+      });
+    });
+
+    describe("setMemory", () => {
+      describe("positive", () => {
+        let id: string;
+
+        afterEach(async () => {
+          await networkInterface.close();
+        });
+
+        beforeEach(async () => {
+          await networkInterface.open();
+
+          const { memoryId } = await networkInterface.getImports();
+
+          id = memoryId;
+        });
+
+        it("should be possible to set the memory", async () => {
+          await networkInterface.setMemory(id, new Uint8Array());
+        });
+      });
+
+      describe("negative", () => {
+        it("should throw if not open", async () => {
+          expect(
+            async () => await networkInterface.setMemory("", new Uint8Array())
+          ).rejects.toBeInstanceOf(ClosedError);
+        });
       });
     });
   });
