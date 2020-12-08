@@ -9,12 +9,22 @@ describe("FileRepository", () => {
 
   describe("lifecycle", () => {
     describe("open", () => {
+      it("should open", async () => {
+        await fileRepository.open();
+      });
+
       afterEach(async () => {
         await fileRepository.close();
       });
+    });
 
-      it("should open", async () => {
+    describe("close", () => {
+      beforeEach(async () => {
         await fileRepository.open();
+      });
+
+      it("should close", async () => {
+        await fileRepository.close();
       });
     });
   });
