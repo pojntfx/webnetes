@@ -73,5 +73,13 @@ export class FileRepository {
     }
   }
 
-  async remove(magnetURI: string) {}
+  async remove(magnetURI: string) {
+    if (this.client) {
+      await new Promise<void>((res, rej) =>
+        this.client!.remove(magnetURI, {}, (e) => (e ? rej(e) : res()))
+      ); // We check above
+    } else {
+      throw new ClosedError("FileRepository");
+    }
+  }
 }

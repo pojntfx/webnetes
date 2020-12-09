@@ -70,6 +70,20 @@ describe("FileRepository", () => {
           expect(outFile).toStrictEqual(inFile);
         }, 20000);
       });
+
+      describe("remove", () => {
+        let magnetURI = "";
+
+        beforeEach(async () => {
+          magnetURI = await fileRepository.seed(
+            new TextEncoder().encode("Hello, world!")
+          );
+        }, 20000);
+
+        it("should be able to remove a seeded file", async () => {
+          await fileRepository.remove(magnetURI);
+        }, 20000);
+      });
     });
   });
 });
