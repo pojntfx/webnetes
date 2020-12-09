@@ -15,18 +15,30 @@ import { NetworkInterface } from "../../lib/network-interface";
 
     console.log("Seeding:", magnetURI);
 
+    const secondRepo = new FileRepository();
     try {
-      const secondRepo = new FileRepository();
       await secondRepo.open();
 
       const contents = await secondRepo.add(magnetURI);
 
       console.log("Added:", contents);
+
+      await secondRepo.remove(magnetURI);
+
+      console.log("Removed from second repo:", magnetURI);
+    } catch (e) {
+      console.error("FileRepository error:", e);
     } finally {
-      // await repo.close()
+      await secondRepo.close();
     }
+
+    await repo.remove(magnetURI);
+
+    console.log("Removed from first repo:", magnetURI);
+  } catch (e) {
+    console.error("FileRepository error:", e);
   } finally {
-    // await repo.close();
+    await repo.close();
   }
 })();
 
