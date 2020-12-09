@@ -39,11 +39,37 @@ describe("FileRepository", () => {
         await fileRepository.close();
       });
 
-      it("should seed an empty Uint8Array", async () => {
-        const magnetLink = await fileRepository.seed(new Uint8Array());
+      describe("seeding", () => {
+        it("should seed an empty Uint8Array", async () => {
+          const magnetURI = await fileRepository.seed(new Uint8Array());
 
-        expect(magnetLink).toMatchSnapshot();
-      }, 20000);
+          expect(magnetURI).toMatchSnapshot();
+        }, 20000);
+      });
+
+      describe("adding", () => {
+        const inFile = new TextEncoder().encode("Hello, world!");
+        let magnetURI = "";
+        let seedingRepo: FileRepository;
+
+        beforeAll(async () => {
+          seedingRepo = new FileRepository();
+
+          await seedingRepo.open();
+
+          magnetURI = await seedingRepo.seed(inFile);
+        }, 20000);
+
+        afterAll(async () => {
+          await seedingRepo.close();
+        });
+
+        it("should be able to add a file", async () => {
+          const outFile = await fileRepository.add(magnetURI);
+
+          expect(outFile).toStrictEqual(inFile);
+        }, 20000);
+      });
     });
   });
 });

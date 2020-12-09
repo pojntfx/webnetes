@@ -9,11 +9,22 @@ import { NetworkInterface } from "../../lib/network-interface";
   try {
     await repo.open();
 
-    const magnetLink = await repo.seed(
+    const magnetURI = await repo.seed(
       new TextEncoder().encode("Hello, world!")
     );
 
-    console.log(magnetLink);
+    console.log("Seeding:", magnetURI);
+
+    try {
+      const secondRepo = new FileRepository();
+      await secondRepo.open();
+
+      const contents = await secondRepo.add(magnetURI);
+
+      console.log("Added:", contents);
+    } finally {
+      // await repo.close()
+    }
   } finally {
     // await repo.close();
   }
