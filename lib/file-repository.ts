@@ -1,6 +1,9 @@
 import WebTorrent from "webtorrent-hybrid";
 import { ClosedError } from "./errors/closed";
+import { FileNotInTorrentError } from "./errors/file-not-in-torrent";
 import { getLogger } from "./logger";
+
+const FILE_NAME = "data";
 
 export class FileRepository {
   private logger = getLogger();
@@ -23,15 +26,15 @@ export class FileRepository {
 
   async seed(content: Uint8Array) {
     if (this.client) {
-      return await new Promise((res, rej) => {
+      return await new Promise<string>((res, rej) => {
         try {
           const dataToSeed = Buffer.from(content);
 
-          (dataToSeed as any)["name"] = "data";
+          (dataToSeed as any)["name"] = FILE_NAME;
 
-          this.client!.seed(dataToSeed, {}, (torrent) =>
-            res(torrent.magnetURI)
-          );
+          this.client!.seed(dataToSeed, {}, (
+            torrent // We check above
+          ) => res(torrent.magnetURI));
         } catch (e) {
           rej(e);
         }
@@ -42,7 +45,32 @@ export class FileRepository {
   }
 
   async add(magnetURI: string) {
-    return new Uint8Array();
+    if (this.client) {
+      return await new Promise<Uint8Array>((res, rej) => {
+        try {
+          this.client!.add(magnetURI, {}, (torrent) => {
+            // We check above
+            const file = torrent.files.find((t) => t.name === FILE_NAME);
+
+            if (file) {
+              file!.getBuffer((e, buf) => {
+                if (e) {
+                  rej(e);
+                } else {
+                  res(new Uint8Array(buf!)); // We check with e above
+                }
+              }); // We check above
+            } else {
+              rej(new FileNotInTorrentError());
+            }
+          });
+        } catch (e) {
+          rej(e);
+        }
+      });
+    } else {
+      throw new ClosedError("FileRepository");
+    }
   }
 
   async remove(magnetURI: string) {}
