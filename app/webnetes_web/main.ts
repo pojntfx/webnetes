@@ -51,7 +51,7 @@ import { NetworkInterface } from "../../lib/network-interface";
         },
       ],
     },
-    "ws://localhost:6999",
+    "wss://unisockets.herokuapp.com",
     1000,
     "127.0.0"
   );
