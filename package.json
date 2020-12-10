@@ -60,7 +60,7 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@pojntfx/unisockets": "^0.0.18",
+    "@pojntfx/unisockets": "^0.0.19",
     "emittery": "^0.7.2",
     "webtorrent": "^0.112.0",
     "webtorrent-hybrid": "^4.0.3",
