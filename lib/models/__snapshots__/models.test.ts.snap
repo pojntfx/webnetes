@@ -1,0 +1,284 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Arguments',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Arguments {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Arguments",
+  "metadata": Object {
+    "label": "echo_server",
+    "name": "Echo Server Configuration",
+  },
+  "spec": Object {
+    "argv": Array [
+      "-laddr",
+      "127.0.0.1:1234",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Capability',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Capability {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Capability",
+  "metadata": Object {
+    "label": "bind_alias",
+    "name": "Binding aliases",
+  },
+  "spec": Object {
+    "privileged": true,
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'File',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+File {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "File",
+  "metadata": Object {
+    "label": "echo_server",
+    "name": "Echo Server Binary",
+  },
+  "spec": Object {
+    "repository": "webtorrent_public",
+    "uri": "magnet:?xt=urn:btih:3e6e88fd7d52ad0a47bbb7c10e141573f9b5608e",
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Network',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Network {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Network",
+  "metadata": Object {
+    "label": "unisockets_public",
+    "name": "Public unisockets network",
+  },
+  "spec": Object {
+    "signaler": "unisockets_public",
+    "stunServers": Array [
+      "google",
+      "twillio",
+    ],
+    "turnServers": Array [
+      "twillio",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Node',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Node {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Node",
+  "metadata": Object {
+    "label": "felixs_iphone",
+    "name": "Felix's iPhone",
+  },
+  "spec": Object {
+    "capabilities": Array [
+      "bind_alias",
+      "connect_to_alias",
+    ],
+    "runtimes": Array [
+      "generic_wasi",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Repository',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Repository {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Repository",
+  "metadata": Object {
+    "label": "webtorrent_public",
+    "name": "Public WebTorrent",
+  },
+  "spec": Object {
+    "trackers": Array [
+      "openwebtorrent",
+      "btorrent",
+      "fastcast",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Runtime',
+  metadata: [Object]
+} should be %s 1`] = `
+Runtime {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Runtime",
+  "metadata": Object {
+    "label": "generic_wasi",
+    "name": "Generic WASI",
+  },
+  "spec": undefined,
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Signaler',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Signaler {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Signaler",
+  "metadata": Object {
+    "label": "unisockets_public",
+    "name": "Public unisockets Signaling Server",
+  },
+  "spec": Object {
+    "retryAfter": 1000,
+    "urls": Array [
+      "wss://unisockets.herokuapp.com",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'StunServer',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+StunServer {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "StunServer",
+  "metadata": Object {
+    "label": "google",
+    "name": "Google STUN Server",
+  },
+  "spec": Object {
+    "urls": Array [
+      "stun.l.google.com:19302",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Subnet',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Subnet {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Subnet",
+  "metadata": Object {
+    "label": "echo_network",
+    "name": "Echo Network",
+  },
+  "spec": Object {
+    "network": "unisockets_public",
+    "prefix": "127.0.0",
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Tracker',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Tracker {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Tracker",
+  "metadata": Object {
+    "label": "openwebtorrent",
+    "name": "OpenWebTorrent",
+  },
+  "spec": Object {
+    "urls": Array [
+      "wss://tracker.openwebtorrent.com",
+    ],
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'TurnServer',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+TurnServer {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "TurnServer",
+  "metadata": Object {
+    "label": "twillio",
+    "name": "Twillio TURN Server",
+  },
+  "spec": Object {
+    "credential": "mypass=",
+    "urls": Array [
+      "turn:global.turn.twilio.com:3478?transport=tcp",
+    ],
+    "username": "f4b4035eaa76f4a55de5f4351567",
+  },
+}
+`;
+
+exports[`Models {
+  apiVersion: 'webnetes.felix.pojtinger.com/v1alpha1',
+  kind: 'Workload',
+  metadata: [Object],
+  spec: [Object]
+} should be %s 1`] = `
+Workload {
+  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "kind": "Workload",
+  "metadata": Object {
+    "label": "echo_server",
+    "name": "Echo Server",
+  },
+  "spec": Object {
+    "arguments": "echo_server",
+    "capabilities": Array [
+      "bind_alias",
+    ],
+    "file": "echo_server",
+    "runtime": "generic_wasi",
+    "subnet": "echo_network",
+  },
+}
+`;
