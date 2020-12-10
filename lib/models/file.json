@@ -1,0 +1,12 @@
+{
+  "apiVersion": "v1",
+  "kind": "File",
+  "metadata": {
+    "name": "Echo Server Binary",
+    "label": "echo_server"
+  },
+  "spec": {
+    "repository": "webtorrent_public",
+    "uri": "magnet:?xt=urn:btih:3e6e88fd7d52ad0a47bbb7c10e141573f9b5608e"
+  }
+}

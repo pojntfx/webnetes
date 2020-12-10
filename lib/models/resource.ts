@@ -2,6 +2,18 @@ export const API_VERSION = "webnetes.felix.pojtinger.com/v1alpha1";
 
 export enum EResourceKind {
   RUNTIME = "Runtime",
+  ARGUMENTS = "Arguments",
+  CAPABILITY = "Capability",
+  FILE = "File",
+  NETWORK = "Network",
+  NODE = "Node",
+  REPOSITORY = "Repository",
+  SIGNALER = "Signaler",
+  STUNSERVER = "StunServer",
+  SUBNET = "Subnet",
+  TRACKER = "Tracker",
+  TURNSERVER = "TurnServer",
+  WORKLOAD = "Workload",
 }
 
 export interface IResourceMetadata {

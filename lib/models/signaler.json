@@ -1,0 +1,12 @@
+{
+  "apiVersion": "v1",
+  "kind": "Signaler",
+  "metadata": {
+    "name": "Public unisockets Signaling Server",
+    "label": "unisockets_public"
+  },
+  "spec": {
+    "urls": ["wss://unisockets.herokuapp.com"],
+    "retryAfter": 1000
+  }
+}

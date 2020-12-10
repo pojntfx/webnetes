@@ -1,0 +1,11 @@
+{
+  "apiVersion": "v1",
+  "kind": "Repository",
+  "metadata": {
+    "name": "Public WebTorrent",
+    "label": "webtorrent_public"
+  },
+  "spec": {
+    "trackers": ["openwebtorrent", "btorrent", "fastcast"]
+  }
+}

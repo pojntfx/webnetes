@@ -1,0 +1,12 @@
+{
+  "apiVersion": "v1",
+  "kind": "Node",
+  "metadata": {
+    "name": "Felix's iPhone",
+    "label": "felixs_iphone"
+  },
+  "spec": {
+    "runtimes": ["generic_wasi"],
+    "capabilities": ["bind_alias", "connect_to_alias"]
+  }
+}

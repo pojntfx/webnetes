@@ -1,0 +1,13 @@
+{
+  "apiVersion": "v1",
+  "kind": "Network",
+  "metadata": {
+    "name": "Public unisockets network",
+    "label": "unisockets_public"
+  },
+  "spec": {
+    "signaler": "unisockets_public",
+    "stunServers": ["google", "twillio"],
+    "turnServers": ["twillio"]
+  }
+}
