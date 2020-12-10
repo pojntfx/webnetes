@@ -162,13 +162,15 @@ export class VirtualMachine {
         }
 
         case ERuntimes.JSSI_GO: {
-          (container as Container<Go>).runtime.run(container.instance);
+          await (container as Container<Go>).runtime.run(container.instance);
 
           break;
         }
 
         case ERuntimes.JSSI_TINYGO: {
-          (container as Container<TinyGo>).runtime.run(container.instance);
+          await (container as Container<TinyGo>).runtime.run(
+            container.instance
+          );
 
           break;
         }
