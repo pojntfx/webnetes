@@ -1,0 +1,11 @@
+{
+  "apiVersion": "v1",
+  "kind": "StunServer",
+  "metadata": {
+    "name": "Google STUN Server",
+    "label": "google"
+  },
+  "spec": {
+    "urls": ["stun.l.google.com:19302"]
+  }
+}

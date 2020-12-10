@@ -1,0 +1,15 @@
+{
+  "apiVersion": "v1",
+  "kind": "Workload",
+  "metadata": {
+    "name": "Echo Server",
+    "label": "echo_server"
+  },
+  "spec": {
+    "file": "echo_server",
+    "runtime": "generic_wasi",
+    "capabilities": ["bind_alias"],
+    "subnet": "echo_network",
+    "arguments": "echo_server"
+  }
+}

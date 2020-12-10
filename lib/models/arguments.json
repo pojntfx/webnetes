@@ -1,0 +1,11 @@
+{
+  "apiVersion": "v1",
+  "kind": "Arguments",
+  "metadata": {
+    "name": "Echo Server Configuration",
+    "label": "echo_server"
+  },
+  "spec": {
+    "argv": ["-laddr", "127.0.0.1:1234"]
+  }
+}

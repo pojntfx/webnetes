@@ -1,0 +1,11 @@
+{
+  "apiVersion": "v1",
+  "kind": "Tracker",
+  "metadata": {
+    "name": "OpenWebTorrent",
+    "label": "openwebtorrent"
+  },
+  "spec": {
+    "urls": ["wss://tracker.openwebtorrent.com"]
+  }
+}

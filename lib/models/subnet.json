@@ -1,0 +1,12 @@
+{
+  "apiVersion": "v1",
+  "kind": "Subnet",
+  "metadata": {
+    "name": "Echo Network",
+    "label": "echo_network"
+  },
+  "spec": {
+    "network": "unisockets_public",
+    "prefix": "127.0.0"
+  }
+}
