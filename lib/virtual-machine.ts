@@ -6,6 +6,7 @@ import { WasmFs } from "@wasmer/wasmfs";
 import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
 import { InstanceDoesNotExistError } from "./errors/instance-does-not-exist";
+import TinyGo from "../vendor/tinygo/wasm_exec.js";
 
 export enum EPermissions {}
 
@@ -16,14 +17,14 @@ export enum ERuntimes {
   JSSI_TINYGO = "jssi_tinygo",
 }
 
-interface Container {
+interface Container<T> {
   runtimeType: ERuntimes;
   instance: WebAssembly.Instance;
-  runtime: WASI;
+  runtime: T;
 }
 
 export class VirtualMachine {
-  private containers = new Map<string, Container>();
+  private containers = new Map<string, Container<any>>();
 
   async schedule(
     bin: Uint8Array,
@@ -66,6 +67,40 @@ export class VirtualMachine {
         };
       }
 
+      case ERuntimes.WASI_TINYGO: {
+        const wasmFs = new WasmFs();
+        const wasi = new WASI({
+          args,
+          env: {},
+          bindings: {
+            ...wasiBindings,
+            fs: wasmFs.fs,
+          },
+        });
+        const go = new TinyGo();
+
+        const module = await WebAssembly.compile(await lowerI64Imports(bin));
+        const instance = await Asyncify.instantiate(module, {
+          ...wasi.getImports(module),
+          ...imports,
+          env: {
+            ...go.importObject.env,
+            ...env,
+          },
+        });
+
+        this.containers.set(id, {
+          runtimeType: runtime,
+          instance,
+          runtime: wasi,
+        });
+
+        return {
+          id,
+          memory: instance.exports.memory,
+        };
+      }
+
       default: {
         throw new UnimplementedRuntimeError();
       }
@@ -78,7 +113,13 @@ export class VirtualMachine {
 
       switch (container.runtimeType) {
         case ERuntimes.WASI_GENERIC: {
-          container.runtime.start(container.instance);
+          (container as Container<WASI>).runtime.start(container.instance);
+
+          break;
+        }
+
+        case ERuntimes.WASI_TINYGO: {
+          (container as Container<WASI>).runtime.start(container.instance);
 
           break;
         }
