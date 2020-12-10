@@ -120,6 +120,24 @@ export class VirtualMachine {
         };
       }
 
+      case ERuntimes.JSSI_TINYGO: {
+        const go = new TinyGo();
+
+        const module = await WebAssembly.compile(bin);
+        const instance = await WebAssembly.instantiate(module, go.importObject);
+
+        this.containers.set(id, {
+          runtimeType: runtime,
+          instance,
+          runtime: go,
+        });
+
+        return {
+          id,
+          memory: instance.exports.memory,
+        };
+      }
+
       default: {
         throw new UnimplementedRuntimeError();
       }
@@ -145,6 +163,12 @@ export class VirtualMachine {
 
         case ERuntimes.JSSI_GO: {
           (container as Container<Go>).runtime.run(container.instance);
+
+          break;
+        }
+
+        case ERuntimes.JSSI_TINYGO: {
+          (container as Container<TinyGo>).runtime.run(container.instance);
 
           break;
         }
