@@ -1,0 +1,208 @@
+apiVersion: v1
+kind: Runtime
+metadata:
+  name: Generic WASI
+  label: generic_wasi
+---
+apiVersion: v1
+kind: Capability
+metadata:
+  name: Binding aliases
+  label: bind_alias
+spec:
+  privileged: true
+---
+apiVersion: v1
+kind: Capability
+metadata:
+  name: Connecting to aliases
+  label: connect_to_alias
+spec:
+  privileged: false
+---
+apiVersion: v1
+kind: Node
+metadata:
+  name: Felicitas's iPhone
+  label: felicitass_iphone
+spec:
+  runtimes:
+    - generic_wasi
+  capabilities:
+    - bind_alias
+    - connect_to_alias
+---
+apiVersion: v1
+kind: Node
+metadata:
+  name: Felicitas's MacBook Pro
+  label: felicitass_macbook_pro
+spec:
+  runtimes:
+    - generic_wasi
+  capabilities:
+    - bind_alias
+    - connect_to_alias
+---
+apiVersion: v1
+kind: StunServer
+metadata:
+  name: Google STUN Server
+  label: google
+spec:
+  urls:
+    - stun.l.google.com:19302
+---
+apiVersion: v1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+    - stun:global.stun.twilio.com:3478?transport=udp
+---
+apiVersion: v1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server
+  label: twillio
+spec:
+  urls:
+    - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567
+  credential: mypass=
+---
+apiVersion: v1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+    - wss://unisockets.herokuapp.com
+  retryAfter: 1000
+---
+apiVersion: v1
+kind: Network
+metadata:
+  name: Public unisockets network
+  label: unisockets_public
+spec:
+  signaler: unisockets_public
+  stunServers:
+    - google
+    - twillio
+  turnServers:
+    - twillio
+---
+apiVersion: v1
+kind: Subnet
+metadata:
+  name: Echo Network
+  label: echo_network
+spec:
+  network: unisockets_public
+  prefix: 127.0.0
+---
+apiVersion: v1
+kind: Tracker
+metadata:
+  name: OpenWebTorrent
+  label: openwebtorrent
+spec:
+  urls:
+    - wss://tracker.openwebtorrent.com
+---
+apiVersion: v1
+kind: Tracker
+metadata:
+  name: βTorrent
+  label: btorrent
+spec:
+  urls:
+    - wss://tracker.btorrent.xyz
+---
+apiVersion: v1
+kind: Tracker
+metadata:
+  name: Fastcast
+  label: fastcast
+spec:
+  urls:
+    - wss://tracker.fastcast.nz
+---
+apiVersion: v1
+kind: Repository
+metadata:
+  name: Public WebTorrent
+  label: webtorrent_public
+spec:
+  trackers:
+    - openwebtorrent
+    - btorrent
+    - fastcast
+---
+apiVersion: v1
+kind: File
+metadata:
+  name: Echo Server Binary
+  label: echo_server
+spec:
+  repository: webtorrent_public
+  uri: magnet:?xt=urn:btih:3e6e88fd7d52ad0a47bbb7c10e141573f9b5608e
+---
+apiVersion: v1
+kind: File
+metadata:
+  name: Echo Client Binary
+  label: echo_client
+spec:
+  repository: webtorrent_public
+  uri: magnet:?xt=urn:btih:3e68fd7d52ad0a47bbb7c10e141b5608e
+---
+apiVersion: v1
+kind: Arguments
+metadata:
+  name: Echo Server Configuration
+  label: echo_server
+spec:
+  argv:
+    - "-laddr"
+    - "127.0.0.1:1234"
+---
+apiVersion: v1
+kind: Arguments
+metadata:
+  name: Echo Client Configuration
+  label: echo_client
+spec:
+  argv:
+    - "-raddr"
+    - "127.0.0.1:1234"
+---
+apiVersion: v1
+kind: Workload
+metadata:
+  name: Echo Server
+  label: echo_server
+spec:
+  file: echo_server
+  runtime: generic_wasi
+  capabilities:
+    - bind_alias
+  subnet: echo_network
+  arguments: echo_server
+---
+apiVersion: v1
+kind: Workload
+metadata:
+  name: Echo Client
+  label: echo_client
+spec:
+  file: echo_client
+  runtime: generic_wasi
+  capabilities:
+    - connect_to_alias
+  subnet: echo_network
+  arguments: echo_client
