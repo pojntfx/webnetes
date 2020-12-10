@@ -1,7 +1,7 @@
 import WebTorrent from "webtorrent-hybrid";
-import { ClosedError } from "./errors/closed";
-import { FileNotInTorrentError } from "./errors/file-not-in-torrent";
-import { getLogger } from "./logger";
+import { ClosedError } from "../errors/closed";
+import { FileNotInTorrentError } from "../errors/file-not-in-torrent";
+import { getLogger } from "../utils/logger";
 
 const FILE_NAME = "data";
 

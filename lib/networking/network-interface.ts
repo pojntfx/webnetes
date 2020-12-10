@@ -1,14 +1,14 @@
-import { getLogger } from "./logger";
+import { getLogger } from "../utils/logger";
 import {
   ExtendedRTCConfiguration,
   SignalingClient,
   Sockets,
   Transporter,
 } from "@pojntfx/unisockets";
-import { ClosedError } from "./errors/closed";
-import { AliasDoesNotExistError } from "./errors/alias-does-not-exist";
+import { ClosedError } from "../errors/closed";
+import { AliasDoesNotExistError } from "../errors/alias-does-not-exist";
 import Emittery from "emittery";
-import { KnockRejectedError } from "./errors/knock-rejected";
+import { KnockRejectedError } from "../errors/knock-rejected";
 
 export class NetworkInterface {
   private logger = getLogger();

@@ -1,7 +1,7 @@
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-import { FileRepository } from "../../lib/file-repository";
-import { NetworkInterface } from "../../lib/network-interface";
+import { FileRepository } from "../../lib/storage/file-repository";
+import { NetworkInterface } from "../../lib/networking/network-interface";
 
 (async () => {
   const repo = new FileRepository();
