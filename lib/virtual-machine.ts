@@ -7,6 +7,7 @@ import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
 import { InstanceDoesNotExistError } from "./errors/instance-does-not-exist";
 import TinyGo from "../vendor/tinygo/wasm_exec.js";
+import Go from "../vendor/go/wasm_exec.js";
 
 export enum EPermissions {}
 
@@ -101,6 +102,24 @@ export class VirtualMachine {
         };
       }
 
+      case ERuntimes.JSSI_GO: {
+        const go = new Go();
+
+        const module = await WebAssembly.compile(bin);
+        const instance = await WebAssembly.instantiate(module, go.importObject);
+
+        this.containers.set(id, {
+          runtimeType: runtime,
+          instance,
+          runtime: go,
+        });
+
+        return {
+          id,
+          memory: instance.exports.mem,
+        };
+      }
+
       default: {
         throw new UnimplementedRuntimeError();
       }
@@ -120,6 +139,12 @@ export class VirtualMachine {
 
         case ERuntimes.WASI_TINYGO: {
           (container as Container<WASI>).runtime.start(container.instance);
+
+          break;
+        }
+
+        case ERuntimes.JSSI_GO: {
+          (container as Container<Go>).runtime.run(container.instance);
 
           break;
         }
