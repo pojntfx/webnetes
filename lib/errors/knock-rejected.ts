@@ -1,4 +1,4 @@
-export class KnockRejected extends Error {
+export class KnockRejectedError extends Error {
   constructor() {
     super("knock rejected");
   }

@@ -44,6 +44,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.16",
     "@types/node": "^14.14.10",
+    "@types/uuid": "^8.3.0",
     "@types/webtorrent": "^0.109.0",
     "esbuild": "^0.8.20",
     "get-port": "^5.1.1",
@@ -61,7 +62,12 @@
   },
   "dependencies": {
     "@pojntfx/unisockets": "^0.0.19",
+    "@wasmer/wasi": "^0.12.0",
+    "@wasmer/wasm-transformer": "^0.12.0",
+    "@wasmer/wasmfs": "^0.12.0",
+    "asyncify-wasm": "^1.1.1",
     "emittery": "^0.7.2",
+    "uuid": "^8.3.2",
     "webtorrent": "^0.112.0",
     "webtorrent-hybrid": "^4.0.3",
     "winston": "^3.3.3"

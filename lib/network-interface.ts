@@ -8,7 +8,7 @@ import {
 import { ClosedError } from "./errors/closed";
 import { AliasDoesNotExistError } from "./errors/alias-does-not-exist";
 import Emittery from "emittery";
-import { KnockRejected } from "./errors/knock-rejected";
+import { KnockRejectedError } from "./errors/knock-rejected";
 
 export class NetworkInterface {
   private logger = getLogger();
@@ -64,7 +64,7 @@ export class NetworkInterface {
       this.logger.debug("Handling acknowledgement", { id, rejected });
 
       if (rejected) {
-        throw new KnockRejected();
+        throw new KnockRejectedError();
       }
 
       await ready.emit("ready", true);
