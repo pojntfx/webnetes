@@ -1,6 +1,6 @@
 import { SignalingServer } from "@pojntfx/unisockets";
 import getPort from "get-port";
-import { ClosedError } from "./errors/closed";
+import { ClosedError } from "../errors/closed";
 import { NetworkInterface } from "./network-interface";
 
 describe("NetworkInterface", () => {

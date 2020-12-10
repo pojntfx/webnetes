@@ -1,13 +1,13 @@
 import { v4 } from "uuid";
-import { UnimplementedRuntimeError } from "./errors/unimplemented-runtime";
+import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { WASI } from "@wasmer/wasi";
 import { lowerI64Imports } from "@wasmer/wasm-transformer";
 import { WasmFs } from "@wasmer/wasmfs";
 import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
-import { InstanceDoesNotExistError } from "./errors/instance-does-not-exist";
-import TinyGo from "../vendor/tinygo/wasm_exec.js";
-import Go from "../vendor/go/wasm_exec.js";
+import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
+import TinyGo from "../../vendor/tinygo/wasm_exec.js";
+import Go from "../../vendor/go/wasm_exec.js";
 
 export enum EPermissions {}
 
