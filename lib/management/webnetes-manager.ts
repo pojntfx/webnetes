@@ -6,13 +6,19 @@ import { Processor } from "../models/processor";
 import { Repository } from "../models/repository";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
 import { Subnet } from "../models/subnet";
+import { ITrackerSpec } from "../models/tracker";
 import { Workload } from "../models/workload";
+import { FileRepository } from "../storage/file-repository";
 import { getLogger } from "../utils/logger";
 
 export class WebnetesManager {
   private logger = getLogger();
 
   private resources = [] as IResource<any>[];
+  private instances = new Map<
+    { apiVersion: string; kind: EResourceKind; label: string },
+    any
+  >();
 
   async close() {
     this.logger.verbose("Closing webnetes manager");
@@ -194,6 +200,36 @@ export class WebnetesManager {
         ].includes(resource.kind)
       ) {
         this.logger.verbose("Handling create hooks for resource", { resource });
+
+        switch (resource.kind) {
+          case EResourceKind.REPOSITORY: {
+            const repoSpec = (resource as Repository).spec;
+
+            const trackers = repoSpec.trackers
+              .map(
+                (label) =>
+                  this.findResource<ITrackerSpec>(
+                    label,
+                    API_VERSION,
+                    EResourceKind.TRACKER
+                  ).spec.urls
+              )
+              .reduce((all, cur) => [...all, ...cur], []);
+
+            const repo = new FileRepository(trackers);
+
+            this.setInstance(
+              resource.metadata.label,
+              resource.apiVersion,
+              EResourceKind.REPOSITORY,
+              repo
+            );
+
+            await repo.open();
+
+            break;
+          }
+        }
       }
 
       this.resources.push(resource);
@@ -250,6 +286,23 @@ export class WebnetesManager {
         spec: {},
       })
     ) as IResource<T>;
+  }
+
+  private setInstance<T>(
+    label: string,
+    apiVersion: string,
+    kind: EResourceKind,
+    instance: T
+  ) {
+    this.instances.set({ apiVersion, kind, label }, instance);
+  }
+
+  private getInstance<T>(
+    label: string,
+    apiVersion: string,
+    kind: EResourceKind
+  ) {
+    return this.instances.get({ apiVersion, kind, label }) as T;
   }
 
   private resolveReference<T>(
