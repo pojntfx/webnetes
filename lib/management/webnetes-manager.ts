@@ -1,6 +1,6 @@
-import { getLogger } from "../../dist/index.1ab25823";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
 import { EResourceKind, IResource } from "../models/resource";
+import { getLogger } from "../utils/logger";
 
 export class WebnetesManager {
   private logger = getLogger();

@@ -6,8 +6,8 @@ import { WasmFs } from "@wasmer/wasmfs";
 import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
-import TinyGo from "../../vendor/tinygo/wasm_exec.js";
-import Go from "../../vendor/go/wasm_exec.js";
+const TinyGo = require("../../vendor/tinygo/wasm_exec.js");
+const Go = require("../../vendor/go/wasm_exec.js");
 
 export enum EPermissions {}
 
@@ -162,13 +162,15 @@ export class VirtualMachine {
         }
 
         case ERuntimes.JSSI_GO: {
-          await (container as Container<Go>).runtime.run(container.instance);
+          await (container as Container<typeof Go>).runtime.run(
+            container.instance
+          );
 
           break;
         }
 
         case ERuntimes.JSSI_TINYGO: {
-          await (container as Container<TinyGo>).runtime.run(
+          await (container as Container<typeof TinyGo>).runtime.run(
             container.instance
           );
 
