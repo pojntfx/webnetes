@@ -17,7 +17,7 @@ export enum EResourceKind {
 }
 
 export interface IResourceMetadata {
-  name: string;
+  name?: string;
   label: string;
 }
 
