@@ -162,48 +162,69 @@ export class WebnetesManager {
     }
 
     if (
-      [EResourceKind.PROCESSOR, EResourceKind.WORKLOAD].includes(resource.kind)
+      this.findResource(
+        resource.metadata.label,
+        resource.apiVersion,
+        resource.kind
+      )
     ) {
-      // Applying a processor: Create & open all three subsystems if all dependencies (-> check labels) are set
-      // Applying a workload: Schedule & start a VM
-      this.logger.verbose("Creating processor or workload", { resource });
+      if (
+        [
+          EResourceKind.SUBNET,
+          EResourceKind.REPOSITORY,
+          EResourceKind.FILE,
+          EResourceKind.WORKLOAD,
+        ].includes(resource.kind)
+      ) {
+        this.logger.verbose("Handling update hooks for resource", { resource });
+      }
+
+      this.resources.map((r) =>
+        this.resourcesMatch(r, resource) ? resource : r
+      );
+
+      this.logger.debug("Replaced resource", { resource });
     } else {
       if (
-        this.resources.find((actual) => this.resourcesMatch(actual, resource))
+        [
+          EResourceKind.SUBNET,
+          EResourceKind.REPOSITORY,
+          EResourceKind.FILE,
+          EResourceKind.WORKLOAD,
+        ].includes(resource.kind)
       ) {
-        this.resources.map((r) =>
-          this.resourcesMatch(r, resource) ? resource : r
-        );
-
-        this.logger.verbose("Replaced resource", { resource });
-      } else {
-        this.resources.push(resource);
-
-        this.logger.verbose("Added resource", { resource });
+        this.logger.verbose("Handling create hooks for resource", { resource });
       }
+
+      this.resources.push(resource);
+
+      this.logger.debug("Added resource", { resource });
     }
   }
 
   async deleteResource(resource: IResource<any>) {
-    this.logger.debug("Applying resource", { resource });
+    this.logger.debug("Deleting resource", { resource });
+
+    if (
+      [
+        EResourceKind.SUBNET,
+        EResourceKind.REPOSITORY,
+        EResourceKind.FILE,
+        EResourceKind.WORKLOAD,
+      ].includes(resource.kind)
+    ) {
+      this.logger.verbose("Handling delete hooks for resource", { resource });
+    }
 
     if (!Object.values(EResourceKind).includes(resource.kind)) {
       throw new UnimplementedResourceError();
-    }
-
-    if (
-      [EResourceKind.PROCESSOR, EResourceKind.WORKLOAD].includes(resource.kind)
-    ) {
-      // Deleting a processor: Close all three subsystems if all dependencies (-> check labels) are set
-      // Deleting a workload: Stop a VM
-      this.logger.verbose("Deleting processor or workload", { resource });
     }
 
     this.resources.filter(
       (candidate) => !this.resourcesMatch(candidate, resource)
     );
 
-    this.logger.verbose("Deleted resource", { resource });
+    this.logger.debug("Deleted resource", { resource });
   }
 
   private resourcesMatch(actual: IResource<any>, expected: IResource<any>) {
@@ -214,18 +235,30 @@ export class WebnetesManager {
     );
   }
 
+  private findResource<T>(
+    label: string,
+    apiVersion: string,
+    kind: EResourceKind
+  ) {
+    return this.resources.find((candidate) =>
+      this.resourcesMatch(candidate, {
+        apiVersion,
+        kind,
+        metadata: {
+          label,
+        },
+        spec: {},
+      })
+    ) as IResource<T>;
+  }
+
   private resolveReference<T>(
     label: string,
     apiVersion: string,
     kind: EResourceKind,
     field: string
   ) {
-    const res = this.resources.find(
-      (candidate) =>
-        candidate.apiVersion === apiVersion &&
-        candidate.kind === kind &&
-        candidate.metadata.label === label
-    ) as IResource<T>;
+    const res = this.findResource<T>(label, apiVersion, kind);
 
     if (!res) {
       throw new InvalidReferenceError(label, apiVersion, kind, field);
