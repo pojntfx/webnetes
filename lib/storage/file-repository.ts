@@ -52,11 +52,15 @@ export class FileRepository {
 
   async add(magnetURI: string) {
     if (this.client) {
-      return await new Promise<Uint8Array>((res, rej) => {
-        try {
-          this.client!.add(magnetURI, {}, (torrent) => {
+      const existingTorrent = this.client!.get(magnetURI); // We check above
+
+      if (existingTorrent) {
+        return await new Promise<Uint8Array>((res, rej) => {
+          try {
             // We check above
-            const file = torrent.files.find((t) => t.name === FILE_NAME);
+            const file = existingTorrent.files.find(
+              (t) => t.name === FILE_NAME
+            );
 
             if (file) {
               file!.getBuffer((e, buf) => {
@@ -69,11 +73,34 @@ export class FileRepository {
             } else {
               rej(new FileNotInTorrentError());
             }
-          });
-        } catch (e) {
-          rej(e);
-        }
-      });
+          } catch (e) {
+            rej(e);
+          }
+        });
+      } else {
+        return await new Promise<Uint8Array>((res, rej) => {
+          try {
+            this.client!.add(magnetURI, {}, (torrent) => {
+              // We check above
+              const file = torrent.files.find((t) => t.name === FILE_NAME);
+
+              if (file) {
+                file!.getBuffer((e, buf) => {
+                  if (e) {
+                    rej(e);
+                  } else {
+                    res(new Uint8Array(buf!)); // We check with e above
+                  }
+                }); // We check above
+              } else {
+                rej(new FileNotInTorrentError());
+              }
+            });
+          } catch (e) {
+            rej(e);
+          }
+        });
+      }
     } else {
       throw new ClosedError("FileRepository");
     }
