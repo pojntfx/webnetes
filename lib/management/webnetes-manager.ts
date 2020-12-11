@@ -1,5 +1,7 @@
+import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
-import { EResourceKind, IResource } from "../models/resource";
+import { Node } from "../models/node";
+import { API_VERSION, EResourceKind, IResource } from "../models/resource";
 import { getLogger } from "../utils/logger";
 
 export class WebnetesManager {
@@ -18,6 +20,22 @@ export class WebnetesManager {
 
     if (!Object.values(EResourceKind).includes(resource.kind)) {
       throw new UnimplementedResourceError();
+    }
+
+    switch (resource.kind) {
+      case EResourceKind.NODE: {
+        const node = resource as Node;
+
+        node.spec.capabilities.forEach((cap) => {
+          if (!this.findResource(API_VERSION, EResourceKind.CAPABILITY, cap)) {
+            throw new InvalidReferenceError(
+              EResourceKind.CAPABILITY,
+              "capabilities",
+              cap
+            );
+          }
+        });
+      }
     }
 
     if ([EResourceKind.NODE, EResourceKind.WORKLOAD].includes(resource.kind)) {
@@ -67,5 +85,18 @@ export class WebnetesManager {
       actual.kind === expected.kind &&
       actual.metadata.label === expected.metadata.label
     );
+  }
+
+  private findResource<T>(
+    apiVersion: string,
+    kind: EResourceKind,
+    label: string
+  ) {
+    return this.resources.find(
+      (candidate) =>
+        candidate.apiVersion === apiVersion &&
+        candidate.kind === kind &&
+        candidate.metadata.label === label
+    ) as IResource<T>;
   }
 }
