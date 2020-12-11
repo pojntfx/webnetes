@@ -23,6 +23,7 @@ export class WebnetesManager {
     if ([EResourceKind.NODE, EResourceKind.WORKLOAD].includes(resource.kind)) {
       // Applying a node: Create & open all three subsystems if all dependencies (-> check labels) are set
       // Applying a workload: Schedule & start a VM
+      this.logger.verbose("Creating node or workload", { resource });
     } else {
       if (
         this.resources.find((actual) => this.resourcesMatch(actual, resource))
@@ -50,6 +51,7 @@ export class WebnetesManager {
     if ([EResourceKind.NODE, EResourceKind.WORKLOAD].includes(resource.kind)) {
       // Deleting a node: Close all three subsystems if all dependencies (-> check labels) are set
       // Deleting a workload: Stop a VM
+      this.logger.verbose("Deleting node or workload", { resource });
     }
 
     this.resources.filter(
