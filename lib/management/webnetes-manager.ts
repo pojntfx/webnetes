@@ -1,5 +1,6 @@
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
+import { Network } from "../models/network";
 import { Node } from "../models/node";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
 import { getLogger } from "../utils/logger";
@@ -26,22 +27,53 @@ export class WebnetesManager {
       case EResourceKind.NODE: {
         const node = resource as Node;
 
-        node.spec.runtimes.forEach((label) => {
+        node.spec.runtimes.forEach((label) =>
           this.resolveReference(
             label,
             API_VERSION,
             EResourceKind.RUNTIME,
             "runtimes"
-          );
-        });
-        node.spec.capabilities.forEach((reference) => {
+          )
+        );
+        node.spec.capabilities.forEach((label) =>
           this.resolveReference(
-            reference,
+            label,
             API_VERSION,
             EResourceKind.CAPABILITY,
             "capabilities"
-          );
-        });
+          )
+        );
+
+        break;
+      }
+
+      case EResourceKind.NETWORK: {
+        const network = resource as Network;
+
+        this.resolveReference(
+          network.spec.signaler,
+          API_VERSION,
+          EResourceKind.SIGNALER,
+          "signaler"
+        );
+        network.spec.stunServers.forEach((label) =>
+          this.resolveReference(
+            label,
+            API_VERSION,
+            EResourceKind.STUNSERVER,
+            "stunServers"
+          )
+        );
+        network.spec.turnServers.forEach((label) =>
+          this.resolveReference(
+            label,
+            API_VERSION,
+            EResourceKind.TURNSERVER,
+            "turnServers"
+          )
+        );
+
+        break;
       }
     }
 
