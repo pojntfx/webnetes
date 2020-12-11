@@ -26,14 +26,21 @@ export class WebnetesManager {
       case EResourceKind.NODE: {
         const node = resource as Node;
 
-        node.spec.capabilities.forEach((cap) => {
-          if (!this.findResource(API_VERSION, EResourceKind.CAPABILITY, cap)) {
-            throw new InvalidReferenceError(
-              EResourceKind.CAPABILITY,
-              "capabilities",
-              cap
-            );
-          }
+        node.spec.runtimes.forEach((label) => {
+          this.resolveReference(
+            label,
+            API_VERSION,
+            EResourceKind.RUNTIME,
+            "runtimes"
+          );
+        });
+        node.spec.capabilities.forEach((reference) => {
+          this.resolveReference(
+            reference,
+            API_VERSION,
+            EResourceKind.CAPABILITY,
+            "capabilities"
+          );
         });
       }
     }
@@ -87,16 +94,23 @@ export class WebnetesManager {
     );
   }
 
-  private findResource<T>(
+  private resolveReference<T>(
+    label: string,
     apiVersion: string,
     kind: EResourceKind,
-    label: string
+    field: string
   ) {
-    return this.resources.find(
+    const res = this.resources.find(
       (candidate) =>
         candidate.apiVersion === apiVersion &&
         candidate.kind === kind &&
         candidate.metadata.label === label
     ) as IResource<T>;
+
+    if (!res) {
+      throw new InvalidReferenceError(label, apiVersion, kind, field);
+    }
+
+    return res;
   }
 }
