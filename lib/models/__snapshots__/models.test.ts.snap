@@ -89,13 +89,13 @@ Network {
 
 exports[`Models {
   apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
-  kind: 'Node',
+  kind: 'Processor',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
-Node {
+Processor {
   "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
-  "kind": "Node",
+  "kind": "Processor",
   "metadata": Object {
     "label": "felicitass_iphone",
     "name": "Felicitas's iPhone",
