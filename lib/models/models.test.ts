@@ -2,7 +2,7 @@ import { Arguments } from "./arguments";
 import { Capability } from "./capability";
 import { File } from "./file";
 import { Network } from "./network";
-import { Node } from "./node";
+import { Processor } from "./processor";
 import { Repository } from "./repository";
 import { EResourceKind, IResource } from "./resource";
 import { Runtime } from "./runtime";
@@ -17,7 +17,7 @@ const argumentsData = require("./arguments.data.json");
 const capabilityData = require("./capability.data.json");
 const fileData = require("./file.data.json");
 const networkData = require("./network.data.json");
-const nodeData = require("./node.data.json");
+const processorData = require("./processor.data.json");
 const repositoryData = require("./repository.data.json");
 const runtimeData = require("./runtime.data.json");
 const signalerData = require("./signaler.data.json");
@@ -33,7 +33,7 @@ describe("Models", () => {
     [capabilityData],
     [fileData],
     [networkData],
-    [nodeData],
+    [processorData],
     [repositoryData],
     [runtimeData],
     [signalerData],
@@ -70,8 +70,8 @@ describe("Models", () => {
         break;
       }
 
-      case EResourceKind.NODE: {
-        actual = new Node(resource.metadata, resource.spec);
+      case EResourceKind.PROCESSOR: {
+        actual = new Processor(resource.metadata, resource.spec);
 
         break;
       }

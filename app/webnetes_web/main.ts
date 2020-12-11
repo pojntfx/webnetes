@@ -41,7 +41,7 @@ import { IResource } from "../../lib/models/resource";
         },
         {
           apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
-          kind: "Node",
+          kind: "Processor",
           metadata: {
             name: "Felix's iPhone",
             label: "felixs_iphone",

@@ -21,7 +21,7 @@ spec:
   privileged: false
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Node
+kind: Processor
 metadata:
   name: Felix's iPhone
   label: felixs_iphone
@@ -33,7 +33,7 @@ spec:
     - connect_to_alias
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Node
+kind: Processor
 metadata:
   name: Felix's MacBook Pro
   label: felixs_macbook_pro

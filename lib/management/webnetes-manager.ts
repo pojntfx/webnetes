@@ -2,7 +2,7 @@ import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
 import { File } from "../models/file";
 import { Network } from "../models/network";
-import { Node } from "../models/node";
+import { Processor } from "../models/processor";
 import { Repository } from "../models/repository";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
 import { Subnet } from "../models/subnet";
@@ -28,10 +28,10 @@ export class WebnetesManager {
     }
 
     switch (resource.kind) {
-      case EResourceKind.NODE: {
-        const node = resource as Node;
+      case EResourceKind.PROCESSOR: {
+        const processor = resource as Processor;
 
-        node.spec.runtimes.forEach((label) =>
+        processor.spec.runtimes.forEach((label) =>
           this.resolveReference(
             label,
             API_VERSION,
@@ -39,7 +39,7 @@ export class WebnetesManager {
             "runtimes"
           )
         );
-        node.spec.capabilities.forEach((label) =>
+        processor.spec.capabilities.forEach((label) =>
           this.resolveReference(
             label,
             API_VERSION,
@@ -161,10 +161,12 @@ export class WebnetesManager {
       }
     }
 
-    if ([EResourceKind.NODE, EResourceKind.WORKLOAD].includes(resource.kind)) {
-      // Applying a node: Create & open all three subsystems if all dependencies (-> check labels) are set
+    if (
+      [EResourceKind.PROCESSOR, EResourceKind.WORKLOAD].includes(resource.kind)
+    ) {
+      // Applying a processor: Create & open all three subsystems if all dependencies (-> check labels) are set
       // Applying a workload: Schedule & start a VM
-      this.logger.verbose("Creating node or workload", { resource });
+      this.logger.verbose("Creating processor or workload", { resource });
     } else {
       if (
         this.resources.find((actual) => this.resourcesMatch(actual, resource))
@@ -189,10 +191,12 @@ export class WebnetesManager {
       throw new UnimplementedResourceError();
     }
 
-    if ([EResourceKind.NODE, EResourceKind.WORKLOAD].includes(resource.kind)) {
-      // Deleting a node: Close all three subsystems if all dependencies (-> check labels) are set
+    if (
+      [EResourceKind.PROCESSOR, EResourceKind.WORKLOAD].includes(resource.kind)
+    ) {
+      // Deleting a processor: Close all three subsystems if all dependencies (-> check labels) are set
       // Deleting a workload: Stop a VM
-      this.logger.verbose("Deleting node or workload", { resource });
+      this.logger.verbose("Deleting processor or workload", { resource });
     }
 
     this.resources.filter(

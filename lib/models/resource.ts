@@ -6,7 +6,7 @@ export enum EResourceKind {
   CAPABILITY = "Capability",
   FILE = "File",
   NETWORK = "Network",
-  NODE = "Node",
+  PROCESSOR = "Processor",
   REPOSITORY = "Repository",
   SIGNALER = "Signaler",
   STUNSERVER = "StunServer",
