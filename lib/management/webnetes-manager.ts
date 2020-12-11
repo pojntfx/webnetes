@@ -1,8 +1,11 @@
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
+import { File } from "../models/file";
 import { Network } from "../models/network";
 import { Node } from "../models/node";
+import { Repository } from "../models/repository";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
+import { Subnet } from "../models/subnet";
 import { getLogger } from "../utils/logger";
 
 export class WebnetesManager {
@@ -71,6 +74,47 @@ export class WebnetesManager {
             EResourceKind.TURNSERVER,
             "turnServers"
           )
+        );
+
+        break;
+      }
+
+      case EResourceKind.SUBNET: {
+        const subnet = resource as Subnet;
+
+        this.resolveReference(
+          subnet.spec.network,
+          API_VERSION,
+          EResourceKind.NETWORK,
+          "network"
+        );
+
+        break;
+      }
+
+      case EResourceKind.REPOSITORY: {
+        const repo = resource as Repository;
+
+        repo.spec.trackers.forEach((label) =>
+          this.resolveReference(
+            label,
+            API_VERSION,
+            EResourceKind.TRACKER,
+            "trackers"
+          )
+        );
+
+        break;
+      }
+
+      case EResourceKind.FILE: {
+        const file = resource as File;
+
+        this.resolveReference(
+          file.spec.repository,
+          API_VERSION,
+          EResourceKind.REPOSITORY,
+          "repository"
         );
 
         break;
