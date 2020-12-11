@@ -2,13 +2,17 @@ import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
 import { File } from "../models/file";
-import { Network } from "../models/network";
+import { INetworkSpec, Network } from "../models/network";
 import { Processor } from "../models/processor";
 import { Repository } from "../models/repository";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
+import { ISignalerSpec } from "../models/signaler";
+import { IStunServerSpec } from "../models/stunserver";
 import { Subnet } from "../models/subnet";
 import { ITrackerSpec } from "../models/tracker";
+import { ITurnServerSpec } from "../models/turnserver";
 import { Workload } from "../models/workload";
+import { NetworkInterface } from "../networking/network-interface";
 import { FileRepository } from "../storage/file-repository";
 import { getLogger } from "../utils/logger";
 
@@ -200,6 +204,70 @@ export class WebnetesManager {
         this.logger.verbose("Handling create hooks for resource", { resource });
 
         switch (resource.kind) {
+          case EResourceKind.SUBNET: {
+            const subnetSpec = (resource as Subnet).spec;
+
+            const network = this.resolveReference<INetworkSpec>(
+              subnetSpec.network,
+              API_VERSION,
+              EResourceKind.NETWORK,
+              "network"
+            );
+
+            const signaler = this.resolveReference<ISignalerSpec>(
+              network.spec.signaler,
+              API_VERSION,
+              EResourceKind.SIGNALER,
+              "signaler"
+            );
+            const stunServers = network.spec.stunServers
+              .map((label) =>
+                this.findResource<IStunServerSpec>(
+                  label,
+                  API_VERSION,
+                  EResourceKind.STUNSERVER
+                )
+              )
+              .map((s) => ({
+                urls: s.spec.urls,
+              }));
+            const turnServers = network.spec.turnServers
+              .map((label) =>
+                this.findResource<ITurnServerSpec>(
+                  label,
+                  API_VERSION,
+                  EResourceKind.TURNSERVER
+                )
+              )
+              .map((s) => ({
+                urls: s.spec.urls,
+                username: s.spec.username,
+                credential: s.spec.credential,
+              }));
+
+            const iface = new NetworkInterface(
+              {
+                iceServers: [...stunServers, ...turnServers],
+              },
+              signaler.spec.urls[0],
+              signaler.spec.retryAfter,
+              subnetSpec.prefix
+            );
+
+            this.setInstance<NetworkInterface>(
+              resource.metadata.label,
+              resource.apiVersion,
+              EResourceKind.SUBNET,
+              iface
+            );
+
+            (async () => {
+              await iface.open();
+            })();
+
+            break;
+          }
+
           case EResourceKind.REPOSITORY: {
             const repoSpec = (resource as Repository).spec;
 
@@ -216,7 +284,7 @@ export class WebnetesManager {
 
             const repo = new FileRepository(trackers);
 
-            this.setInstance(
+            this.setInstance<FileRepository>(
               resource.metadata.label,
               resource.apiVersion,
               EResourceKind.REPOSITORY,
@@ -246,7 +314,7 @@ export class WebnetesManager {
 
             const file = await repo.add(fileSpec.uri);
 
-            this.setInstance(
+            this.setInstance<Uint8Array>(
               resource.metadata.label,
               resource.apiVersion,
               EResourceKind.FILE,
