@@ -1,3 +1,4 @@
+import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
 import { File } from "../models/file";
@@ -15,10 +16,7 @@ export class WebnetesManager {
   private logger = getLogger();
 
   private resources = [] as IResource<any>[];
-  private instances = new Map<
-    { apiVersion: string; kind: EResourceKind; label: string },
-    any
-  >();
+  private instances = new Map<string, any>();
 
   async close() {
     this.logger.verbose("Closing webnetes manager");
@@ -229,6 +227,34 @@ export class WebnetesManager {
 
             break;
           }
+
+          case EResourceKind.FILE: {
+            const fileSpec = (resource as File).spec;
+
+            const repoRef = this.resolveReference(
+              fileSpec.repository,
+              API_VERSION,
+              EResourceKind.REPOSITORY,
+              "repository"
+            );
+
+            const repo = this.getInstance<FileRepository>(
+              repoRef.metadata.label,
+              repoRef.apiVersion,
+              EResourceKind.REPOSITORY
+            );
+
+            const file = await repo.add(fileSpec.uri);
+
+            this.setInstance(
+              resource.metadata.label,
+              resource.apiVersion,
+              EResourceKind.FILE,
+              file
+            );
+
+            break;
+          }
         }
       }
 
@@ -294,7 +320,7 @@ export class WebnetesManager {
     kind: EResourceKind,
     instance: T
   ) {
-    this.instances.set({ apiVersion, kind, label }, instance);
+    this.instances.set(this.getInstanceKey(apiVersion, kind, label), instance);
   }
 
   private getInstance<T>(
@@ -302,7 +328,13 @@ export class WebnetesManager {
     apiVersion: string,
     kind: EResourceKind
   ) {
-    return this.instances.get({ apiVersion, kind, label }) as T;
+    if (this.instances.has(this.getInstanceKey(apiVersion, kind, label))) {
+      return this.instances.get(
+        this.getInstanceKey(apiVersion, kind, label)
+      )! as T; // We check with .has
+    } else {
+      throw new InstanceDoesNotExistError();
+    }
   }
 
   private resolveReference<T>(
@@ -318,5 +350,13 @@ export class WebnetesManager {
     }
 
     return res;
+  }
+
+  private getInstanceKey(
+    apiVersion: string,
+    kind: EResourceKind,
+    label: string
+  ) {
+    return `apiVersion=${apiVersion} kind=${kind} label=${label}`;
   }
 }
