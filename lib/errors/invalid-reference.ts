@@ -1,5 +1,5 @@
 export class InvalidReferenceError extends Error {
-  constructor(kind: string, field: string, label: string) {
-    super(`invalid reference for kind ${kind}, field ${field}, label ${label}`);
+  constructor(label: string, apiVersion: string, kind: string, field: string) {
+    super(`invalid reference ${label} to ${apiVersion}/${kind} at ${field}`);
   }
 }
