@@ -6,6 +6,7 @@ import { Node } from "../models/node";
 import { Repository } from "../models/repository";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
 import { Subnet } from "../models/subnet";
+import { Workload } from "../models/workload";
 import { getLogger } from "../utils/logger";
 
 export class WebnetesManager {
@@ -115,6 +116,45 @@ export class WebnetesManager {
           API_VERSION,
           EResourceKind.REPOSITORY,
           "repository"
+        );
+
+        break;
+      }
+
+      case EResourceKind.WORKLOAD: {
+        const workload = resource as Workload;
+
+        this.resolveReference(
+          workload.spec.file,
+          API_VERSION,
+          EResourceKind.FILE,
+          "file"
+        );
+        this.resolveReference(
+          workload.spec.runtime,
+          API_VERSION,
+          EResourceKind.RUNTIME,
+          "runtime"
+        );
+        this.resolveReference(
+          workload.spec.subnet,
+          API_VERSION,
+          EResourceKind.SUBNET,
+          "subnet"
+        );
+        this.resolveReference(
+          workload.spec.arguments,
+          API_VERSION,
+          EResourceKind.ARGUMENTS,
+          "arguments"
+        );
+        workload.spec.capabilities.forEach((label) =>
+          this.resolveReference(
+            label,
+            API_VERSION,
+            EResourceKind.CAPABILITY,
+            "capabilities"
+          )
         );
 
         break;
