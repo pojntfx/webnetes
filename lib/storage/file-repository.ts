@@ -10,10 +10,16 @@ export class FileRepository {
 
   private client?: WebTorrent.Instance;
 
+  constructor(private trackers: string[]) {}
+
   async open() {
     this.logger.verbose("Opening file repository");
 
-    this.client = new WebTorrent();
+    this.client = new WebTorrent({
+      tracker: {
+        announce: this.trackers,
+      },
+    });
   }
 
   async close() {
