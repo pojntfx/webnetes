@@ -3,7 +3,7 @@ import { IResource } from "../../lib/models/resource";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-const resources = [
+const resourcesToCreate = [
   {
     apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
     kind: "Runtime",
@@ -286,20 +286,47 @@ const resources = [
   },
 ];
 
-(async () => {
-  const weblet = new Weblet(async () => window.location.reload());
-
-  for (let resource of resources) {
-    await weblet.applyResource(resource as IResource<any>);
-  }
-
-  await new Promise((res) => setTimeout(res, 20000));
-
-  await weblet.deleteResource({
+const resourcesToDelete = [
+  {
+    apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+    kind: "Subnet",
+    metadata: {
+      label: "echo_network",
+    },
+  },
+  {
+    apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+    kind: "Repository",
+    metadata: {
+      label: "webtorrent_public",
+    },
+  },
+  {
+    apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+    kind: "File",
+    metadata: {
+      label: "go_echo_server",
+    },
+  },
+  {
     apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
     kind: "Workload",
     metadata: {
       label: "go_echo_server",
     },
-  } as IResource<any>);
+  },
+];
+
+(async () => {
+  const weblet = new Weblet(async () => window.location.reload());
+
+  for (let resource of resourcesToCreate) {
+    await weblet.createResource(resource as IResource<any>);
+  }
+
+  await new Promise((res) => setTimeout(res, 20000));
+
+  for (let resource of resourcesToDelete) {
+    await weblet.deleteResource(resource as IResource<any>);
+  }
 })();

@@ -3,6 +3,7 @@ import {
   ERuntimes,
   VirtualMachine,
 } from "../compute/virtual-machine";
+import { DuplicateResourceError } from "../errors/duplicate-resource";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
@@ -32,8 +33,8 @@ export class Weblet {
 
   constructor(private onRestart: () => Promise<void>) {}
 
-  async applyResource(resource: IResource<any>) {
-    this.logger.debug("Applying resource", { resource });
+  async createResource(resource: IResource<any>) {
+    this.logger.debug("Create resource", { resource });
 
     if (!Object.values(EResourceKind).includes(resource.kind)) {
       throw new UnimplementedResourceError();
@@ -180,22 +181,11 @@ export class Weblet {
         resource.kind
       )
     ) {
-      if (
-        [
-          EResourceKind.SUBNET,
-          EResourceKind.REPOSITORY,
-          EResourceKind.FILE,
-          EResourceKind.WORKLOAD,
-        ].includes(resource.kind)
-      ) {
-        this.logger.verbose("Handling update hooks for resource", { resource });
-      }
-
-      this.resources.map((r) =>
-        this.resourcesMatch(r, resource) ? resource : r
+      throw new DuplicateResourceError(
+        resource.metadata.label,
+        resource.apiVersion,
+        resource.kind
       );
-
-      this.logger.debug("Replaced resource", { resource });
     } else {
       if (
         [
@@ -528,7 +518,7 @@ export class Weblet {
     }
   }
 
-  private deleteInstance<T>(
+  private deleteInstance(
     label: string,
     apiVersion: string,
     kind: EResourceKind
