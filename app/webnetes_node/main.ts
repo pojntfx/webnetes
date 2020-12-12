@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
+import { spawn } from "child_process";
 import { Weblet } from "../../lib/management/weblet";
 import { IResource } from "../../lib/models/resource";
-const rebirth = require("rebirth");
 
 const resources = [
   {
@@ -288,7 +288,16 @@ const resources = [
 ];
 
 (async () => {
-  const weblet = new Weblet(async () => rebirth());
+  const weblet = new Weblet(async () => {
+    spawn(process.execPath, process.argv.slice(1), {
+      cwd: process.cwd(),
+      detached: true,
+      env: process.env,
+      stdio: "inherit",
+    }).unref();
+
+    process.exit(0);
+  });
 
   for (let resource of resources) {
     await weblet.applyResource(resource as IResource<any>);
