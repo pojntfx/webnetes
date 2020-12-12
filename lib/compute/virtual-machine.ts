@@ -1,9 +1,9 @@
-import { v4 } from "uuid";
-import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { WASI } from "@wasmer/wasi";
 import { WasmFs } from "@wasmer/wasmfs";
 import * as Asyncify from "asyncify-wasm";
+import { v4 } from "uuid";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
+import { UnimplementedRuntimeError } from "../errors/node-not-known";
 
 export enum ECapabilities {}
 
