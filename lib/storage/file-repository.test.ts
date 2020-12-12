@@ -1,10 +1,15 @@
 import { FileRepository } from "./file-repository";
 
+const testTrackers = [
+  "wss://tracker.openwebtorrent.com",
+  "wss://tracker.fastcast.nz",
+];
+
 describe("FileRepository", () => {
   let fileRepository: FileRepository;
 
   beforeEach(() => {
-    fileRepository = new FileRepository();
+    fileRepository = new FileRepository(testTrackers);
   });
 
   describe("lifecycle", () => {
@@ -53,7 +58,7 @@ describe("FileRepository", () => {
         let seedingRepo: FileRepository;
 
         beforeAll(async () => {
-          seedingRepo = new FileRepository();
+          seedingRepo = new FileRepository(testTrackers);
 
           await seedingRepo.open();
 

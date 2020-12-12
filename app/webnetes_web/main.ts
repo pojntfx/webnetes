@@ -134,17 +134,6 @@ const resources = [
     apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
     kind: "Tracker",
     metadata: {
-      name: "βTorrent",
-      label: "btorrent",
-    },
-    spec: {
-      urls: ["wss://tracker.btorrent.xyz"],
-    },
-  },
-  {
-    apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
-    kind: "Tracker",
-    metadata: {
       name: "Fastcast",
       label: "fastcast",
     },
@@ -160,7 +149,7 @@ const resources = [
       label: "webtorrent_public",
     },
     spec: {
-      trackers: ["openwebtorrent", "btorrent", "fastcast"],
+      trackers: ["openwebtorrent", "fastcast"],
     },
   },
   {
