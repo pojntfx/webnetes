@@ -9,7 +9,13 @@ import { ClosedError } from "../errors/closed";
 import { KnockRejectedError } from "../errors/knock-rejected";
 import { NodeNotKnownError } from "../errors/unknown-node";
 import { IResource } from "../models/resource";
-import { Modification } from "../operations/modification";
+import { IModificationData, Modification } from "../operations/modification";
+import { ModificationConfirmation } from "../operations/modification-confirmation";
+import {
+  EMANAGEMENT_OPCODES,
+  IManagementOperation,
+} from "../operations/operation";
+import { UnimplementedOperationError } from "../operations/unimplemented-operation";
 import { getLogger } from "../utils/logger";
 
 export class WebnetesManager {
@@ -28,7 +34,13 @@ export class WebnetesManager {
     private subnetPrefix: string,
 
     private onNodeJoin: (id: string) => Promise<void>,
-    private onNodeLeave: (id: string) => Promise<void>
+    private onNodeLeave: (id: string) => Promise<void>,
+
+    private onModificationRequest: (
+      id: string,
+      resources: IResource<any>[],
+      remove: boolean
+    ) => Promise<void>
   ) {}
 
   async open() {
@@ -49,6 +61,68 @@ export class WebnetesManager {
       this.logger.verbose("Handling transporter connection open", { id });
 
       this.nodes.push(id);
+
+      (async () => {
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder();
+
+        while (this.nodes.includes(id)) {
+          const encodedMsg = await transporter.recv(id);
+
+          const decodedMsg = JSON.parse(
+            decoder.decode(encodedMsg)
+          ) as IManagementOperation<any>;
+
+          switch (decodedMsg.opcode) {
+            case EMANAGEMENT_OPCODES.MODIFICATION: {
+              const modificationData = decodedMsg.data as IModificationData;
+              const resources = JSON.parse(
+                decoder.decode(modificationData.resources)
+              );
+
+              try {
+                await this.onModificationRequest(
+                  id,
+                  resources,
+                  modificationData.remove
+                );
+
+                await transporter.send(
+                  id,
+                  encoder.encode(
+                    JSON.stringify(
+                      new ModificationConfirmation<any>(
+                        modificationData.id,
+                        true
+                      )
+                    )
+                  )
+                );
+              } catch (e) {
+                await transporter.send(
+                  id,
+                  encoder.encode(
+                    JSON.stringify(
+                      new ModificationConfirmation<any>(
+                        modificationData.id,
+                        false
+                      )
+                    )
+                  )
+                );
+              }
+
+              break;
+            }
+
+            // TODO: Handle ModificationRequest as described in the TODO below
+
+            default: {
+              throw new UnimplementedOperationError(decodedMsg.opcode);
+            }
+          }
+        }
+      })();
 
       await this.onNodeJoin(id);
     };
