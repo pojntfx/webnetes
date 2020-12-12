@@ -70,7 +70,6 @@
     "@wasmer/wasmfs": "^0.12.0",
     "asyncify-wasm": "^1.1.1",
     "emittery": "^0.7.2",
-    "rebirth": "^2.0.0",
     "uuid": "^8.3.2",
     "webtorrent": "^0.112.0",
     "webtorrent-hybrid": "^4.0.3",
