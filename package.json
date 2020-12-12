@@ -6,10 +6,12 @@
   "main": "dist/nodeLib/index.js",
   "module": "dist/webLib/index.js",
   "types": "dist/index.d.ts",
+  "binSource": "app/webnetes_node/main.ts",
+  "binMain": "dist/nodeApp/main.js",
   "scripts": {
     "build": "rm -rf dist && yarn build:lib && yarn build:app:node && yarn build:app:web && yarn build:diagram && yarn build:docs",
     "build:lib": "rollup -c",
-    "build:app:node": "parcel build --target nodeApp app/webnetes_node/main.ts && chmod +x dist/nodeApp/main.js",
+    "build:app:node": "rollup -c && chmod +x dist/nodeApp/main.js",
     "build:app:web": "parcel build --target webApp --no-scope-hoist app/webnetes_web/index.html",
     "build:diagram": "mkdir -p dist/media && tplant -p tsconfig.json -i 'lib/**/*.ts*' --output 'dist/media/diagram.svg'",
     "build:docs": "mkdir -p dist/docs && typedoc --tsconfig tsconfig.json --mode file --outDir dist/docs --out dist/docs --media dist/media --exclude '+(node_modules|dist)' .",
@@ -18,7 +20,7 @@
     "dev:tests": "jest ---watchAll",
     "dev:lib": "rollup -c -w",
     "dev:app:node": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files app/webnetes_node/main.ts",
-    "dev:app:web": "parcel --hmr-port 1235 --target webApp app/webnetes_web/index.html",
+    "dev:app:web": "LOG_LEVEL=debug DEBUG='' parcel --hmr-port 1235 --target webApp app/webnetes_web/index.html",
     "start:app:node": "./dist/nodeApp/main.js",
     "start:app:web": "serve dist/webApp",
     "start:docs": "serve dist/docs"
@@ -53,6 +55,7 @@
     "rollup": "^2.34.2",
     "rollup-plugin-dts": "^2.0.0",
     "rollup-plugin-esbuild": "^2.6.0",
+    "rollup-plugin-hashbang": "^2.2.2",
     "serve": "^11.3.2",
     "tplant": "^2.3.6",
     "ts-jest": "^26.4.4",
@@ -73,12 +76,8 @@
     "winston": "^3.3.3"
   },
   "targets": {
-    "nodeApp": {
-      "engines": {
-        "node": ">=12.x"
-      }
-    },
     "webApp": {
+      "distDir": "dist/webApp",
       "engines": {
         "browsers": ">=5%"
       }

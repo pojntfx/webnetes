@@ -1,9 +1,7 @@
 import { v4 } from "uuid";
 import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { WASI } from "@wasmer/wasi";
-import { lowerI64Imports } from "@wasmer/wasm-transformer/lib/unoptimized/wasm-transformer.esm.js";
 import { WasmFs } from "@wasmer/wasmfs";
-import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 
@@ -34,6 +32,20 @@ export class VirtualMachine {
     runtime: ERuntimes
   ) {
     const id = v4();
+
+    let wasiBindings: any = {};
+    if (typeof window !== "undefined") {
+      wasiBindings = await import("@wasmer/wasi/lib/bindings/browser");
+    }
+
+    let lowerI64Imports: any = async () => {};
+    if (typeof window === "undefined") {
+      lowerI64Imports = await import("@wasmer/wasm-transformer");
+    } else {
+      lowerI64Imports = await import(
+        "@wasmer/wasm-transformer/lib/unoptimized/wasm-transformer.esm.js"
+      );
+    }
 
     switch (runtime) {
       case ERuntimes.WASI_GENERIC: {
