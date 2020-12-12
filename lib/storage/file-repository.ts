@@ -58,9 +58,7 @@ export class FileRepository {
         return await new Promise<Uint8Array>((res, rej) => {
           try {
             // We check above
-            const file = existingTorrent.files.find(
-              (t) => t.name === FILE_NAME
-            );
+            const file = existingTorrent.files[0];
 
             if (file) {
               file!.getBuffer((e, buf) => {
@@ -82,7 +80,7 @@ export class FileRepository {
           try {
             this.client!.add(magnetURI, {}, (torrent) => {
               // We check above
-              const file = torrent.files.find((t) => t.name === FILE_NAME);
+              const file = torrent.files[0];
 
               if (file) {
                 file!.getBuffer((e, buf) => {
