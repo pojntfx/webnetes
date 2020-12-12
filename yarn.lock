@@ -8416,6 +8416,11 @@ readdirp@~3.5.0:
   dependencies:
     picomatch "^2.2.1"
 
+rebirth@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rebirth/-/rebirth-2.0.0.tgz#4a080c3df34cf4522fa59d51fb33b52fe2f34359"
+  integrity sha512-WIiYSwLa2S1qddzixF/njJTm7xxVpIQoCzmVBWrMvzOawDFCiMkJ0WRWjZR62fk+QijUbGOCJ/tMjhW8tX7KtQ==
+
 rechoir@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/rechoir/-/rechoir-0.6.2.tgz#85204b54dba82d5742e28c96756ef43af50e3384"

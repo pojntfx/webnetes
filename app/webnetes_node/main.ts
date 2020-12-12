@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
-import { WebnetesManager } from "../../lib/management/webnetes-manager";
+import { Weblet } from "../../lib/management/weblet";
 import { IResource } from "../../lib/models/resource";
+const rebirth = require("rebirth");
 
 const resources = [
   {
@@ -287,13 +288,19 @@ const resources = [
 ];
 
 (async () => {
-  const mgr = new WebnetesManager();
+  const weblet = new Weblet(async () => rebirth());
 
-  try {
-    for (let resource of resources) {
-      await mgr.applyResource(resource as IResource<any>);
-    }
-  } finally {
-    // await mgr.close();
+  for (let resource of resources) {
+    await weblet.applyResource(resource as IResource<any>);
   }
+
+  await new Promise((res) => setTimeout(res, 20000));
+
+  await weblet.deleteResource({
+    apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+    kind: "Workload",
+    metadata: {
+      label: "go_echo_server",
+    },
+  } as IResource<any>);
 })();
