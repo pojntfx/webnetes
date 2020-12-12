@@ -24,6 +24,7 @@ import { Workload } from "../models/workload";
 import { NetworkInterface } from "../networking/network-interface";
 import { FileRepository } from "../storage/file-repository";
 import { getLogger } from "../utils/logger";
+import yaml from "js-yaml";
 
 export class Weblet {
   private logger = getLogger();
@@ -33,160 +34,388 @@ export class Weblet {
 
   constructor(private onRestart: () => Promise<void>) {}
 
-  async createResource(resource: IResource<any>) {
-    this.logger.debug("Create resource", { resource });
+  async createResourcesFromYAML(definition: string) {
+    const parsedResources = yaml.safeLoadAll(definition) as IResource<any>[];
 
-    if (!Object.values(EResourceKind).includes(resource.kind)) {
-      throw new UnimplementedResourceError();
-    }
+    await this.createResources(parsedResources);
+  }
 
-    switch (resource.kind) {
-      case EResourceKind.PROCESSOR: {
-        const processor = resource as Processor;
+  async deleteResourcesFromYAML(definition: string) {
+    const parsedResources = yaml.safeLoadAll(definition) as IResource<any>[];
 
-        processor.spec.runtimes.forEach((label) =>
+    await this.deleteResources(parsedResources);
+  }
+
+  async createResources(resources: IResource<any>[]) {
+    for (let resource of resources) {
+      this.logger.debug("Creating resource", { resource });
+
+      if (!Object.values(EResourceKind).includes(resource.kind)) {
+        throw new UnimplementedResourceError();
+      }
+
+      switch (resource.kind) {
+        case EResourceKind.PROCESSOR: {
+          const processor = resource as Processor;
+
+          processor.spec.runtimes.forEach((label) =>
+            this.resolveReference(
+              label,
+              API_VERSION,
+              EResourceKind.RUNTIME,
+              "runtimes"
+            )
+          );
+          processor.spec.capabilities.forEach((label) =>
+            this.resolveReference(
+              label,
+              API_VERSION,
+              EResourceKind.CAPABILITY,
+              "capabilities"
+            )
+          );
+
+          break;
+        }
+
+        case EResourceKind.NETWORK: {
+          const network = resource as Network;
+
           this.resolveReference(
-            label,
+            network.spec.signaler,
+            API_VERSION,
+            EResourceKind.SIGNALER,
+            "signaler"
+          );
+          network.spec.stunServers.forEach((label) =>
+            this.resolveReference(
+              label,
+              API_VERSION,
+              EResourceKind.STUNSERVER,
+              "stunServers"
+            )
+          );
+          network.spec.turnServers.forEach((label) =>
+            this.resolveReference(
+              label,
+              API_VERSION,
+              EResourceKind.TURNSERVER,
+              "turnServers"
+            )
+          );
+
+          break;
+        }
+
+        case EResourceKind.SUBNET: {
+          const subnet = resource as Subnet;
+
+          this.resolveReference(
+            subnet.spec.network,
+            API_VERSION,
+            EResourceKind.NETWORK,
+            "network"
+          );
+
+          break;
+        }
+
+        case EResourceKind.REPOSITORY: {
+          const repo = resource as Repository;
+
+          repo.spec.trackers.forEach((label) =>
+            this.resolveReference(
+              label,
+              API_VERSION,
+              EResourceKind.TRACKER,
+              "trackers"
+            )
+          );
+
+          break;
+        }
+
+        case EResourceKind.FILE: {
+          const file = resource as File;
+
+          this.resolveReference(
+            file.spec.repository,
+            API_VERSION,
+            EResourceKind.REPOSITORY,
+            "repository"
+          );
+
+          break;
+        }
+
+        case EResourceKind.WORKLOAD: {
+          const workload = resource as Workload;
+
+          this.resolveReference(
+            workload.spec.file,
+            API_VERSION,
+            EResourceKind.FILE,
+            "file"
+          );
+          this.resolveReference(
+            workload.spec.runtime,
             API_VERSION,
             EResourceKind.RUNTIME,
-            "runtimes"
-          )
-        );
-        processor.spec.capabilities.forEach((label) =>
+            "runtime"
+          );
           this.resolveReference(
-            label,
+            workload.spec.subnet,
             API_VERSION,
-            EResourceKind.CAPABILITY,
-            "capabilities"
-          )
-        );
+            EResourceKind.SUBNET,
+            "subnet"
+          );
+          this.resolveReference(
+            workload.spec.arguments,
+            API_VERSION,
+            EResourceKind.ARGUMENTS,
+            "arguments"
+          );
+          workload.spec.capabilities.forEach((label) =>
+            this.resolveReference(
+              label,
+              API_VERSION,
+              EResourceKind.CAPABILITY,
+              "capabilities"
+            )
+          );
 
-        break;
+          break;
+        }
       }
 
-      case EResourceKind.NETWORK: {
-        const network = resource as Network;
-
-        this.resolveReference(
-          network.spec.signaler,
-          API_VERSION,
-          EResourceKind.SIGNALER,
-          "signaler"
+      if (
+        this.findResource(
+          resource.metadata.label,
+          resource.apiVersion,
+          resource.kind
+        )
+      ) {
+        throw new DuplicateResourceError(
+          resource.metadata.label,
+          resource.apiVersion,
+          resource.kind
         );
-        network.spec.stunServers.forEach((label) =>
-          this.resolveReference(
-            label,
-            API_VERSION,
-            EResourceKind.STUNSERVER,
-            "stunServers"
-          )
-        );
-        network.spec.turnServers.forEach((label) =>
-          this.resolveReference(
-            label,
-            API_VERSION,
-            EResourceKind.TURNSERVER,
-            "turnServers"
-          )
-        );
+      } else {
+        if (
+          [
+            EResourceKind.SUBNET,
+            EResourceKind.REPOSITORY,
+            EResourceKind.FILE,
+            EResourceKind.WORKLOAD,
+          ].includes(resource.kind)
+        ) {
+          this.logger.verbose("Handling create hooks for resource", {
+            resource,
+          });
 
-        break;
-      }
+          switch (resource.kind) {
+            case EResourceKind.SUBNET: {
+              const subnetSpec = (resource as Subnet).spec;
 
-      case EResourceKind.SUBNET: {
-        const subnet = resource as Subnet;
+              const network = this.resolveReference<INetworkSpec>(
+                subnetSpec.network,
+                API_VERSION,
+                EResourceKind.NETWORK,
+                "network"
+              );
 
-        this.resolveReference(
-          subnet.spec.network,
-          API_VERSION,
-          EResourceKind.NETWORK,
-          "network"
-        );
+              const signaler = this.resolveReference<ISignalerSpec>(
+                network.spec.signaler,
+                API_VERSION,
+                EResourceKind.SIGNALER,
+                "signaler"
+              );
+              const stunServers = network.spec.stunServers
+                .map((label) =>
+                  this.findResource<IStunServerSpec>(
+                    label,
+                    API_VERSION,
+                    EResourceKind.STUNSERVER
+                  )
+                )
+                .map((s) => ({
+                  urls: s.spec.urls,
+                }));
+              const turnServers = network.spec.turnServers
+                .map((label) =>
+                  this.findResource<ITurnServerSpec>(
+                    label,
+                    API_VERSION,
+                    EResourceKind.TURNSERVER
+                  )
+                )
+                .map((s) => ({
+                  urls: s.spec.urls,
+                  username: s.spec.username,
+                  credential: s.spec.credential,
+                }));
 
-        break;
-      }
+              const iface = new NetworkInterface(
+                {
+                  iceServers: [...stunServers, ...turnServers],
+                },
+                signaler.spec.urls[0],
+                signaler.spec.retryAfter,
+                subnetSpec.prefix
+              );
 
-      case EResourceKind.REPOSITORY: {
-        const repo = resource as Repository;
+              this.setInstance<NetworkInterface>(
+                resource.metadata.label,
+                resource.apiVersion,
+                EResourceKind.SUBNET,
+                iface
+              );
 
-        repo.spec.trackers.forEach((label) =>
-          this.resolveReference(
-            label,
-            API_VERSION,
-            EResourceKind.TRACKER,
-            "trackers"
-          )
-        );
+              (async () => {
+                await iface.open();
+              })();
 
-        break;
-      }
+              break;
+            }
 
-      case EResourceKind.FILE: {
-        const file = resource as File;
+            case EResourceKind.REPOSITORY: {
+              const repoSpec = (resource as Repository).spec;
 
-        this.resolveReference(
-          file.spec.repository,
-          API_VERSION,
-          EResourceKind.REPOSITORY,
-          "repository"
-        );
+              const trackers = repoSpec.trackers
+                .map(
+                  (label) =>
+                    this.findResource<ITrackerSpec>(
+                      label,
+                      API_VERSION,
+                      EResourceKind.TRACKER
+                    ).spec.urls
+                )
+                .reduce((all, cur) => [...all, ...cur], []);
 
-        break;
-      }
+              const repo = new FileRepository(trackers);
 
-      case EResourceKind.WORKLOAD: {
-        const workload = resource as Workload;
+              this.setInstance<FileRepository>(
+                resource.metadata.label,
+                resource.apiVersion,
+                EResourceKind.REPOSITORY,
+                repo
+              );
 
-        this.resolveReference(
-          workload.spec.file,
-          API_VERSION,
-          EResourceKind.FILE,
-          "file"
-        );
-        this.resolveReference(
-          workload.spec.runtime,
-          API_VERSION,
-          EResourceKind.RUNTIME,
-          "runtime"
-        );
-        this.resolveReference(
-          workload.spec.subnet,
-          API_VERSION,
-          EResourceKind.SUBNET,
-          "subnet"
-        );
-        this.resolveReference(
-          workload.spec.arguments,
-          API_VERSION,
-          EResourceKind.ARGUMENTS,
-          "arguments"
-        );
-        workload.spec.capabilities.forEach((label) =>
-          this.resolveReference(
-            label,
-            API_VERSION,
-            EResourceKind.CAPABILITY,
-            "capabilities"
-          )
-        );
+              await repo.open();
 
-        break;
+              break;
+            }
+
+            case EResourceKind.FILE: {
+              const fileSpec = (resource as File).spec;
+
+              const repoRef = this.resolveReference<IRepositorySpec>(
+                fileSpec.repository,
+                API_VERSION,
+                EResourceKind.REPOSITORY,
+                "repository"
+              );
+
+              const repo = this.getInstance<FileRepository>(
+                repoRef.metadata.label,
+                repoRef.apiVersion,
+                EResourceKind.REPOSITORY
+              );
+
+              const file = await repo.add(fileSpec.uri);
+
+              this.setInstance<Uint8Array>(
+                resource.metadata.label,
+                resource.apiVersion,
+                EResourceKind.FILE,
+                file
+              );
+
+              break;
+            }
+
+            case EResourceKind.WORKLOAD: {
+              const workloadSpec = (resource as Workload).spec;
+
+              const file = this.getInstance<Uint8Array>(
+                workloadSpec.file,
+                API_VERSION,
+                EResourceKind.FILE
+              );
+
+              const runtimeMetadata = this.resolveReference<IRuntimeSpec>(
+                workloadSpec.runtime,
+                API_VERSION,
+                EResourceKind.RUNTIME,
+                "runtime"
+              ).metadata;
+              const capabilities = workloadSpec.capabilities
+                .map((label) =>
+                  this.resolveReference<ICapabilitySpec>(
+                    label,
+                    API_VERSION,
+                    EResourceKind.CAPABILITY,
+                    "capabilites"
+                  )
+                )
+                .map((c) => c.metadata.label); // TODO: Handle privileged capabilities
+              const argumentsSpec = this.resolveReference<IArgumentsSpec>(
+                workloadSpec.arguments,
+                API_VERSION,
+                EResourceKind.ARGUMENTS,
+                "arguments"
+              );
+
+              const subnet = this.getInstance<NetworkInterface>(
+                workloadSpec.subnet,
+                API_VERSION,
+                EResourceKind.SUBNET
+              );
+
+              const vm = new VirtualMachine();
+
+              this.setInstance<VirtualMachine>(
+                resource.metadata.label,
+                resource.apiVersion,
+                EResourceKind.WORKLOAD,
+                vm
+              );
+
+              const { memoryId, imports } = await subnet.getImports();
+
+              const { id, memory } = await vm.schedule(
+                file,
+                argumentsSpec.spec.argv,
+                imports,
+                {},
+                (capabilities as unknown) as ECapabilities[], // TODO: Validate above
+                (runtimeMetadata.label as unknown) as ERuntimes // TODO: Validate above
+              );
+
+              await subnet.setMemory(memoryId, memory);
+
+              (async () => await vm.start(id))();
+
+              break;
+            }
+          }
+        }
+
+        this.resources.push(resource);
+
+        this.logger.debug("Added resource", { resource });
       }
     }
+  }
 
-    if (
-      this.findResource(
-        resource.metadata.label,
-        resource.apiVersion,
-        resource.kind
-      )
-    ) {
-      throw new DuplicateResourceError(
-        resource.metadata.label,
-        resource.apiVersion,
-        resource.kind
-      );
-    } else {
+  async deleteResources(resources: IResource<any>[]) {
+    for (let resource of resources) {
+      this.logger.debug("Deleting resource", { resource });
+
+      if (!Object.values(EResourceKind).includes(resource.kind)) {
+        throw new UnimplementedResourceError();
+      }
+
       if (
         [
           EResourceKind.SUBNET,
@@ -195,279 +424,69 @@ export class Weblet {
           EResourceKind.WORKLOAD,
         ].includes(resource.kind)
       ) {
-        this.logger.verbose("Handling create hooks for resource", { resource });
+        this.logger.verbose("Handling delete hooks for resource", { resource });
 
         switch (resource.kind) {
           case EResourceKind.SUBNET: {
-            const subnetSpec = (resource as Subnet).spec;
-
-            const network = this.resolveReference<INetworkSpec>(
-              subnetSpec.network,
-              API_VERSION,
-              EResourceKind.NETWORK,
-              "network"
-            );
-
-            const signaler = this.resolveReference<ISignalerSpec>(
-              network.spec.signaler,
-              API_VERSION,
-              EResourceKind.SIGNALER,
-              "signaler"
-            );
-            const stunServers = network.spec.stunServers
-              .map((label) =>
-                this.findResource<IStunServerSpec>(
-                  label,
-                  API_VERSION,
-                  EResourceKind.STUNSERVER
-                )
-              )
-              .map((s) => ({
-                urls: s.spec.urls,
-              }));
-            const turnServers = network.spec.turnServers
-              .map((label) =>
-                this.findResource<ITurnServerSpec>(
-                  label,
-                  API_VERSION,
-                  EResourceKind.TURNSERVER
-                )
-              )
-              .map((s) => ({
-                urls: s.spec.urls,
-                username: s.spec.username,
-                credential: s.spec.credential,
-              }));
-
-            const iface = new NetworkInterface(
-              {
-                iceServers: [...stunServers, ...turnServers],
-              },
-              signaler.spec.urls[0],
-              signaler.spec.retryAfter,
-              subnetSpec.prefix
-            );
-
-            this.setInstance<NetworkInterface>(
+            const subnet = this.getInstance<NetworkInterface>(
               resource.metadata.label,
-              resource.apiVersion,
-              EResourceKind.SUBNET,
-              iface
+              API_VERSION,
+              EResourceKind.SUBNET
             );
 
-            (async () => {
-              await iface.open();
-            })();
+            await subnet.close();
+
+            this.deleteInstance(
+              resource.metadata.label,
+              API_VERSION,
+              EResourceKind.SUBNET
+            );
 
             break;
           }
 
           case EResourceKind.REPOSITORY: {
-            const repoSpec = (resource as Repository).spec;
-
-            const trackers = repoSpec.trackers
-              .map(
-                (label) =>
-                  this.findResource<ITrackerSpec>(
-                    label,
-                    API_VERSION,
-                    EResourceKind.TRACKER
-                  ).spec.urls
-              )
-              .reduce((all, cur) => [...all, ...cur], []);
-
-            const repo = new FileRepository(trackers);
-
-            this.setInstance<FileRepository>(
+            const repo = this.getInstance<FileRepository>(
               resource.metadata.label,
-              resource.apiVersion,
-              EResourceKind.REPOSITORY,
-              repo
+              API_VERSION,
+              EResourceKind.REPOSITORY
             );
 
-            await repo.open();
+            await repo.close();
+
+            this.deleteInstance(
+              resource.metadata.label,
+              API_VERSION,
+              EResourceKind.REPOSITORY
+            );
 
             break;
           }
 
           case EResourceKind.FILE: {
-            const fileSpec = (resource as File).spec;
-
-            const repoRef = this.resolveReference<IRepositorySpec>(
-              fileSpec.repository,
-              API_VERSION,
-              EResourceKind.REPOSITORY,
-              "repository"
-            );
-
-            const repo = this.getInstance<FileRepository>(
-              repoRef.metadata.label,
-              repoRef.apiVersion,
-              EResourceKind.REPOSITORY
-            );
-
-            const file = await repo.add(fileSpec.uri);
-
-            this.setInstance<Uint8Array>(
+            this.deleteInstance(
               resource.metadata.label,
-              resource.apiVersion,
-              EResourceKind.FILE,
-              file
+              API_VERSION,
+              EResourceKind.FILE
             );
 
             break;
           }
 
           case EResourceKind.WORKLOAD: {
-            const workloadSpec = (resource as Workload).spec;
-
-            const file = this.getInstance<Uint8Array>(
-              workloadSpec.file,
-              API_VERSION,
-              EResourceKind.FILE
-            );
-
-            const runtimeMetadata = this.resolveReference<IRuntimeSpec>(
-              workloadSpec.runtime,
-              API_VERSION,
-              EResourceKind.RUNTIME,
-              "runtime"
-            ).metadata;
-            const capabilities = workloadSpec.capabilities
-              .map((label) =>
-                this.resolveReference<ICapabilitySpec>(
-                  label,
-                  API_VERSION,
-                  EResourceKind.CAPABILITY,
-                  "capabilites"
-                )
-              )
-              .map((c) => c.metadata.label); // TODO: Handle privileged capabilities
-            const argumentsSpec = this.resolveReference<IArgumentsSpec>(
-              workloadSpec.arguments,
-              API_VERSION,
-              EResourceKind.ARGUMENTS,
-              "arguments"
-            );
-
-            const subnet = this.getInstance<NetworkInterface>(
-              workloadSpec.subnet,
-              API_VERSION,
-              EResourceKind.SUBNET
-            );
-
-            const vm = new VirtualMachine();
-
-            this.setInstance<VirtualMachine>(
-              resource.metadata.label,
-              resource.apiVersion,
-              EResourceKind.WORKLOAD,
-              vm
-            );
-
-            const { memoryId, imports } = await subnet.getImports();
-
-            const { id, memory } = await vm.schedule(
-              file,
-              argumentsSpec.spec.argv,
-              imports,
-              {},
-              (capabilities as unknown) as ECapabilities[], // TODO: Validate above
-              (runtimeMetadata.label as unknown) as ERuntimes // TODO: Validate above
-            );
-
-            await subnet.setMemory(memoryId, memory);
-
-            (async () => await vm.start(id))();
+            await this.onRestart();
 
             break;
           }
         }
       }
 
-      this.resources.push(resource);
+      this.resources.filter(
+        (candidate) => !this.resourcesMatch(candidate, resource)
+      );
 
-      this.logger.debug("Added resource", { resource });
+      this.logger.debug("Deleted resource", { resource });
     }
-  }
-
-  async deleteResource(resource: IResource<any>) {
-    this.logger.debug("Deleting resource", { resource });
-
-    if (!Object.values(EResourceKind).includes(resource.kind)) {
-      throw new UnimplementedResourceError();
-    }
-
-    if (
-      [
-        EResourceKind.SUBNET,
-        EResourceKind.REPOSITORY,
-        EResourceKind.FILE,
-        EResourceKind.WORKLOAD,
-      ].includes(resource.kind)
-    ) {
-      this.logger.verbose("Handling delete hooks for resource", { resource });
-
-      switch (resource.kind) {
-        case EResourceKind.SUBNET: {
-          const subnet = this.getInstance<NetworkInterface>(
-            resource.metadata.label,
-            API_VERSION,
-            EResourceKind.SUBNET
-          );
-
-          await subnet.close();
-
-          this.deleteInstance(
-            resource.metadata.label,
-            API_VERSION,
-            EResourceKind.SUBNET
-          );
-
-          break;
-        }
-
-        case EResourceKind.REPOSITORY: {
-          const repo = this.getInstance<FileRepository>(
-            resource.metadata.label,
-            API_VERSION,
-            EResourceKind.REPOSITORY
-          );
-
-          await repo.close();
-
-          this.deleteInstance(
-            resource.metadata.label,
-            API_VERSION,
-            EResourceKind.REPOSITORY
-          );
-
-          break;
-        }
-
-        case EResourceKind.FILE: {
-          this.deleteInstance(
-            resource.metadata.label,
-            API_VERSION,
-            EResourceKind.FILE
-          );
-
-          break;
-        }
-
-        case EResourceKind.WORKLOAD: {
-          await this.onRestart();
-
-          break;
-        }
-      }
-    }
-
-    this.resources.filter(
-      (candidate) => !this.resourcesMatch(candidate, resource)
-    );
-
-    this.logger.debug("Deleted resource", { resource });
   }
 
   private resourcesMatch(actual: IResource<any>, expected: IResource<any>) {
