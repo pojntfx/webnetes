@@ -1964,10 +1964,10 @@
     chrome-trace-event "^1.0.2"
     nullthrows "^1.1.1"
 
-"@pojntfx/unisockets@^0.0.19":
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/@pojntfx/unisockets/-/unisockets-0.0.19.tgz#33603b32219a7fec063baca6e53970505c90949e"
-  integrity sha512-troqRMUnIEBTt9pYnMepusHEuykXx8lKP3DkifRXsdGfwVWLBPoPjtRpC28pagq9P7jb/tL8GOC8TYAijhceZA==
+"@pojntfx/unisockets@^0.0.20":
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/@pojntfx/unisockets/-/unisockets-0.0.20.tgz#ce610ca871c48a7371631cd63545588ffcbc61bf"
+  integrity sha512-a7oX4haxAwHNmXCoer4Z6Sp94OvRJwplt4/5t53nlqpTl7o9NrNmQrbYEK3gfhQfYZ/c5cdr4hUqU+a2rR6CrA==
   dependencies:
     "@wasmer/wasi" "^0.12.0"
     "@wasmer/wasm-transformer" "^0.12.0"
