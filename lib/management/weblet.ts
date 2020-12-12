@@ -24,17 +24,13 @@ import { NetworkInterface } from "../networking/network-interface";
 import { FileRepository } from "../storage/file-repository";
 import { getLogger } from "../utils/logger";
 
-export class WebnetesManager {
+export class Weblet {
   private logger = getLogger();
 
   private resources = [] as IResource<any>[];
   private instances = new Map<string, any>();
 
-  async close() {
-    this.logger.verbose("Closing webnetes manager");
-
-    // Close all closable resources
-  }
+  constructor(private onRestart: () => Promise<void>) {}
 
   async applyResource(resource: IResource<any>) {
     this.logger.debug("Applying resource", { resource });
@@ -392,7 +388,7 @@ export class WebnetesManager {
 
             await subnet.setMemory(memoryId, memory);
 
-            await vm.start(id);
+            (async () => await vm.start(id))();
 
             break;
           }
@@ -408,6 +404,10 @@ export class WebnetesManager {
   async deleteResource(resource: IResource<any>) {
     this.logger.debug("Deleting resource", { resource });
 
+    if (!Object.values(EResourceKind).includes(resource.kind)) {
+      throw new UnimplementedResourceError();
+    }
+
     if (
       [
         EResourceKind.SUBNET,
@@ -417,10 +417,60 @@ export class WebnetesManager {
       ].includes(resource.kind)
     ) {
       this.logger.verbose("Handling delete hooks for resource", { resource });
-    }
 
-    if (!Object.values(EResourceKind).includes(resource.kind)) {
-      throw new UnimplementedResourceError();
+      switch (resource.kind) {
+        case EResourceKind.SUBNET: {
+          const subnet = this.getInstance<NetworkInterface>(
+            resource.metadata.label,
+            API_VERSION,
+            EResourceKind.SUBNET
+          );
+
+          await subnet.close();
+
+          this.deleteInstance(
+            resource.metadata.label,
+            API_VERSION,
+            EResourceKind.SUBNET
+          );
+
+          break;
+        }
+
+        case EResourceKind.REPOSITORY: {
+          const repo = this.getInstance<FileRepository>(
+            resource.metadata.label,
+            API_VERSION,
+            EResourceKind.REPOSITORY
+          );
+
+          await repo.close();
+
+          this.deleteInstance(
+            resource.metadata.label,
+            API_VERSION,
+            EResourceKind.REPOSITORY
+          );
+
+          break;
+        }
+
+        case EResourceKind.FILE: {
+          this.deleteInstance(
+            resource.metadata.label,
+            API_VERSION,
+            EResourceKind.FILE
+          );
+
+          break;
+        }
+
+        case EResourceKind.WORKLOAD: {
+          await this.onRestart();
+
+          break;
+        }
+      }
     }
 
     this.resources.filter(
@@ -473,6 +523,18 @@ export class WebnetesManager {
       return this.instances.get(
         this.getInstanceKey(apiVersion, kind, label)
       )! as T; // We check with .has
+    } else {
+      throw new InstanceDoesNotExistError();
+    }
+  }
+
+  private deleteInstance<T>(
+    label: string,
+    apiVersion: string,
+    kind: EResourceKind
+  ) {
+    if (this.instances.has(this.getInstanceKey(apiVersion, kind, label))) {
+      this.instances.delete(this.getInstanceKey(apiVersion, kind, label)); // We check with .has
     } else {
       throw new InstanceDoesNotExistError();
     }
