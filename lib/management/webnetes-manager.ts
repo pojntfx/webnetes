@@ -1,5 +1,8 @@
-import { ERuntimes } from "../../dist";
-import { ECapabilities, VirtualMachine } from "../compute/virtual-machine";
+import {
+  ECapabilities,
+  ERuntimes,
+  VirtualMachine,
+} from "../compute/virtual-machine";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
