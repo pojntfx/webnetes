@@ -117,15 +117,6 @@ spec:
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Tracker
 metadata:
-  name: βTorrent
-  label: btorrent
-spec:
-  urls:
-    - wss://tracker.btorrent.xyz
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Tracker
-metadata:
   name: Fastcast
   label: fastcast
 spec:
