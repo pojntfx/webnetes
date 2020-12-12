@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { WASI } from "@wasmer/wasi";
-import { lowerI64Imports } from "@wasmer/wasm-transformer/lib/optimized/wasm-transformer.esm";
+import { lowerI64Imports } from "@wasmer/wasm-transformer/lib/unoptimized/wasm-transformer.esm.js";
 import { WasmFs } from "@wasmer/wasmfs";
 import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
