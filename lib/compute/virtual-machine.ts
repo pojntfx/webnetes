@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { WASI } from "@wasmer/wasi";
-import { lowerI64Imports } from "@wasmer/wasm-transformer";
+import { lowerI64Imports } from "@wasmer/wasm-transformer/lib/optimized/wasm-transformer.esm";
 import { WasmFs } from "@wasmer/wasmfs";
 import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
@@ -9,7 +9,7 @@ import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 const TinyGo = require("../../vendor/tinygo/wasm_exec.js");
 const Go = require("../../vendor/go/wasm_exec.js");
 
-export enum EPermissions {}
+export enum ECapabilities {}
 
 export enum ERuntimes {
   WASI_GENERIC = "wasi_generic",
@@ -32,7 +32,7 @@ export class VirtualMachine {
     args: string[],
     env: any,
     imports: any,
-    permissions: EPermissions[],
+    capabilities: ECapabilities[], // TODO: Add privileged capabilites
     runtime: ERuntimes
   ) {
     const id = v4();
