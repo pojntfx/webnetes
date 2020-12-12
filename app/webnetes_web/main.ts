@@ -212,7 +212,7 @@ const resources = [
     spec: {
       repository: "webtorrent_public",
       uri:
-        "magnet:?xt=urn:btih:b22689979afc5060480fe44304afd8e9d5f127d8&dn=echo_server_jssi.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com",
+        "magnet:?xt=urn:btih:fbe657b4f98ecc59c7af09af955f2bcde337cd71&dn=echo_server_jssi.wasm&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337",
     },
   },
   {
@@ -225,7 +225,7 @@ const resources = [
     spec: {
       repository: "webtorrent_public",
       uri:
-        "magnet:?xt=urn:btih:e7104e306f5daf22f8b5fb16e7e3e19949b7229b&dn=echo_server_go.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com",
+        "magnet:?xt=urn:btih:f5a6d3714d888711b32b32a5afff7f2db27113d7&dn=echo_server.wasm&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337",
     },
   },
   {
@@ -239,16 +239,46 @@ const resources = [
       argv: ["-laddr", "127.0.0.1:1234"],
     },
   },
+  // {
+  //   apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+  //   kind: "Workload",
+  //   metadata: {
+  //     name: "C Echo Server",
+  //     label: "c_echo_server",
+  //   },
+  //   spec: {
+  //     file: "c_echo_server",
+  //     runtime: "wasi_generic",
+  //     capabilities: ["bind_alias"],
+  //     subnet: "echo_network",
+  //     arguments: "echo_server",
+  //   },
+  // },
+  // {
+  //   apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+  //   kind: "Workload",
+  //   metadata: {
+  //     name: "TinyGo WASI Echo Server",
+  //     label: "tinygo_wasi_echo_server",
+  //   },
+  //   spec: {
+  //     file: "tinygo_wasi_echo_server",
+  //     runtime: "wasi_tinygo",
+  //     capabilities: ["bind_alias"],
+  //     subnet: "echo_network",
+  //     arguments: "echo_server",
+  //   },
+  // },
   {
     apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
     kind: "Workload",
     metadata: {
-      name: "Echo Server",
-      label: "echo_server",
+      name: "Go Echo Server",
+      label: "go_echo_server",
     },
     spec: {
-      file: "c_echo_server",
-      runtime: "wasi_generic",
+      file: "go_echo_server",
+      runtime: "jssi_go",
       capabilities: ["bind_alias"],
       subnet: "echo_network",
       arguments: "echo_server",

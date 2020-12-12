@@ -6,8 +6,6 @@ import { WasmFs } from "@wasmer/wasmfs";
 import wasiBindings from "@wasmer/wasi/lib/bindings/browser";
 import * as Asyncify from "asyncify-wasm";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
-const TinyGo = require("../../vendor/tinygo/wasm_exec.js");
-const Go = require("../../vendor/go/wasm_exec.js");
 
 export enum ECapabilities {}
 
@@ -78,7 +76,7 @@ export class VirtualMachine {
             fs: wasmFs.fs,
           },
         });
-        const go = new TinyGo();
+        const go = new (require("../../vendor/tinygo/wasm_exec.js"))();
 
         const module = await WebAssembly.compile(await lowerI64Imports(bin));
         const instance = await Asyncify.instantiate(module, {
@@ -103,10 +101,29 @@ export class VirtualMachine {
       }
 
       case ERuntimes.JSSI_GO: {
-        const go = new Go();
+        const go = new (require("../../vendor/go/wasm_exec.js"))();
 
         const module = await WebAssembly.compile(bin);
         const instance = await WebAssembly.instantiate(module, go.importObject);
+
+        (global as any).fs.read = (
+          _: number,
+          buffer: Uint8Array,
+          ___: number,
+          ____: number,
+          _____: number,
+          callback: Function
+        ) => {
+          new Promise<Uint8Array>((res) => {
+            const rawInput = prompt("value for stdin:");
+            const input = new TextEncoder().encode(rawInput + "\n");
+
+            buffer.set(input);
+
+            res(input);
+          }).then((input) => callback(null, input.length));
+        };
+        (global as any).jssiImports = { ...imports, ...env };
 
         this.containers.set(id, {
           runtimeType: runtime,
@@ -121,10 +138,29 @@ export class VirtualMachine {
       }
 
       case ERuntimes.JSSI_TINYGO: {
-        const go = new TinyGo();
+        const go = new (require("../../vendor/tinygo/wasm_exec.js"))();
 
         const module = await WebAssembly.compile(bin);
         const instance = await WebAssembly.instantiate(module, go.importObject);
+
+        (global as any).fs.read = (
+          _: number,
+          buffer: Uint8Array,
+          ___: number,
+          ____: number,
+          _____: number,
+          callback: Function
+        ) => {
+          new Promise<Uint8Array>((res) => {
+            const rawInput = prompt("value for stdin:");
+            const input = new TextEncoder().encode(rawInput + "\n");
+
+            buffer.set(input);
+
+            res(input);
+          }).then((input) => callback(null, input.length));
+        };
+        (global as any).jssiImports = { ...imports, ...env };
 
         this.containers.set(id, {
           runtimeType: runtime,
@@ -162,17 +198,13 @@ export class VirtualMachine {
         }
 
         case ERuntimes.JSSI_GO: {
-          await (container as Container<typeof Go>).runtime.run(
-            container.instance
-          );
+          await (container as Container<any>).runtime.run(container.instance);
 
           break;
         }
 
         case ERuntimes.JSSI_TINYGO: {
-          await (container as Container<typeof TinyGo>).runtime.run(
-            container.instance
-          );
+          await (container as Container<any>).runtime.run(container.instance);
 
           break;
         }
