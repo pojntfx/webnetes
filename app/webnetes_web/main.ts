@@ -9,7 +9,7 @@ const resources = [
     kind: "Runtime",
     metadata: {
       name: "Generic WASI",
-      label: "generic_wasi",
+      label: "wasi_generic",
     },
   },
   {
@@ -42,7 +42,7 @@ const resources = [
       label: "felixs_iphone",
     },
     spec: {
-      runtimes: ["generic_wasi"],
+      runtimes: ["wasi_generic"],
       capabilities: ["bind_alias", "connect_to_alias"],
     },
   },
@@ -196,7 +196,7 @@ const resources = [
     },
     spec: {
       file: "echo_server",
-      runtime: "generic_wasi",
+      runtime: "wasi_generic",
       capabilities: ["bind_alias"],
       subnet: "echo_network",
       arguments: "echo_server",

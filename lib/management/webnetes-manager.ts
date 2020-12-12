@@ -1,11 +1,16 @@
+import { ERuntimes } from "../../dist";
+import { ECapabilities, VirtualMachine } from "../compute/virtual-machine";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../errors/invalid-reference";
 import { UnimplementedResourceError } from "../errors/unimplemented-resource";
+import { IArgumentsSpec } from "../models/arguments";
+import { ICapabilitySpec } from "../models/capability";
 import { File } from "../models/file";
 import { INetworkSpec, Network } from "../models/network";
 import { Processor } from "../models/processor";
-import { Repository } from "../models/repository";
+import { IRepositorySpec, Repository } from "../models/repository";
 import { API_VERSION, EResourceKind, IResource } from "../models/resource";
+import { IRuntimeSpec } from "../models/runtime";
 import { ISignalerSpec } from "../models/signaler";
 import { IStunServerSpec } from "../models/stunserver";
 import { Subnet } from "../models/subnet";
@@ -299,7 +304,7 @@ export class WebnetesManager {
           case EResourceKind.FILE: {
             const fileSpec = (resource as File).spec;
 
-            const repoRef = this.resolveReference(
+            const repoRef = this.resolveReference<IRepositorySpec>(
               fileSpec.repository,
               API_VERSION,
               EResourceKind.REPOSITORY,
@@ -320,6 +325,71 @@ export class WebnetesManager {
               EResourceKind.FILE,
               file
             );
+
+            break;
+          }
+
+          case EResourceKind.WORKLOAD: {
+            const workloadSpec = (resource as Workload).spec;
+
+            const file = this.getInstance<Uint8Array>(
+              workloadSpec.file,
+              API_VERSION,
+              EResourceKind.FILE
+            );
+
+            const runtimeMetadata = this.resolveReference<IRuntimeSpec>(
+              workloadSpec.runtime,
+              API_VERSION,
+              EResourceKind.RUNTIME,
+              "runtime"
+            ).metadata;
+            const capabilities = workloadSpec.capabilities
+              .map((label) =>
+                this.resolveReference<ICapabilitySpec>(
+                  label,
+                  API_VERSION,
+                  EResourceKind.CAPABILITY,
+                  "capabilites"
+                )
+              )
+              .map((c) => c.metadata.label); // TODO: Handle privileged capabilities
+            const argumentsSpec = this.resolveReference<IArgumentsSpec>(
+              workloadSpec.arguments,
+              API_VERSION,
+              EResourceKind.ARGUMENTS,
+              "arguments"
+            );
+
+            const subnet = this.getInstance<NetworkInterface>(
+              workloadSpec.subnet,
+              API_VERSION,
+              EResourceKind.SUBNET
+            );
+
+            const vm = new VirtualMachine();
+
+            this.setInstance<VirtualMachine>(
+              resource.metadata.label,
+              resource.apiVersion,
+              EResourceKind.WORKLOAD,
+              vm
+            );
+
+            const { memoryId, imports } = await subnet.getImports();
+
+            const { id, memory } = await vm.schedule(
+              file,
+              argumentsSpec.spec.argv,
+              imports,
+              {},
+              (capabilities as unknown) as ECapabilities[], // TODO: Validate above
+              (runtimeMetadata.label as unknown) as ERuntimes // TODO: Validate above
+            );
+
+            await subnet.setMemory(memoryId, memory);
+
+            await vm.start(id);
 
             break;
           }
