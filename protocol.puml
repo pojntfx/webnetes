@@ -3,20 +3,20 @@ title webnetes Resource Modification Protocol
 
 actor "External System" as es
 
-participantgroup Node 1
+box Node 1
 participant "Manager 1" as m1
 participant "Worker 1" as w1
-end
+end box
 
-participantgroup Node 2
+box Node 2
 participant "Manager 2" as m2
 participant "Worker 2" as w2
-end
+end box
 
-participantgroup Node 3
+box Node 3
 participant "Manager 3" as m3
 participant "Worker 3" as w3
-end
+end box
 
 es -> m1: modifyResources(nodeId: nid2, resources: [], remove: false)
 
