@@ -1,6 +1,6 @@
 # webnetes (w6s)
 
-Like Kubernetes, but built with WebAssembly, WebRTC and WebTorrent.
+Like Kubernetes, but built with WebAssembly, WebRTC (via [unisockets](https://github.com/pojntfx/unisockets/)) and [WebTorrent](https://webtorrent.io/).
 
 ![Yarn CI](https://github.com/pojntfx/webnetes/workflows/Yarn%20CI/badge.svg)
 ![Mirror](https://github.com/pojntfx/webnetes/workflows/Mirror/badge.svg)
