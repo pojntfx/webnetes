@@ -81,9 +81,7 @@ export class WebnetesManager {
           switch (decodedMsg.opcode) {
             case EMANAGEMENT_OPCODES.MODIFICATION: {
               const modificationData = decodedMsg.data as IModificationData;
-              const resources = JSON.parse(
-                decoder.decode(modificationData.resources)
-              );
+              const resources = JSON.parse(modificationData.resources);
 
               try {
                 await this.onModificationRequest(

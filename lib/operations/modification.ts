@@ -3,7 +3,7 @@ import { EMANAGEMENT_OPCODES, IManagementOperation } from "./operation";
 
 export interface IModificationData {
   id: string;
-  resources: Uint8Array;
+  resources: string;
   remove: boolean;
 }
 
@@ -16,7 +16,7 @@ export class Modification<T>
   constructor(id: string, resource: IResource<T>[], remove: boolean) {
     this.data = {
       id,
-      resources: new TextEncoder().encode(JSON.stringify(resource)),
+      resources: JSON.stringify(resource),
       remove,
     };
   }
