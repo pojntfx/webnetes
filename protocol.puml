@@ -1,0 +1,56 @@
+@startuml
+title webnetes Resource Modification Protocol
+
+actor "External System" as es
+
+participantgroup Node 1
+participant "Manager 1" as m1
+participant "Worker 1" as w1
+end
+
+participantgroup Node 2
+participant "Manager 2" as m2
+participant "Worker 2" as w2
+end
+
+participantgroup Node 3
+participant "Manager 3" as m3
+participant "Worker 3" as w3
+end
+
+es -> m1: modifyResources(nodeId: nid2, resources: [], remove: false)
+
+m1 ->> m2: Modification(id: id1, resources: [], remove: false)
+m2 -> w2: onModificationRequest(nodeId: nid1, resources: [], remove: false)
+
+note over w2: Resources created
+
+m2 -->> m1: ModificationConfirmation(id: id1, success: true)
+
+es -> m1: modifyResources(nodeId: nid3, resources: [], remove: false)
+
+m1 ->> m3: Modification(id: id2, resources: [], remove: false)
+m3 -> w3: onModificationRequest(nodeId: nid1, resources: [], remove: false)
+
+note over w3: Resources created
+
+m3 -->> m1: ModificationConfirmation(id: id3, success: true)
+
+es -> m1: modifyResources(nodeId: nid2, resources: [], remove: true)
+
+m1 ->> m3: Modification(id: id3, resources: [], remove: true)
+m3 -> w3: onModificationRequest(nodeId: nid1, resources: [], remove: true)
+
+note over w3: Resources deleted
+
+m3 -->> m1: ModificationConfirmation(id: id3, success: true)
+
+es -> m1: modifyResources(nodeId: nid3, resources: [], remove: true)
+
+m1 ->> m2: Modification(id: id4, resources: [], remove: true)
+m2 -> w2: onModificationRequest(nodeId: nid1, resources: [], remove: true)
+
+note over w2: Resources deleted
+
+m2 -->> m1: ModificationConfirmation(id: id4, success: true)
+@enduml

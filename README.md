@@ -14,6 +14,12 @@ Like Kubernetes, but built with WebAssembly, WebRTC (via [unisockets](https://gi
 
 TODO: Add overview docs
 
+### Resource Modification Protocol
+
+To manage resources, the following protocol is used:
+
+[![Sequence Diagram](https://pojntfx.github.io/webnetes/media/sequence.svg)](https://pojntfx.github.io/webnetes/media/sequence.svg)
+
 ## Usage
 
 TODO: Add usage docs

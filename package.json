@@ -9,11 +9,12 @@
   "binSource": "app/webnetes_node/main.ts",
   "binMain": "dist/nodeApp/main.js",
   "scripts": {
-    "build": "rm -rf dist && yarn build:lib && yarn build:app:node && yarn build:app:web && yarn build:diagram && yarn build:docs",
+    "build": "rm -rf dist && yarn build:lib && yarn build:app:node && yarn build:app:web && yarn build:docs",
     "build:lib": "rollup -c",
     "build:app:node": "rollup -c && chmod +x dist/nodeApp/main.js",
     "build:app:web": "parcel build --target webApp --no-scope-hoist app/webnetes_web/index.html",
     "build:diagram": "mkdir -p dist/media && tplant -p tsconfig.json -i 'lib/**/*.ts*' --output 'dist/media/diagram.svg'",
+    "build:protocol": "mkdir -p dist/media && puml generate --svg protocol.puml -o dist/media/sequence.svg",
     "build:docs": "mkdir -p dist/docs && typedoc --tsconfig tsconfig.json --mode file --outDir dist/docs --out dist/docs --media dist/media --exclude '+(node_modules|dist)' .",
     "test": "jest || exit 0",
     "test:update": "jest --updateSnapshot || exit 0",
