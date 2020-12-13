@@ -26,7 +26,7 @@ import { NetworkInterface } from "../networking/network-interface";
 import { FileRepository } from "../storage/file-repository";
 import { getLogger } from "../utils/logger";
 
-export class Weblet {
+export class Worker {
   private logger = getLogger();
 
   private resources = [] as IResource<any>[];
@@ -35,6 +35,8 @@ export class Weblet {
   constructor(private onRestart: () => Promise<void>) {}
 
   async createResources(resources: IResource<any>[] | string) {
+    this.logger.debug("Creating resources", { resources });
+
     if (typeof resources === "string") {
       resources = yaml.safeLoadAll(resources) as IResource<any>[];
     }
@@ -401,6 +403,8 @@ export class Weblet {
   }
 
   async deleteResources(resources: IResource<any>[] | string) {
+    this.logger.debug("Deleting resources", { resources });
+
     if (typeof resources === "string") {
       resources = yaml.safeLoadAll(resources) as IResource<any>[];
     }
@@ -478,14 +482,16 @@ export class Weblet {
       }
 
       this.resources.filter(
-        (candidate) => !this.resourcesMatch(candidate, resource)
+        (candidate) => !this.compareResources(candidate, resource)
       );
 
       this.logger.debug("Deleted resource", { resource });
     }
   }
 
-  private resourcesMatch(actual: IResource<any>, expected: IResource<any>) {
+  private compareResources(actual: IResource<any>, expected: IResource<any>) {
+    this.logger.silly("Comparing resources", { actual, expected });
+
     return (
       actual.apiVersion === expected.apiVersion &&
       actual.kind === expected.kind &&
@@ -498,8 +504,10 @@ export class Weblet {
     apiVersion: string,
     kind: EResourceKind
   ) {
+    this.logger.silly("Finding resource", { label, apiVersion, kind });
+
     return this.resources.find((candidate) =>
-      this.resourcesMatch(candidate, {
+      this.compareResources(candidate, {
         apiVersion,
         kind,
         metadata: {
@@ -516,6 +524,8 @@ export class Weblet {
     kind: EResourceKind,
     instance: T
   ) {
+    this.logger.silly("Setting instance", { label, apiVersion, kind });
+
     this.instances.set(this.getInstanceKey(apiVersion, kind, label), instance);
   }
 
@@ -524,6 +534,8 @@ export class Weblet {
     apiVersion: string,
     kind: EResourceKind
   ) {
+    this.logger.silly("Getting instance", { label, apiVersion, kind });
+
     if (this.instances.has(this.getInstanceKey(apiVersion, kind, label))) {
       return this.instances.get(
         this.getInstanceKey(apiVersion, kind, label)
@@ -538,6 +550,8 @@ export class Weblet {
     apiVersion: string,
     kind: EResourceKind
   ) {
+    this.logger.silly("Deleting instance", { label, apiVersion, kind });
+
     if (this.instances.has(this.getInstanceKey(apiVersion, kind, label))) {
       this.instances.delete(this.getInstanceKey(apiVersion, kind, label)); // We check with .has
     } else {
@@ -551,6 +565,8 @@ export class Weblet {
     kind: EResourceKind,
     field: string
   ) {
+    this.logger.silly("Resolving reference", { label, apiVersion, kind });
+
     const res = this.findResource<T>(label, apiVersion, kind);
 
     if (!res) {
@@ -565,6 +581,8 @@ export class Weblet {
     kind: EResourceKind,
     label: string
   ) {
+    this.logger.silly("Getting instance key", { label, apiVersion, kind });
+
     return `apiVersion=${apiVersion} kind=${kind} label=${label}`;
   }
 }

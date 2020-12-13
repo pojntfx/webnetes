@@ -1,5 +1,5 @@
-import { Weblet } from "../../lib/management/weblet";
-import { WebnetesManager } from "../../lib/management/webnetes-manager";
+import { Worker } from "../../lib/aggregates/worker";
+import { Manager } from "../../lib/aggregates/manager";
 import { IResource } from "../../lib/models/resource";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -229,7 +229,7 @@ metadata:
   label: go_echo_server
 `;
 
-const webnetesManagerConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+const managerNetworkConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: StunServer
 metadata:
   name: Google STUN Server
@@ -282,18 +282,18 @@ const distributor = new URLSearchParams(window.location.search).get(
 );
 
 (async () => {
-  const weblet = new Weblet(async () => window.location.reload());
-  const webnetesManager = new WebnetesManager(
-    webnetesManagerConfig,
+  const worker = new Worker(async () => window.location.reload());
+  const manager = new Manager(
+    managerNetworkConfig,
     async (id: string) => {
       console.log("Node joined", id);
 
       if (distributor) {
-        await webnetesManager.modifyResources(resourcesToCreate, false, id);
+        await manager.modifyResources(resourcesToCreate, false, id);
 
         await new Promise((res) => setTimeout(res, 20000));
 
-        await webnetesManager.modifyResources(resourcesToDelete, true, id);
+        await manager.modifyResources(resourcesToDelete, true, id);
       }
     },
     async (id: string) => {
@@ -303,12 +303,12 @@ const distributor = new URLSearchParams(window.location.search).get(
       console.log("Modifying resources", resources, remove, id);
 
       if (remove) {
-        await weblet.deleteResources(resources);
+        await worker.deleteResources(resources);
       } else {
-        await weblet.createResources(resources);
+        await worker.createResources(resources);
       }
     }
   );
 
-  await webnetesManager.open();
+  await manager.open();
 })();

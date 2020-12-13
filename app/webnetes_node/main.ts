@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from "child_process";
-import { Weblet } from "../../lib/management/weblet";
+import { Worker } from "../../lib/aggregates/worker";
 
 const resourcesToCreate = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Runtime
@@ -229,7 +229,7 @@ metadata:
 `;
 
 (async () => {
-  const weblet = new Weblet(async () => {
+  const weblet = new Worker(async () => {
     spawn(process.execPath, process.argv.slice(1), {
       cwd: process.cwd(),
       detached: true,
