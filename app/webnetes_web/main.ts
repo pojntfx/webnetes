@@ -1,5 +1,5 @@
-import { Worker } from "../../lib/aggregates/worker";
 import { Manager } from "../../lib/aggregates/manager";
+import { Worker } from "../../lib/aggregates/worker";
 import { IResource } from "../../lib/models/resource";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
