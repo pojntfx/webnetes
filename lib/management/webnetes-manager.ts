@@ -21,6 +21,9 @@ import {
 } from "../operations/operation";
 import { UnimplementedOperationError } from "../operations/unimplemented-operation";
 import { getLogger } from "../utils/logger";
+import yaml from "js-yaml";
+
+export const LOCAL = "local";
 
 export class WebnetesManager {
   private logger = getLogger();
@@ -42,9 +45,9 @@ export class WebnetesManager {
     private onNodeLeave: (id: string) => Promise<void>,
 
     private onModificationRequest: (
-      id: string,
       resources: IResource<any>[],
-      remove: boolean
+      remove: boolean,
+      id: string
     ) => Promise<void>
   ) {}
 
@@ -85,9 +88,9 @@ export class WebnetesManager {
 
               try {
                 await this.onModificationRequest(
-                  id,
                   resources,
-                  modificationData.remove
+                  modificationData.remove,
+                  id
                 );
 
                 await transporter.send(
@@ -291,40 +294,54 @@ export class WebnetesManager {
     await this.signalingClient?.close();
   }
 
+  async modifyResourcesFromYAML(
+    definition: string,
+    remove: boolean,
+    nodeId: string
+  ) {
+    const parsedResources = yaml.safeLoadAll(definition) as IResource<any>[];
+
+    await this.modifyResources<any>(parsedResources, remove, nodeId);
+  }
+
   async modifyResources<T>(
     resources: IResource<T>[],
-    id: string,
-    remove: boolean
+    remove: boolean,
+    nodeId: string
   ) {
-    if (this.signalingClient && this.transporter) {
-      if (this.nodes.includes(id)) {
-        const msgId = v4();
-
-        await new Promise<void>(async (res, rej) => {
-          (async () => {
-            const success = await this.receiveModificationConfirmationRequest(
-              msgId
-            );
-
-            success ? res() : rej(new ModificationFailedError());
-          })();
-
-          await this.transporter!.send(
-            id,
-            new TextEncoder().encode(
-              JSON.stringify(new Modification<T>(msgId, resources, remove))
-            )
-          ); // We check above
-
-          this.logger.debug("Sent resource modification request");
-        });
-
-        this.logger.debug("Got confirmation for modification");
-      } else {
-        throw new NodeNotKnownError(id);
-      }
+    if (nodeId === LOCAL) {
+      await this.onModificationRequest(resources, remove, nodeId);
     } else {
-      throw new ClosedError("signalingClient or transporter");
+      if (this.signalingClient && this.transporter) {
+        if (this.nodes.includes(nodeId)) {
+          const msgId = v4();
+
+          await new Promise<void>(async (res, rej) => {
+            (async () => {
+              const success = await this.receiveModificationConfirmationRequest(
+                msgId
+              );
+
+              success ? res() : rej(new ModificationFailedError());
+            })();
+
+            await this.transporter!.send(
+              nodeId,
+              new TextEncoder().encode(
+                JSON.stringify(new Modification<T>(msgId, resources, remove))
+              )
+            ); // We check above
+
+            this.logger.debug("Sent resource modification request");
+          });
+
+          this.logger.debug("Got confirmation for modification");
+        } else {
+          throw new NodeNotKnownError(nodeId);
+        }
+      } else {
+        throw new ClosedError("signalingClient or transporter");
+      }
     }
   }
 

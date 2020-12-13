@@ -268,29 +268,26 @@ const distributor = new URLSearchParams(window.location.search).get(
       console.log("Node joined", id);
 
       if (distributor) {
-        await new Promise((res) => setTimeout(res, 1000));
+        await webnetesManager.modifyResourcesFromYAML(
+          resourcesToCreate,
+          false,
+          id
+        );
 
-        await webnetesManager.modifyResources(
-          [
-            {
-              apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-              kind: "Runtime",
-              metadata: {
-                name: "Generic WASI",
-                label: "wasi_generic",
-              },
-            },
-          ] as IResource<any>[],
-          id,
-          false
+        await new Promise((res) => setTimeout(res, 20000));
+
+        await webnetesManager.modifyResourcesFromYAML(
+          resourcesToCreate,
+          true,
+          id
         );
       }
     },
     async (id: string) => {
       console.log("Node left", id);
     },
-    async (id: string, resources: IResource<any>[], remove: boolean) => {
-      console.log("Modifying resources", id, resources, remove);
+    async (resources: IResource<any>[], remove: boolean, id: string) => {
+      console.log("Modifying resources", resources, remove, id);
 
       if (remove) {
         await weblet.deleteResources(resources);
