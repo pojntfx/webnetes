@@ -229,6 +229,54 @@ metadata:
   label: go_echo_server
 `;
 
+const webnetesManagerConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Google STUN Server
+  label: google
+spec:
+  urls:
+  - stun:stun.l.google.com:19302
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+  - stun:global.stun.twilio.com:3478?transport=udp
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server
+  label: twillio
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+  - wss://unisockets.herokuapp.com
+  retryAfter: 1000
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Subnet
+metadata:
+  name: Echo Network
+  label: echo_network
+spec:
+  network: ""
+  prefix: 127.0.0`;
+
 const distributor = new URLSearchParams(window.location.search).get(
   "distributor"
 );
@@ -236,51 +284,16 @@ const distributor = new URLSearchParams(window.location.search).get(
 (async () => {
   const weblet = new Weblet(async () => window.location.reload());
   const webnetesManager = new WebnetesManager(
-    {
-      iceServers: [
-        {
-          urls: "stun:global.stun.twilio.com:3478?transport=udp",
-        },
-        {
-          username:
-            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
-          urls: "turn:global.turn.twilio.com:3478?transport=udp",
-          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
-        },
-        {
-          username:
-            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
-          urls: "turn:global.turn.twilio.com:3478?transport=tcp",
-          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
-        },
-        {
-          username:
-            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
-          urls: "turn:global.turn.twilio.com:443?transport=tcp",
-          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
-        },
-      ],
-    },
-    "wss://unisockets.herokuapp.com",
-    1000,
-    "10.1.1",
+    webnetesManagerConfig,
     async (id: string) => {
       console.log("Node joined", id);
 
       if (distributor) {
-        await webnetesManager.modifyResourcesFromYAML(
-          resourcesToCreate,
-          false,
-          id
-        );
+        await webnetesManager.modifyResources(resourcesToCreate, false, id);
 
         await new Promise((res) => setTimeout(res, 20000));
 
-        await webnetesManager.modifyResourcesFromYAML(
-          resourcesToCreate,
-          true,
-          id
-        );
+        await webnetesManager.modifyResources(resourcesToDelete, true, id);
       }
     },
     async (id: string) => {

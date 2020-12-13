@@ -1,3 +1,4 @@
+import yaml from "js-yaml";
 import {
   ECapabilities,
   ERuntimes,
@@ -24,7 +25,6 @@ import { Workload } from "../models/workload";
 import { NetworkInterface } from "../networking/network-interface";
 import { FileRepository } from "../storage/file-repository";
 import { getLogger } from "../utils/logger";
-import yaml from "js-yaml";
 
 export class Weblet {
   private logger = getLogger();
@@ -34,19 +34,11 @@ export class Weblet {
 
   constructor(private onRestart: () => Promise<void>) {}
 
-  async createResourcesFromYAML(definition: string) {
-    const parsedResources = yaml.safeLoadAll(definition) as IResource<any>[];
+  async createResources(resources: IResource<any>[] | string) {
+    if (typeof resources === "string") {
+      resources = yaml.safeLoadAll(resources) as IResource<any>[];
+    }
 
-    await this.createResources(parsedResources);
-  }
-
-  async deleteResourcesFromYAML(definition: string) {
-    const parsedResources = yaml.safeLoadAll(definition) as IResource<any>[];
-
-    await this.deleteResources(parsedResources);
-  }
-
-  async createResources(resources: IResource<any>[]) {
     for (let resource of resources) {
       this.logger.debug("Creating resource", { resource });
 
@@ -408,7 +400,11 @@ export class Weblet {
     }
   }
 
-  async deleteResources(resources: IResource<any>[]) {
+  async deleteResources(resources: IResource<any>[] | string) {
+    if (typeof resources === "string") {
+      resources = yaml.safeLoadAll(resources) as IResource<any>[];
+    }
+
     for (let resource of resources) {
       this.logger.debug("Deleting resource", { resource });
 
