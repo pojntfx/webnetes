@@ -95,13 +95,13 @@ export class Manager {
 
     // Transporter
     const handleTransporterConnectionConnect = async (id: string) => {
-      this.logger.verbose("Handling transporter connection connect", { id });
+      this.logger.silly("Handling transporter connection connect", { id });
     };
     const handleTransporterConnectionDisconnect = async (id: string) => {
-      this.logger.verbose("Handling transporter connection disconnect", { id });
+      this.logger.silly("Handling transporter connection disconnect", { id });
     };
     const handleTransporterChannelOpen = async (id: string) => {
-      this.logger.verbose("Handling transporter connection open", { id });
+      this.logger.silly("Handling transporter connection open", { id });
 
       this.nodes.push(id);
 
@@ -184,7 +184,7 @@ export class Manager {
     };
 
     const handleTransporterChannelClose = async (id: string) => {
-      this.logger.verbose("Handling transporter connection close", { id });
+      this.logger.silly("Handling transporter connection close", { id });
 
       this.nodes = this.nodes.filter((n) => n !== id);
 
@@ -201,13 +201,13 @@ export class Manager {
 
     // Signaling client
     const handleConnect = async () => {
-      this.logger.verbose("Handling connect");
+      this.logger.silly("Handling connect");
     };
     const handleDisconnect = async () => {
-      this.logger.verbose("Handling disconnect");
+      this.logger.silly("Handling disconnect");
     };
     const handleAcknowledgement = async (id: string, rejected: boolean) => {
-      this.logger.debug("Handling acknowledgement", { id, rejected });
+      this.logger.silly("Handling acknowledgement", { id, rejected });
 
       if (rejected) {
         throw new KnockRejectedError();
@@ -221,7 +221,7 @@ export class Manager {
     ) => {
       const offer = await transporter.getOffer(answererId, handleCandidate);
 
-      this.logger.verbose("Created offer", { answererId, offer });
+      this.logger.silly("Created offer", { answererId, offer });
 
       return offer;
     };
@@ -236,7 +236,7 @@ export class Manager {
         handleCandidate
       );
 
-      this.logger.verbose("Created answer for offer", {
+      this.logger.silly("Created answer for offer", {
         offererId,
         offer,
         answer,
@@ -249,7 +249,7 @@ export class Manager {
       answererId: string,
       answer: string
     ) => {
-      this.logger.verbose("Handling answer", { offererId, answererId, answer });
+      this.logger.silly("Handling answer", { offererId, answererId, answer });
 
       await transporter.handleAnswer(answererId, answer);
     };
@@ -258,7 +258,7 @@ export class Manager {
       answererId: string,
       candidate: string
     ) => {
-      this.logger.verbose("Handling candidate", {
+      this.logger.silly("Handling candidate", {
         offererId,
         answererId,
         candidate,
@@ -267,27 +267,27 @@ export class Manager {
       await transporter.handleCandidate(offererId, candidate);
     };
     const handleGoodbye = async (id: string) => {
-      this.logger.verbose("Handling goodbye", { id });
+      this.logger.silly("Handling goodbye", { id });
 
       await transporter.shutdown(id);
     };
     const handleAlias = async (id: string, alias: string, set: boolean) => {
-      this.logger.debug("Handling alias", { id });
+      this.logger.silly("Handling alias", { id });
 
       if (set) {
-        this.logger.verbose("Setting alias", { id, alias });
+        this.logger.silly("Setting alias", { id, alias });
 
         aliases.set(alias, id);
 
-        this.logger.debug("New aliases", {
+        this.logger.silly("New aliases", {
           aliases: JSON.stringify(Array.from(aliases)),
         });
       } else {
-        this.logger.verbose("Removing alias", { id, alias });
+        this.logger.silly("Removing alias", { id, alias });
 
         aliases.delete(alias);
 
-        this.logger.debug("New aliases", {
+        this.logger.silly("New aliases", {
           aliases: JSON.stringify(Array.from(aliases)),
         });
       }
@@ -369,10 +369,10 @@ export class Manager {
               )
             ); // We check above
 
-            this.logger.debug("Sent resource modification request");
+            this.logger.verbose("Sent resource modification request");
           });
 
-          this.logger.debug("Got confirmation for modification");
+          this.logger.verbose("Got confirmation for modification");
         } else {
           throw new NodeNotKnownError(nodeId);
         }

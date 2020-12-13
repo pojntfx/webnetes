@@ -205,7 +205,7 @@ export class VirtualMachine {
   }
 
   async start(id: string) {
-    this.logger.debug("Starting", { id });
+    this.logger.verbose("Starting", { id });
 
     if (this.containers.has(id)) {
       const container = this.containers.get(id)!; // We check with `.has`

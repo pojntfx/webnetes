@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
 import { spawn } from "child_process";
+import { Manager } from "../../lib/aggregates/manager";
 import { Worker } from "../../lib/aggregates/worker";
+import { IResource } from "../../lib/models/resource";
+
+(window as any).setImmediate = window.setInterval; // Polyfill
 
 const resourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Runtime
@@ -228,8 +232,56 @@ metadata:
   label: go_echo_server
 `;
 
+const managerNetworkConfig = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Google STUN Server
+  label: google
+spec:
+  urls:
+  - stun:stun.l.google.com:19302
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+  - stun:global.stun.twilio.com:3478?transport=udp
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server
+  label: twillio
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+  - wss://unisockets.herokuapp.com
+  retryAfter: 1000
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Subnet
+metadata:
+  name: Echo Network
+  label: echo_network
+spec:
+  network: ""
+  prefix: 127.0.0`;
+
 (async () => {
-  const weblet = new Worker(async () => {
+  const worker = new Worker(async () => {
     spawn(process.execPath, process.argv.slice(1), {
       cwd: process.cwd(),
       detached: true,
@@ -239,10 +291,24 @@ metadata:
 
     process.exit(0);
   });
+  const manager = new Manager(
+    managerNetworkConfig,
+    async (id: string) => {
+      console.log("Node joined", id);
+    },
+    async (id: string) => {
+      console.log("Node left", id);
+    },
+    async (resources: IResource<any>[], remove: boolean, id: string) => {
+      console.log("Modifying resources", resources, remove, id);
 
-  await weblet.createResourcesFromYAML(resourcesToCreate);
+      if (remove) {
+        await worker.deleteResources(resources);
+      } else {
+        await worker.createResources(resources);
+      }
+    }
+  );
 
-  await new Promise((res) => setTimeout(res, 20000));
-
-  await weblet.deleteResourcesFromYAML(resourcesToDelete);
+  await manager.open();
 })();
