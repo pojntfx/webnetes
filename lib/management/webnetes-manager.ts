@@ -1,15 +1,17 @@
-import {
-  ExtendedRTCConfiguration,
-  SignalingClient,
-  Transporter,
-} from "@pojntfx/unisockets";
+import { SignalingClient, Transporter } from "@pojntfx/unisockets";
 import Emittery from "emittery";
+import yaml from "js-yaml";
 import { v4 } from "uuid";
 import { ClosedError } from "../errors/closed";
+import { ConfigMissingError } from "../errors/config-missing";
 import { KnockRejectedError } from "../errors/knock-rejected";
 import { ModificationFailedError } from "../errors/modification-failed";
 import { NodeNotKnownError } from "../errors/unknown-node";
-import { IResource } from "../models/resource";
+import { EResourceKind, IResource } from "../models/resource";
+import { Signaler } from "../models/signaler";
+import { IStunServerSpec, StunServer } from "../models/stunserver";
+import { Subnet } from "../models/subnet";
+import { ITurnServerSpec, TurnServer } from "../models/turnserver";
 import { IModificationData, Modification } from "../operations/modification";
 import {
   IModificationConfirmationData,
@@ -21,7 +23,6 @@ import {
 } from "../operations/operation";
 import { UnimplementedOperationError } from "../operations/unimplemented-operation";
 import { getLogger } from "../utils/logger";
-import yaml from "js-yaml";
 
 export const LOCAL = "local";
 
@@ -36,10 +37,9 @@ export class WebnetesManager {
   private asyncResolver = new Emittery();
 
   constructor(
-    private transporterConfig: ExtendedRTCConfiguration,
-    private signalingServerConnectAddress: string,
-    private reconnectTimeout: number,
-    private subnetPrefix: string,
+    private networkConfig:
+      | (StunServer | TurnServer | Signaler | Subnet)[]
+      | string,
 
     private onNodeJoin: (id: string) => Promise<void>,
     private onNodeLeave: (id: string) => Promise<void>,
@@ -53,6 +53,41 @@ export class WebnetesManager {
 
   async open() {
     this.logger.verbose("Opening manager");
+
+    if (typeof this.networkConfig === "string") {
+      this.networkConfig = yaml.safeLoadAll(this.networkConfig);
+    }
+
+    const transporterConfig = {
+      iceServers: this.networkConfig
+        .filter((c) =>
+          [EResourceKind.STUNSERVER, EResourceKind.TURNSERVER].includes(c.kind)
+        )
+        .map((c) =>
+          c.kind === EResourceKind.STUNSERVER
+            ? {
+                urls: (c.spec as IStunServerSpec).urls,
+              }
+            : {
+                urls: (c.spec as ITurnServerSpec).urls,
+                username: (c.spec as ITurnServerSpec).username,
+                credential: (c.spec as ITurnServerSpec).credential,
+              }
+        ),
+    };
+    const signalerConfig = this.networkConfig.find(
+      (c) => c.kind === EResourceKind.SIGNALER
+    ) as Signaler;
+    if (!signalerConfig) {
+      throw new ConfigMissingError("signaler");
+    }
+
+    const subnetConfig = this.networkConfig.find(
+      (c) => c.kind === EResourceKind.SUBNET
+    ) as Subnet;
+    if (!subnetConfig) {
+      throw new ConfigMissingError("subnet");
+    }
 
     // State
     const ready = new Emittery();
@@ -157,7 +192,7 @@ export class WebnetesManager {
     };
 
     const transporter = new Transporter(
-      this.transporterConfig,
+      transporterConfig,
       handleTransporterConnectionConnect,
       handleTransporterConnectionDisconnect,
       handleTransporterChannelOpen,
@@ -259,9 +294,9 @@ export class WebnetesManager {
     };
 
     const signalingClient = new SignalingClient(
-      this.signalingServerConnectAddress,
-      this.reconnectTimeout,
-      this.subnetPrefix,
+      signalerConfig.spec.urls[0],
+      signalerConfig.spec.retryAfter,
+      subnetConfig.spec.prefix,
       handleConnect,
       handleDisconnect,
       handleAcknowledgement,
@@ -294,21 +329,15 @@ export class WebnetesManager {
     await this.signalingClient?.close();
   }
 
-  async modifyResourcesFromYAML(
-    definition: string,
-    remove: boolean,
-    nodeId: string
-  ) {
-    const parsedResources = yaml.safeLoadAll(definition) as IResource<any>[];
-
-    await this.modifyResources<any>(parsedResources, remove, nodeId);
-  }
-
   async modifyResources<T>(
-    resources: IResource<T>[],
+    resources: IResource<T>[] | string,
     remove: boolean,
     nodeId: string
   ) {
+    if (typeof resources === "string") {
+      resources = yaml.safeLoadAll(resources) as IResource<any>[];
+    }
+
     if (nodeId === LOCAL) {
       await this.onModificationRequest(resources, remove, nodeId);
     } else {
@@ -328,7 +357,13 @@ export class WebnetesManager {
             await this.transporter!.send(
               nodeId,
               new TextEncoder().encode(
-                JSON.stringify(new Modification<T>(msgId, resources, remove))
+                JSON.stringify(
+                  new Modification<T>(
+                    msgId,
+                    resources as IResource<T>[],
+                    remove
+                  )
+                )
               )
             ); // We check above
 
