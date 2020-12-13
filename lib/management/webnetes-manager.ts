@@ -7,10 +7,14 @@ import Emittery from "emittery";
 import { v4 } from "uuid";
 import { ClosedError } from "../errors/closed";
 import { KnockRejectedError } from "../errors/knock-rejected";
+import { ModificationFailedError } from "../errors/modification-failed";
 import { NodeNotKnownError } from "../errors/unknown-node";
 import { IResource } from "../models/resource";
 import { IModificationData, Modification } from "../operations/modification";
-import { ModificationConfirmation } from "../operations/modification-confirmation";
+import {
+  IModificationConfirmationData,
+  ModificationConfirmation,
+} from "../operations/modification-confirmation";
 import {
   EMANAGEMENT_OPCODES,
   IManagementOperation,
@@ -24,8 +28,9 @@ export class WebnetesManager {
   private signalingClient?: SignalingClient;
   private transporter?: Transporter;
 
-  private id = "";
   private nodes = [] as string[];
+  private queuedModificationConfirmations = [] as IModificationConfirmationData[];
+  private asyncResolver = new Emittery();
 
   constructor(
     private transporterConfig: ExtendedRTCConfiguration,
@@ -115,7 +120,22 @@ export class WebnetesManager {
               break;
             }
 
-            // TODO: Handle ModificationRequest as described in the TODO below
+            case EMANAGEMENT_OPCODES.MODIFICATION_CONFIRMATION: {
+              const modificationConfirmationData = decodedMsg.data as IModificationConfirmationData;
+
+              this.queuedModificationConfirmations.push(
+                modificationConfirmationData
+              );
+
+              this.asyncResolver.emit(
+                this.getModificationConfirmationKey(
+                  modificationConfirmationData.id
+                ),
+                modificationConfirmationData.success
+              );
+
+              break;
+            }
 
             default: {
               throw new UnimplementedOperationError(decodedMsg.opcode);
@@ -126,6 +146,7 @@ export class WebnetesManager {
 
       await this.onNodeJoin(id);
     };
+
     const handleTransporterChannelClose = async (id: string) => {
       this.logger.verbose("Handling transporter connection close", { id });
 
@@ -155,8 +176,6 @@ export class WebnetesManager {
       if (rejected) {
         throw new KnockRejectedError();
       }
-
-      this.id = id;
 
       await ready.emit("ready", true);
     };
@@ -283,21 +302,52 @@ export class WebnetesManager {
       if (this.nodes.includes(id)) {
         const msgId = v4();
 
-        // TODO: Add receiver after getting local ID & subscribe till modificationConfirmation is returned, then resolve
+        await new Promise<void>(async (res, rej) => {
+          (async () => {
+            const success = await this.receiveModificationConfirmationRequest(
+              msgId
+            );
 
-        await this.transporter!.send(
-          id,
-          new TextEncoder().encode(
-            JSON.stringify(new Modification<T>(msgId, resources, remove))
-          )
-        ); // We check above
+            success ? res() : rej(new ModificationFailedError());
+          })();
 
-        this.logger.debug("Sent resource modification request");
+          await this.transporter!.send(
+            id,
+            new TextEncoder().encode(
+              JSON.stringify(new Modification<T>(msgId, resources, remove))
+            )
+          ); // We check above
+
+          this.logger.debug("Sent resource modification request");
+        });
+
+        this.logger.debug("Got confirmation for modification");
       } else {
         throw new NodeNotKnownError(id);
       }
     } else {
       throw new ClosedError("signalingClient or transporter");
+    }
+  }
+
+  private getModificationConfirmationKey(id: string) {
+    return `modificationConfirmation=${id}`;
+  }
+
+  private async receiveModificationConfirmationRequest(id: string) {
+    if (this.queuedModificationConfirmations.find((c) => c.id === id)) {
+      return this.queuedModificationConfirmations.find((c) => c.id === id)!
+        .success; // We check above
+    } else {
+      const msg = await this.asyncResolver.once(
+        this.getModificationConfirmationKey(id)
+      );
+
+      this.queuedModificationConfirmations = this.queuedModificationConfirmations.filter(
+        (c) => c.id !== id
+      );
+
+      return msg! as boolean; // We check above
     }
   }
 }
