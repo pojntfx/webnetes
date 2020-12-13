@@ -33,16 +33,16 @@ export class NetworkInterface {
 
     // Transporter
     const handleTransporterConnectionConnect = async (id: string) => {
-      this.logger.verbose("Handling transporter connection connect", { id });
+      this.logger.silly("Handling transporter connection connect", { id });
     };
     const handleTransporterConnectionDisconnect = async (id: string) => {
-      this.logger.verbose("Handling transporter connection disconnect", { id });
+      this.logger.silly("Handling transporter connection disconnect", { id });
     };
     const handleTransporterChannelOpen = async (id: string) => {
-      this.logger.verbose("Handling transporter connection open", { id });
+      this.logger.silly("Handling transporter connection open", { id });
     };
     const handleTransporterChannelClose = async (id: string) => {
-      this.logger.verbose("Handling transporter connection close", { id });
+      this.logger.silly("Handling transporter connection close", { id });
     };
 
     const transporter = new Transporter(
@@ -55,13 +55,13 @@ export class NetworkInterface {
 
     // Signaling client
     const handleConnect = async () => {
-      this.logger.verbose("Handling connect");
+      this.logger.silly("Handling connect");
     };
     const handleDisconnect = async () => {
-      this.logger.verbose("Handling disconnect");
+      this.logger.silly("Handling disconnect");
     };
     const handleAcknowledgement = async (id: string, rejected: boolean) => {
-      this.logger.debug("Handling acknowledgement", { id, rejected });
+      this.logger.silly("Handling acknowledgement", { id, rejected });
 
       if (rejected) {
         throw new KnockRejectedError();
@@ -75,7 +75,7 @@ export class NetworkInterface {
     ) => {
       const offer = await transporter.getOffer(answererId, handleCandidate);
 
-      this.logger.verbose("Created offer", { answererId, offer });
+      this.logger.silly("Created offer", { answererId, offer });
 
       return offer;
     };
@@ -90,7 +90,7 @@ export class NetworkInterface {
         handleCandidate
       );
 
-      this.logger.verbose("Created answer for offer", {
+      this.logger.silly("Created answer for offer", {
         offererId,
         offer,
         answer,
@@ -103,7 +103,7 @@ export class NetworkInterface {
       answererId: string,
       answer: string
     ) => {
-      this.logger.verbose("Handling answer", { offererId, answererId, answer });
+      this.logger.silly("Handling answer", { offererId, answererId, answer });
 
       await transporter.handleAnswer(answererId, answer);
     };
@@ -112,7 +112,7 @@ export class NetworkInterface {
       answererId: string,
       candidate: string
     ) => {
-      this.logger.verbose("Handling candidate", {
+      this.logger.silly("Handling candidate", {
         offererId,
         answererId,
         candidate,
@@ -121,27 +121,27 @@ export class NetworkInterface {
       await transporter.handleCandidate(offererId, candidate);
     };
     const handleGoodbye = async (id: string) => {
-      this.logger.verbose("Handling goodbye", { id });
+      this.logger.silly("Handling goodbye", { id });
 
       await transporter.shutdown(id);
     };
     const handleAlias = async (id: string, alias: string, set: boolean) => {
-      this.logger.debug("Handling alias", { id });
+      this.logger.silly("Handling alias", { id });
 
       if (set) {
-        this.logger.verbose("Setting alias", { id, alias });
+        this.logger.silly("Setting alias", { id, alias });
 
         aliases.set(alias, id);
 
-        this.logger.debug("New aliases", {
+        this.logger.silly("New aliases", {
           aliases: JSON.stringify(Array.from(aliases)),
         });
       } else {
-        this.logger.verbose("Removing alias", { id, alias });
+        this.logger.silly("Removing alias", { id, alias });
 
         aliases.delete(alias);
 
-        this.logger.debug("New aliases", {
+        this.logger.silly("New aliases", {
           aliases: JSON.stringify(Array.from(aliases)),
         });
       }
@@ -164,25 +164,25 @@ export class NetworkInterface {
 
     // Socket
     const handleExternalBind = async (alias: string) => {
-      this.logger.verbose("Handling external bind", { alias });
+      this.logger.silly("Handling external bind", { alias });
 
       await signalingClient.bind(alias);
     };
 
     const handleExternalAccept = async (alias: string) => {
-      this.logger.verbose("Handling external accept", { alias });
+      this.logger.silly("Handling external accept", { alias });
 
       return await signalingClient.accept(alias);
     };
 
     const handleExternalConnect = async (alias: string) => {
-      this.logger.verbose("Handling external connect", { alias });
+      this.logger.silly("Handling external connect", { alias });
 
       await signalingClient.connect(alias);
     };
 
     const handleExternalSend = async (alias: string, msg: Uint8Array) => {
-      this.logger.verbose("Handling external send", { alias, msg });
+      this.logger.silly("Handling external send", { alias, msg });
 
       if (aliases.has(alias)) {
         return await transporter.send(aliases.get(alias)!, msg); // .has
@@ -195,7 +195,7 @@ export class NetworkInterface {
       if (aliases.has(alias)) {
         const msg = await transporter.recv(aliases.get(alias)!); // .has
 
-        this.logger.verbose("Handling external recv", { alias, msg });
+        this.logger.silly("Handling external recv", { alias, msg });
 
         return msg;
       } else {

@@ -42,7 +42,7 @@ export class Worker {
     }
 
     for (let resource of resources) {
-      this.logger.debug("Creating resource", { resource });
+      this.logger.silly("Creating resource", { resource });
 
       if (!Object.values(EResourceKind).includes(resource.kind)) {
         throw new UnimplementedResourceError();
@@ -203,7 +203,7 @@ export class Worker {
             EResourceKind.WORKLOAD,
           ].includes(resource.kind)
         ) {
-          this.logger.verbose("Handling create hooks for resource", {
+          this.logger.silly("Handling create hooks for resource", {
             resource,
           });
 
@@ -397,7 +397,7 @@ export class Worker {
 
         this.resources.push(resource);
 
-        this.logger.debug("Added resource", { resource });
+        this.logger.verbose("Added resource", { resource });
       }
     }
   }
@@ -410,7 +410,7 @@ export class Worker {
     }
 
     for (let resource of resources) {
-      this.logger.debug("Deleting resource", { resource });
+      this.logger.silly("Deleting resource", { resource });
 
       if (!Object.values(EResourceKind).includes(resource.kind)) {
         throw new UnimplementedResourceError();
@@ -424,7 +424,7 @@ export class Worker {
           EResourceKind.WORKLOAD,
         ].includes(resource.kind)
       ) {
-        this.logger.verbose("Handling delete hooks for resource", { resource });
+        this.logger.silly("Handling delete hooks for resource", { resource });
 
         switch (resource.kind) {
           case EResourceKind.SUBNET: {
@@ -485,7 +485,7 @@ export class Worker {
         (candidate) => !this.compareResources(candidate, resource)
       );
 
-      this.logger.debug("Deleted resource", { resource });
+      this.logger.verbose("Deleted resource", { resource });
     }
   }
 
