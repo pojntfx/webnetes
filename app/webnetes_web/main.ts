@@ -4,7 +4,7 @@ import { IResource } from "../../lib/models/resource";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-const resourcesToCreate = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+const demoResources = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Runtime
 metadata:
   name: Generic WASI
@@ -208,28 +208,7 @@ spec:
   arguments: echo_server
 `;
 
-const resourcesToDelete = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
-metadata:
-  label: echo_network
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Repository
-metadata:
-  label: webtorrent_public
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  label: go_echo_server
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Workload
-metadata:
-  label: go_echo_server
-`;
-
-const managerNetworkConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+const demoManagerConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: StunServer
 metadata:
   name: Google STUN Server
@@ -277,27 +256,46 @@ spec:
   network: ""
   prefix: 127.0.0`;
 
-const distributor = new URLSearchParams(window.location.search).get(
-  "distributor"
-);
+(document.getElementById(
+  "manager-config-input"
+) as HTMLTextAreaElement).value = demoManagerConfig;
 
-(async () => {
+document.getElementById("start")?.addEventListener("click", async () => {
+  (document.getElementById("management") as HTMLTextAreaElement).style.cssText =
+    "";
+
   const worker = new Worker(async () => window.location.reload());
   const manager = new Manager(
-    managerNetworkConfig,
+    (document.getElementById(
+      "manager-config-input"
+    ) as HTMLTextAreaElement).value,
     async (id: string) => {
       console.log("Node joined", id);
 
-      if (distributor) {
-        await manager.modifyResources(resourcesToCreate, false, id);
+      const nodeText = document.createTextNode(id);
+      const nodeEl = document.createElement("li");
+      nodeEl.appendChild(nodeText);
 
-        await new Promise((res) => setTimeout(res, 20000));
+      const nodeOption = document.createElement("option");
+      nodeOption.setAttribute("value", id);
+      nodeOption.appendChild(nodeText.cloneNode());
 
-        await manager.modifyResources(resourcesToDelete, true, id);
-      }
+      document.getElementById("node-list")?.appendChild(nodeEl);
+      document.getElementById("node-id-input")?.appendChild(nodeOption);
     },
     async (id: string) => {
       console.log("Node left", id);
+
+      document
+        .getElementById("node-list")
+        ?.childNodes.forEach(
+          (node) => node.textContent === id && node.remove()
+        );
+      document
+        .getElementById("node-id-input")
+        ?.childNodes.forEach(
+          (node) => (node as HTMLOptionElement).value === id && node.remove()
+        );
     },
     async (resources: IResource<any>[], remove: boolean, id: string) => {
       console.log("Modifying resources", resources, remove, id);
@@ -311,4 +309,24 @@ const distributor = new URLSearchParams(window.location.search).get(
   );
 
   await manager.open();
-})();
+
+  document.getElementById("create")?.addEventListener("click", async () => {
+    await manager.modifyResources(
+      (document.getElementById("resource-input") as HTMLTextAreaElement).value,
+      false,
+      (document.getElementById("node-id-input") as HTMLSelectElement).value
+    );
+  });
+
+  document.getElementById("delete")?.addEventListener("click", async () => {
+    await manager.modifyResources(
+      (document.getElementById("resource-input") as HTMLTextAreaElement).value,
+      true,
+      (document.getElementById("node-id-input") as HTMLSelectElement).value
+    );
+  });
+
+  (document.getElementById(
+    "resource-input"
+  ) as HTMLTextAreaElement).value = demoResources;
+});

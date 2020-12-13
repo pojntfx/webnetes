@@ -372,7 +372,7 @@ export class Manager {
             this.logger.verbose("Sent resource modification request");
           });
 
-          this.logger.verbose("Got confirmation for modification");
+          this.logger.verbose("Got successful confirmation for modification");
         } else {
           throw new NodeNotKnownError(nodeId);
         }

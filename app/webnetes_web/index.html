@@ -4,9 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>webnetes Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/marx-css/css/marx.min.css" />
   </head>
   <body>
-    <h1>Check your console!</h1>
+    <main>
+      <h1>Webnetes Demo</h1>
+
+      <section id="manager">
+        <h2>Manager</h2>
+
+        <label for="manager-config-input">Configuration:</label>
+        <br />
+        <textarea
+          id="manager-config-input"
+          placeholder="Resource YAML"
+        ></textarea>
+
+        <br />
+
+        <button id="start">Start</button>
+      </section>
+
+      <section id="management" style="display: none">
+        <h2>Connected Nodes</h2>
+
+        <ul id="node-list"></ul>
+
+        <h2>Resources</h2>
+
+        <label for="resource-input">Definitions:</label>
+        <br />
+        <textarea id="resource-input" placeholder="Resource YAML"></textarea>
+
+        <br />
+
+        <label for="node-id-input">Node ID:</label>
+        <select id="node-id-input">
+          <option value="local">local</option>
+        </select>
+
+        <br />
+
+        <button id="create">Create</button>
+        <button id="delete">Delete</button>
+      </section>
+    </main>
 
     <script src="./main.ts"></script>
   </body>
