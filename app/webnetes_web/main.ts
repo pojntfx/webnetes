@@ -4,82 +4,7 @@ import { IResource } from "../../lib/models/resource";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-const params = new URLSearchParams(window.location.search);
-const isManager = params.get("manager");
-
-if (isManager) {
-  const mgr = new WebnetesManager(
-    {
-      iceServers: [
-        {
-          urls: "stun:global.stun.twilio.com:3478?transport=udp",
-        },
-        {
-          username:
-            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
-          urls: "turn:global.turn.twilio.com:3478?transport=udp",
-          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
-        },
-        {
-          username:
-            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
-          urls: "turn:global.turn.twilio.com:3478?transport=tcp",
-          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
-        },
-        {
-          username:
-            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
-          urls: "turn:global.turn.twilio.com:443?transport=tcp",
-          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
-        },
-      ],
-    },
-    "wss://unisockets.herokuapp.com",
-    1000,
-    "10.1.1",
-    async (id: string) => {
-      console.log("Node joined", id);
-
-      if (params.get("sender")) {
-        await new Promise((res) => setTimeout(res, 1000));
-
-        await mgr.modifyResources(
-          [
-            {
-              apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
-              kind: "Runtime",
-              metadata: {
-                name: "Generic WASI",
-                label: "wasi_generic",
-              },
-            },
-          ] as IResource<any>[],
-          id,
-          false
-        );
-      }
-    },
-    async (id: string) => {
-      console.log("Node left", id);
-    },
-    async (id: string, resources: IResource<any>[], remove: boolean) => {
-      // TODO: Only handle for pre-set ID ("access token")
-      console.log(
-        "Modification request from",
-        id,
-        "received, handling modification remove=",
-        remove,
-        "to resources",
-        resources
-      );
-    }
-  );
-
-  (async () => {
-    await mgr.open();
-  })();
-} else {
-  const resourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+const resourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Runtime
 metadata:
   name: Generic WASI
@@ -283,7 +208,7 @@ spec:
   arguments: echo_server
 `;
 
-  const resourcesToDelete = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+const resourcesToDelete = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Subnet
 metadata:
   label: echo_network
@@ -304,13 +229,76 @@ metadata:
   label: go_echo_server
 `;
 
-  (async () => {
-    const weblet = new Weblet(async () => window.location.reload());
+const distributor = new URLSearchParams(window.location.search).get(
+  "distributor"
+);
 
-    await weblet.createResourcesFromYAML(resourcesToCreate);
+(async () => {
+  const weblet = new Weblet(async () => window.location.reload());
+  const webnetesManager = new WebnetesManager(
+    {
+      iceServers: [
+        {
+          urls: "stun:global.stun.twilio.com:3478?transport=udp",
+        },
+        {
+          username:
+            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
+          urls: "turn:global.turn.twilio.com:3478?transport=udp",
+          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
+        },
+        {
+          username:
+            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
+          urls: "turn:global.turn.twilio.com:3478?transport=tcp",
+          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
+        },
+        {
+          username:
+            "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
+          urls: "turn:global.turn.twilio.com:443?transport=tcp",
+          credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
+        },
+      ],
+    },
+    "wss://unisockets.herokuapp.com",
+    1000,
+    "10.1.1",
+    async (id: string) => {
+      console.log("Node joined", id);
 
-    await new Promise((res) => setTimeout(res, 20000));
+      if (distributor) {
+        await new Promise((res) => setTimeout(res, 1000));
 
-    await weblet.deleteResourcesFromYAML(resourcesToDelete);
-  })();
-}
+        await webnetesManager.modifyResources(
+          [
+            {
+              apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+              kind: "Runtime",
+              metadata: {
+                name: "Generic WASI",
+                label: "wasi_generic",
+              },
+            },
+          ] as IResource<any>[],
+          id,
+          false
+        );
+      }
+    },
+    async (id: string) => {
+      console.log("Node left", id);
+    },
+    async (id: string, resources: IResource<any>[], remove: boolean) => {
+      console.log("Modifying resources", id, resources, remove);
+
+      if (remove) {
+        await weblet.deleteResources(resources);
+      } else {
+        await weblet.createResources(resources);
+      }
+    }
+  );
+
+  await webnetesManager.open();
+})();
