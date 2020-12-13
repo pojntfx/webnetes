@@ -26,7 +26,7 @@ import { getLogger } from "../utils/logger";
 
 export const LOCAL = "local";
 
-export class WebnetesManager {
+export class Manager {
   private logger = getLogger();
 
   private signalingClient?: SignalingClient;
@@ -52,7 +52,7 @@ export class WebnetesManager {
   ) {}
 
   async open() {
-    this.logger.verbose("Opening manager");
+    this.logger.debug("Opening manager");
 
     if (typeof this.networkConfig === "string") {
       this.networkConfig = yaml.safeLoadAll(this.networkConfig);
@@ -323,7 +323,7 @@ export class WebnetesManager {
   }
 
   async close() {
-    this.logger.verbose("Closing manager");
+    this.logger.debug("Closing manager");
 
     await this.transporter?.close();
     await this.signalingClient?.close();
@@ -334,6 +334,8 @@ export class WebnetesManager {
     remove: boolean,
     nodeId: string
   ) {
+    this.logger.debug("Modifying resources", { resources, remove, nodeId });
+
     if (typeof resources === "string") {
       resources = yaml.safeLoadAll(resources) as IResource<any>[];
     }
@@ -381,10 +383,14 @@ export class WebnetesManager {
   }
 
   private getModificationConfirmationKey(id: string) {
+    this.logger.silly("Getting modification configrmation key", { id });
+
     return `modificationConfirmation=${id}`;
   }
 
   private async receiveModificationConfirmationRequest(id: string) {
+    this.logger.silly("Receiving modification confirmation request", { id });
+
     if (this.queuedModificationConfirmations.find((c) => c.id === id)) {
       return this.queuedModificationConfirmations.find((c) => c.id === id)!
         .success; // We check above

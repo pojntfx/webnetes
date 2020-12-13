@@ -13,7 +13,7 @@ export class FileRepository {
   constructor(private trackers: string[]) {}
 
   async open() {
-    this.logger.verbose("Opening file repository");
+    this.logger.debug("Opening file repository");
 
     this.client = new WebTorrent({
       tracker: {
@@ -23,7 +23,7 @@ export class FileRepository {
   }
 
   async close() {
-    this.logger.verbose("Closing file repository");
+    this.logger.debug("Closing file repository");
 
     await new Promise<void>((res, rej) =>
       this.client?.destroy((e: any) => (e ? rej(e) : res()))
@@ -31,6 +31,8 @@ export class FileRepository {
   }
 
   async seed(content: Uint8Array) {
+    this.logger.debug("Seeding", { content });
+
     if (this.client) {
       return await new Promise<string>((res, rej) => {
         try {
@@ -51,6 +53,8 @@ export class FileRepository {
   }
 
   async add(magnetURI: string) {
+    this.logger.debug("Adding", { magnetURI });
+
     if (this.client) {
       const existingTorrent = this.client!.get(magnetURI); // We check above
 
@@ -105,6 +109,8 @@ export class FileRepository {
   }
 
   async remove(magnetURI: string) {
+    this.logger.debug("Removing", { magnetURI });
+
     if (this.client) {
       await new Promise<void>((res, rej) =>
         this.client!.remove(magnetURI, {}, (e) => (e ? rej(e) : res()))

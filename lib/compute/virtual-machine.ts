@@ -4,6 +4,7 @@ import * as Asyncify from "asyncify-wasm";
 import { v4 } from "uuid";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { UnimplementedRuntimeError } from "../errors/node-not-known";
+import { getLogger } from "../utils/logger";
 
 export enum ECapabilities {}
 
@@ -23,6 +24,8 @@ interface Container<T> {
 export class VirtualMachine {
   private containers = new Map<string, Container<any>>();
 
+  private logger = getLogger();
+
   async schedule(
     bin: Uint8Array,
     args: string[],
@@ -31,6 +34,15 @@ export class VirtualMachine {
     capabilities: ECapabilities[], // TODO: Add privileged capabilites
     runtime: ERuntimes
   ) {
+    this.logger.debug("Scheduling", {
+      bin,
+      args,
+      env,
+      imports,
+      capabilities,
+      runtime,
+    });
+
     const id = v4();
 
     let wasiBindings: any = {};
@@ -193,6 +205,8 @@ export class VirtualMachine {
   }
 
   async start(id: string) {
+    this.logger.debug("Starting", { id });
+
     if (this.containers.has(id)) {
       const container = this.containers.get(id)!; // We check with `.has`
 

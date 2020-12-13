@@ -25,7 +25,7 @@ export class NetworkInterface {
   ) {}
 
   async open() {
-    this.logger.verbose("Opening network interface");
+    this.logger.debug("Opening network interface");
 
     // State
     const ready = new Emittery();
@@ -227,13 +227,15 @@ export class NetworkInterface {
   }
 
   async close() {
-    this.logger.verbose("Closing network interface");
+    this.logger.debug("Closing network interface");
 
     await this.transporter?.close();
     await this.signalingClient?.close();
   }
 
   async getImports(): Promise<any> {
+    this.logger.debug("Getting imports");
+
     if (this.sockets) {
       return this.sockets.getImports();
     } else {
@@ -242,6 +244,8 @@ export class NetworkInterface {
   }
 
   async setMemory(memoryId: string, memory: Uint8Array) {
+    this.logger.debug("Setting memory", { memoryId, memory });
+
     if (this.sockets) {
       return this.sockets.setMemory(memoryId, memory);
     } else {
