@@ -141,6 +141,13 @@ spec:
   trackers:
   - openwebtorrent
   - fastcast
+  stunServers:
+  - google
+  - twillio
+  turnServers:
+  - twillio_udp
+  - twillio_tcp
+  - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: File
@@ -312,6 +319,13 @@ spec:
   trackers:
   - openwebtorrent
   - fastcast
+  stunServers:
+  - google
+  - twillio
+  turnServers:
+  - twillio_udp
+  - twillio_tcp
+  - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: File
