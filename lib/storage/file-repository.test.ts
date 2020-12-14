@@ -9,7 +9,13 @@ describe("FileRepository", () => {
   let fileRepository: FileRepository;
 
   beforeEach(() => {
-    fileRepository = new FileRepository(testTrackers);
+    fileRepository = new FileRepository(testTrackers, {
+      iceServers: [
+        {
+          urls: "stun:stun.l.google.com:19302",
+        },
+      ],
+    });
   });
 
   describe("lifecycle", () => {
@@ -58,7 +64,13 @@ describe("FileRepository", () => {
         let seedingRepo: FileRepository;
 
         beforeAll(async () => {
-          seedingRepo = new FileRepository(testTrackers);
+          seedingRepo = new FileRepository(testTrackers, {
+            iceServers: [
+              {
+                urls: "stun:stun.l.google.com:19302",
+              },
+            ],
+          });
 
           await seedingRepo.open();
 
