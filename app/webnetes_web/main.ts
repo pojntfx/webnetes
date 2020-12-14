@@ -519,4 +519,24 @@ document.getElementById("start")?.addEventListener("click", async () => {
         "resource-input"
       ) as HTMLTextAreaElement).value = exampleClientResources;
     });
+
+  document
+    .getElementById("seed-file-start")
+    ?.addEventListener("click", async () => {
+      const file = (document.getElementById(
+        "seed-file-input"
+      ) as HTMLInputElement)?.files![0];
+
+      const magnetURI = await worker.seed(
+        (document.getElementById("seed-file-repository") as HTMLInputElement)
+          .value,
+        new Uint8Array(await file.arrayBuffer())
+      );
+
+      const fileText = document.createTextNode(magnetURI);
+      const fileEl = document.createElement("li");
+      fileEl.appendChild(fileText);
+
+      document.getElementById("seeded-files")?.appendChild(fileEl);
+    });
 });

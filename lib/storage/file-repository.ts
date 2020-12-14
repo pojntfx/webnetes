@@ -36,7 +36,7 @@ export class FileRepository {
   }
 
   async seed(content: Uint8Array) {
-    this.logger.debug("Seeding", { content });
+    this.logger.debug("Seeding");
 
     if (this.client) {
       return await new Promise<string>((res, rej) => {
