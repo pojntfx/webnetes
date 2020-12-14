@@ -286,7 +286,34 @@ export class Worker {
                 )
                 .reduce((all, cur) => [...all, ...cur], []);
 
-              const repo = new FileRepository(trackers);
+              const stunServers = repoSpec.stunServers
+                .map((label) =>
+                  this.findResource<IStunServerSpec>(
+                    label,
+                    API_VERSION,
+                    EResourceKind.STUNSERVER
+                  )
+                )
+                .map((s) => ({
+                  urls: s.spec.urls,
+                }));
+              const turnServers = repoSpec.turnServers
+                .map((label) =>
+                  this.findResource<ITurnServerSpec>(
+                    label,
+                    API_VERSION,
+                    EResourceKind.TURNSERVER
+                  )
+                )
+                .map((s) => ({
+                  urls: s.spec.urls,
+                  username: s.spec.username,
+                  credential: s.spec.credential,
+                }));
+
+              const repo = new FileRepository(trackers, {
+                iceServers: [...stunServers, ...turnServers],
+              });
 
               this.setInstance<FileRepository>(
                 resource.metadata.label,

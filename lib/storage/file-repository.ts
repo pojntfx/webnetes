@@ -1,3 +1,4 @@
+import { ExtendedRTCConfiguration } from "@pojntfx/unisockets";
 import WebTorrent from "webtorrent-hybrid";
 import { ClosedError } from "../errors/closed";
 import { FileNotInTorrentError } from "../errors/file-not-in-torrent";
@@ -10,13 +11,17 @@ export class FileRepository {
 
   private client?: WebTorrent.Instance;
 
-  constructor(private trackers: string[]) {}
+  constructor(
+    private trackers: string[],
+    private transporterConfig: ExtendedRTCConfiguration
+  ) {}
 
   async open() {
     this.logger.debug("Opening file repository");
 
     this.client = new WebTorrent({
       tracker: {
+        rtcConfig: this.transporterConfig,
         announce: this.trackers,
       },
     });

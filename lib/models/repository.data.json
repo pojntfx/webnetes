@@ -6,6 +6,8 @@
     "label": "webtorrent_public"
   },
   "spec": {
-    "trackers": ["openwebtorrent", "btorrent", "fastcast"]
+    "trackers": ["openwebtorrent", "fastcast"],
+    "stunServers": ["google", "twillio"],
+    "turnServers": ["twillio_udp", "twillio_tcp", "twillio_tcp_fallback"]
   }
 }

@@ -7,6 +7,8 @@ import {
 
 export interface IRepositorySpec {
   trackers: string[];
+  stunServers: string[];
+  turnServers: string[];
 }
 
 export class Repository implements IResource<IRepositorySpec> {
