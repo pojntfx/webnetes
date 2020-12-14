@@ -480,8 +480,30 @@ document.getElementById("start")?.addEventListener("click", async () => {
 
       if (remove) {
         await worker.deleteResources(resources);
+
+        document.getElementById("resource-list")?.childNodes.forEach((node) => {
+          const resource = JSON.parse(node.textContent!) as IResource<any>;
+
+          resources.forEach((newResource: IResource<any>) => {
+            if (
+              newResource.apiVersion === resource.apiVersion &&
+              newResource.kind === resource.kind &&
+              newResource.metadata.label === resource.metadata.label
+            ) {
+              node.remove();
+            }
+          });
+        });
       } else {
         await worker.createResources(resources);
+
+        resources.forEach((newResource: IResource<any>) => {
+          const nodeText = document.createTextNode(JSON.stringify(newResource));
+          const nodeEl = document.createElement("li");
+          nodeEl.appendChild(nodeText);
+
+          document.getElementById("resource-list")?.appendChild(nodeEl);
+        });
       }
     }
   );
@@ -527,16 +549,16 @@ document.getElementById("start")?.addEventListener("click", async () => {
         "seed-file-input"
       ) as HTMLInputElement)?.files![0];
 
-      const magnetURI = await worker.seed(
+      const newResource = await worker.seed(
         (document.getElementById("seed-file-repository") as HTMLInputElement)
           .value,
         new Uint8Array(await file.arrayBuffer())
       );
 
-      const fileText = document.createTextNode(magnetURI);
-      const fileEl = document.createElement("li");
-      fileEl.appendChild(fileText);
+      const nodeText = document.createTextNode(JSON.stringify(newResource));
+      const nodeEl = document.createElement("li");
+      nodeEl.appendChild(nodeText);
 
-      document.getElementById("seeded-files")?.appendChild(fileEl);
+      document.getElementById("resource-list")?.appendChild(nodeEl);
     });
 });
