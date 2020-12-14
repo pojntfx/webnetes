@@ -491,6 +491,16 @@ export class Worker {
           }
 
           case EResourceKind.FILE: {
+            const file = resource as File;
+
+            const repo = this.getInstance<FileRepository>(
+              file.spec.repository,
+              API_VERSION,
+              EResourceKind.REPOSITORY
+            );
+
+            await repo.remove(file.spec.uri);
+
             this.deleteInstance(
               resource.metadata.label,
               API_VERSION,
@@ -514,6 +524,16 @@ export class Worker {
 
       this.logger.verbose("Deleted resource", { resource });
     }
+  }
+
+  async seed(repositoryLabel: string, content: Uint8Array) {
+    const repo = this.getInstance<FileRepository>(
+      repositoryLabel,
+      API_VERSION,
+      EResourceKind.REPOSITORY
+    );
+
+    return await repo.seed(content);
   }
 
   private compareResources(actual: IResource<any>, expected: IResource<any>) {
