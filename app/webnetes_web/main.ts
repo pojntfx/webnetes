@@ -3,6 +3,7 @@ import { Worker } from "../../lib/aggregates/worker";
 import { IResource } from "../../lib/models/resource";
 import "xterm/css/xterm.css";
 import { Terminal } from "xterm";
+import Emittery from "emittery";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
@@ -445,6 +446,29 @@ document.getElementById("start")?.addEventListener("click", async () => {
     "";
 
   const terminal = new Terminal();
+  const asyncResolver = new Emittery();
+  const encoder = new TextEncoder();
+
+  let inputBuffer = "";
+  terminal.onData((key) => {
+    if (key.charCodeAt(0) === 13) {
+      // Return
+      inputBuffer += "\n";
+      terminal.write("\n\r");
+
+      asyncResolver.emit("newline", true);
+    } else if (key.charCodeAt(0) === 127) {
+      // Backspace
+      inputBuffer = inputBuffer.substring(0, inputBuffer.length - 1);
+
+      terminal.write("\b \b");
+    } else {
+      // Anything else
+      inputBuffer += key;
+      terminal.write(key);
+    }
+  });
+
   const worker = new Worker(
     async () => window.location.reload(),
     async (_: string, content: Uint8Array) => {
@@ -455,8 +479,24 @@ document.getElementById("start")?.addEventListener("click", async () => {
         )
       );
     },
-    async (label: string) => {
-      return new TextEncoder().encode(prompt(`stdin for workload ${label}:`)!);
+    async (_: string) => {
+      if (inputBuffer.includes("\n")) {
+        const input = inputBuffer;
+
+        inputBuffer = "";
+
+        return encoder.encode(input);
+      } else {
+        terminal.focus();
+
+        await asyncResolver.once("newline");
+
+        const input = inputBuffer; // inputBuffer += key is already handled above, which will be called before this
+
+        inputBuffer = "";
+
+        return encoder.encode(input);
+      }
     }
   );
   const manager = new Manager(
