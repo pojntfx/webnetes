@@ -27,7 +27,8 @@ export class VirtualMachine {
   private logger = getLogger();
 
   constructor(
-    private onStdout: (id: string, content: Uint8Array) => Promise<void>
+    private onStdout: (id: string, content: Uint8Array) => Promise<void>,
+    private onStdin: (id: string) => Promise<Uint8Array>
   ) {}
 
   async schedule(
@@ -133,6 +134,9 @@ export class VirtualMachine {
         const module = await WebAssembly.compile(bin);
         const instance = await WebAssembly.instantiate(module, go.importObject);
 
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder();
+
         (global as any).fs.read = (
           _: number,
           buffer: Uint8Array,
@@ -141,9 +145,9 @@ export class VirtualMachine {
           _____: number,
           callback: Function
         ) => {
-          new Promise<Uint8Array>((res) => {
-            const rawInput = prompt("value for stdin:");
-            const input = new TextEncoder().encode(rawInput + "\n");
+          new Promise<Uint8Array>(async (res) => {
+            const rawInput = decoder.decode(await this.onStdin(id));
+            const input = encoder.encode(rawInput + "\n");
 
             buffer.set(input);
 

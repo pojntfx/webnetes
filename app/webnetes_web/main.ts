@@ -454,6 +454,9 @@ document.getElementById("start")?.addEventListener("click", async () => {
           res
         )
       );
+    },
+    async (label: string) => {
+      return new TextEncoder().encode(prompt(`stdin for workload ${label}:`)!);
     }
   );
   const manager = new Manager(

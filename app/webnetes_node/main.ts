@@ -292,7 +292,10 @@ spec:
 
       process.exit(0);
     },
-    async (label: string, content: Uint8Array) => console.log(label, content)
+    async (label: string, content: Uint8Array) => console.log(label, content),
+    async (label: string) => {
+      return new TextEncoder().encode(prompt(`stdin for workload ${label}:`)!);
+    }
   );
   const manager = new Manager(
     managerNetworkConfig,
