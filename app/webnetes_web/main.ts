@@ -156,7 +156,7 @@ metadata:
   label: go_echo_server
 spec:
   repository: webtorrent_public
-  uri: magnet:?xt=urn:btih:f5a6d3714d888711b32b32a5afff7f2db27113d7&dn=echo_server.wasm&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337
+  uri: magnet:?xt=urn:btih:6891bba71f536bf8e80796cc3f6e4f99bc49faa9&dn=echo_server.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Arguments
@@ -442,7 +442,10 @@ document.getElementById("start")?.addEventListener("click", async () => {
   (document.getElementById("management") as HTMLTextAreaElement).style.cssText =
     "";
 
-  const worker = new Worker(async () => window.location.reload());
+  const worker = new Worker(
+    async () => window.location.reload(),
+    async (label: string, content: Uint8Array) => console.log(label, content)
+  );
   const manager = new Manager(
     (document.getElementById(
       "manager-config-input"
