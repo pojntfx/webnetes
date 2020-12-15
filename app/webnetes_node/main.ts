@@ -281,16 +281,19 @@ spec:
   prefix: 127.0.0`;
 
 (async () => {
-  const worker = new Worker(async () => {
-    spawn(process.execPath, process.argv.slice(1), {
-      cwd: process.cwd(),
-      detached: true,
-      env: process.env,
-      stdio: "inherit",
-    }).unref();
+  const worker = new Worker(
+    async () => {
+      spawn(process.execPath, process.argv.slice(1), {
+        cwd: process.cwd(),
+        detached: true,
+        env: process.env,
+        stdio: "inherit",
+      }).unref();
 
-    process.exit(0);
-  });
+      process.exit(0);
+    },
+    async (label: string, content: Uint8Array) => console.log(label, content)
+  );
   const manager = new Manager(
     managerNetworkConfig,
     async (id: string) => {

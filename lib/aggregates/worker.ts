@@ -32,7 +32,10 @@ export class Worker {
   private resources = [] as IResource<any>[];
   private instances = new Map<string, any>();
 
-  constructor(private onRestart: () => Promise<void>) {}
+  constructor(
+    private onRestart: () => Promise<void>,
+    private onStdout: (label: string, content: Uint8Array) => Promise<void>
+  ) {}
 
   async createResources(resources: IResource<any>[] | string) {
     this.logger.debug("Creating resources", { resources });
@@ -393,7 +396,9 @@ export class Worker {
                 EResourceKind.SUBNET
               );
 
-              const vm = new VirtualMachine();
+              const vm = new VirtualMachine((_: string, content: Uint8Array) =>
+                this.onStdout(resource.metadata.label, content)
+              );
 
               this.setInstance<VirtualMachine>(
                 resource.metadata.label,

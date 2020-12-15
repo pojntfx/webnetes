@@ -26,6 +26,10 @@ export class VirtualMachine {
 
   private logger = getLogger();
 
+  constructor(
+    private onStdout: (id: string, content: Uint8Array) => Promise<void>
+  ) {}
+
   async schedule(
     bin: Uint8Array,
     args: string[],
@@ -35,7 +39,6 @@ export class VirtualMachine {
     runtime: ERuntimes
   ) {
     this.logger.debug("Scheduling", {
-      bin,
       args,
       env,
       imports,
@@ -146,6 +149,11 @@ export class VirtualMachine {
 
             res(input);
           }).then((input) => callback(null, input.length));
+        };
+        (global as any).fs.writeSync = (_: number, buffer: Uint8Array) => {
+          this.onStdout(id, buffer);
+
+          return buffer.length;
         };
         (global as any).jssiImports = { ...imports, ...env };
 
