@@ -134,9 +134,6 @@ export class VirtualMachine {
         const module = await WebAssembly.compile(bin);
         const instance = await WebAssembly.instantiate(module, go.importObject);
 
-        const encoder = new TextEncoder();
-        const decoder = new TextDecoder();
-
         (global as any).fs.read = (
           _: number,
           buffer: Uint8Array,
@@ -146,8 +143,7 @@ export class VirtualMachine {
           callback: Function
         ) => {
           new Promise<Uint8Array>(async (res) => {
-            const rawInput = decoder.decode(await this.onStdin(id));
-            const input = encoder.encode(rawInput + "\n");
+            const input = await this.onStdin(id);
 
             buffer.set(input);
 
