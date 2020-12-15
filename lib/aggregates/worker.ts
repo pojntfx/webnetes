@@ -34,7 +34,8 @@ export class Worker {
 
   constructor(
     private onRestart: () => Promise<void>,
-    private onStdout: (label: string, content: Uint8Array) => Promise<void>
+    private onStdout: (label: string, content: Uint8Array) => Promise<void>,
+    private onStdin: (label: string) => Promise<Uint8Array>
   ) {}
 
   async createResources(resources: IResource<any>[] | string) {
@@ -396,8 +397,10 @@ export class Worker {
                 EResourceKind.SUBNET
               );
 
-              const vm = new VirtualMachine((_: string, content: Uint8Array) =>
-                this.onStdout(resource.metadata.label, content)
+              const vm = new VirtualMachine(
+                (_: string, content: Uint8Array) =>
+                  this.onStdout(resource.metadata.label, content),
+                (_: string) => this.onStdin(resource.metadata.label)
               );
 
               this.setInstance<VirtualMachine>(
