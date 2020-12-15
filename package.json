@@ -77,7 +77,8 @@
     "uuid": "^8.3.2",
     "webtorrent": "^0.112.0",
     "webtorrent-hybrid": "^4.0.3",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "xterm": "^4.9.0"
   },
   "targets": {
     "webApp": {

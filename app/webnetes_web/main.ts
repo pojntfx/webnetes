@@ -1,6 +1,8 @@
 import { Manager } from "../../lib/aggregates/manager";
 import { Worker } from "../../lib/aggregates/worker";
 import { IResource } from "../../lib/models/resource";
+import "xterm/css/xterm.css";
+import { Terminal } from "xterm";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
@@ -442,9 +444,17 @@ document.getElementById("start")?.addEventListener("click", async () => {
   (document.getElementById("management") as HTMLTextAreaElement).style.cssText =
     "";
 
+  const terminal = new Terminal();
   const worker = new Worker(
     async () => window.location.reload(),
-    async (label: string, content: Uint8Array) => console.log(label, content)
+    async (_: string, content: Uint8Array) => {
+      return new Promise((res) =>
+        terminal.write(
+          new TextDecoder().decode(content).replace(/\n/g, "\n\r"),
+          res
+        )
+      );
+    }
   );
   const manager = new Manager(
     (document.getElementById(
@@ -564,4 +574,6 @@ document.getElementById("start")?.addEventListener("click", async () => {
 
       document.getElementById("resource-list")?.appendChild(nodeEl);
     });
+
+  terminal.open(document.getElementById("terminal")!);
 });
