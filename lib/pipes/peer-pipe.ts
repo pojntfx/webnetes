@@ -18,10 +18,11 @@ export enum EPeerPipeResourceTypes {
   STDIN_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinRejection",
 }
 
-interface IFrame {
+interface IIOFrame {
   resourceType: EPeerPipeResourceTypes;
   resourceId: string;
   msg: Uint8Array;
+  nodeId: string;
 }
 
 export class PeerPipe
@@ -34,17 +35,23 @@ export class PeerPipe
 
   private transporter?: Transporter;
 
+  private queuedReceivedIOs = [] as IIOFrame[];
+
   async open(config: IPeerPipeConfig) {}
 
   async close() {}
 
   async read() {
-    return {
-      resourceType: EPeerPipeResourceTypes.STDIN,
-      resourceId: "",
-      msg: new Uint8Array(),
-      nodeId: "",
-    };
+    let frame: IIOFrame;
+    if (this.queuedReceivedIOs.length !== 0) {
+      frame = this.queuedReceivedIOs.shift()!;
+    } else {
+      frame = (await this.bus.once(this.getReadKey())) as IIOFrame;
+
+      this.queuedReceivedIOs.shift();
+    }
+
+    return frame;
   }
 
   async write(
@@ -79,10 +86,11 @@ export class PeerPipe
     nodeId: string
   ) {
     if (this.transporter) {
-      const frame: IFrame = {
+      const frame: IIOFrame = {
         resourceType,
         resourceId,
         msg,
+        nodeId,
       };
 
       await this.transporter.send(
@@ -92,5 +100,9 @@ export class PeerPipe
     } else {
       throw new ClosedError("transporter");
     }
+  }
+
+  private getReadKey() {
+    return "read";
   }
 }
