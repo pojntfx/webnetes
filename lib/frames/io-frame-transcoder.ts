@@ -1,7 +1,7 @@
 import { IFrameTranscoder } from "./frame-transcoder";
 
 export interface IIOFrame {
-  resourceType: EPeerPipeResourceTypes;
+  resourceType: string;
   resourceId: string;
   msg: Uint8Array;
   nodeId: string;
