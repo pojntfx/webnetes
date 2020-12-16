@@ -1,17 +1,17 @@
-interface IDistributedResourcePipe<C, T, H> {
+interface IDistributedResourcePipe<C, T, S> {
   open: (config: C) => Promise<void>;
   close: () => Promise<void>;
   read: () => Promise<{
     resourceType: T;
     resourceId: string;
-    statusType: H;
+    statusType: S;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write: (
     resourceType: T,
     resourceId: string,
-    statusType: H,
+    statusType: S,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
@@ -24,19 +24,19 @@ class UnknownResourceError extends Error {
 }
 
 enum EResourcePipeResourceTypes {
-  PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/process",
-  TERMINAL = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminal",
+  PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/process", // Writing to the process resource -> write to process.stdin, reading from the resource -> reading from process.stdout
+  TERMINAL = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminal", // Writing to the terminal resource -> write to xterm.stdout, reading from the resource -> reading from xterm.stdin
 }
 
 enum EPeerPipeResourceTypes {
-  STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdout",
-  STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdin",
+  STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdout", // Writing to the stdout resource -> send over WebRTC, reading from the stdout resource -> receive from WebRTC
+  STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdin", // Writing to the stdin resource -> send over WebRTC, reading from the stdin resource -> receive from WebRTC
 }
 
 enum ECommonStateTypes {
-  PENDING = "webnetes.felicitas.pojtinger.com/v1alpha1/states/pending",
-  RESOLVED = "webnetes.felicitas.pojtinger.com/v1alpha1/states/resolved",
-  REJECTED = "webnetes.felicitas.pojtinger.com/v1alpha1/states/rejected",
+  PENDING = "webnetes.felicitas.pojtinger.com/v1alpha1/states/pending", // When receiving a PENDING state, processing should be started
+  RESOLVED = "webnetes.felicitas.pojtinger.com/v1alpha1/states/resolved", // Processing was successful
+  REJECTED = "webnetes.felicitas.pojtinger.com/v1alpha1/states/rejected", // Processing was unsuccessful
 }
 
 class ResourcePipe
