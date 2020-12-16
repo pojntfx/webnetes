@@ -30,11 +30,19 @@ export class PeerPipe
 
   private transporter?: Transporter;
 
-  async open(config: IPeerPipeConfig) {}
+  async open(config: IPeerPipeConfig) {
+    this.logger.debug("Opening PeerPipe", { config });
+  }
 
-  async close() {}
+  async close() {
+    this.logger.debug("Closing PeerPipe");
+
+    await this.transporter?.close();
+  }
 
   async read() {
+    this.logger.debug("Reading from PeerPipe");
+
     let frame: IIOFrame;
     if (this.ioFrameQueue.length !== 0) {
       frame = this.ioFrameQueue.shift()!;
@@ -53,6 +61,8 @@ export class PeerPipe
     msg: Uint8Array,
     nodeId: string
   ) {
+    this.logger.debug("Writing to PeerPipe");
+
     switch (resourceType) {
       case EPeerPipeResourceTypes.STDOUT: {
         await this.handleWrite(resourceType, resourceId, msg, nodeId);
