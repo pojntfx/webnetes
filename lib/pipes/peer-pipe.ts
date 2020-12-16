@@ -22,11 +22,11 @@ export interface IPeerPipeConfig {
 
 export enum EPeerPipeResourceTypes {
   STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdout",
-  STDOUT_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdoutResolve",
-  STDOUT_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdoutRejection",
+  // STDOUT_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdoutResolve",
+  // STDOUT_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdoutRejection",
   STDIN = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdin",
-  STDIN_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinResolve",
-  STDIN_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinRejection",
+  // STDIN_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinResolve",
+  // STDIN_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinRejection",
 }
 
 export class PeerPipe
@@ -104,7 +104,7 @@ export class PeerPipe
       ) => await transporter.handleOffer(offererId, offer, handleCandidate),
       async (_: string, answererId: string, answer: string) =>
         await transporter.handleAnswer(answererId, answer),
-      async (offererId: string, answererId: string, candidate: string) =>
+      async (offererId: string, _: string, candidate: string) =>
         await transporter.handleCandidate(offererId, candidate),
       async (id: string) => await transporter.shutdown(id),
       async () => {}
