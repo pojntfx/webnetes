@@ -22,6 +22,7 @@
     "dev:lib": "rollup -c -w",
     "dev:app:node": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files app/webnetes_node/main.ts",
     "dev:app:web": "LOG_LEVEL=debug DEBUG='' parcel --hmr-port 1235 --target webApp app/webnetes_web/index.html",
+    "dev:app:web:pipes_concept": "LOG_LEVEL=debug DEBUG='' parcel --hmr-port 1235 --target webApp app/pipes_concept/index.html",
     "start:app:node": "./dist/nodeApp/main.js",
     "start:app:web": "serve dist/webApp",
     "start:docs": "serve dist/docs"
@@ -53,7 +54,7 @@
     "esbuild": "^0.8.20",
     "get-port": "^5.1.1",
     "jest": "^26.6.3",
-    "parcel": "^2.0.0-nightly.469",
+    "parcel": "^2.0.0-nightly.481",
     "rollup": "^2.34.2",
     "rollup-plugin-dts": "^2.0.0",
     "rollup-plugin-esbuild": "^2.6.0",
