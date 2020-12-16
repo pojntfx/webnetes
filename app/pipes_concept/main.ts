@@ -13,25 +13,39 @@ const peers = new PeerPipe();
   await Promise.all([
     resources.open({
       process: {
-        writeToStdin: async (msg: Uint8Array, processId: string) => {
-          console.log("process.stdin", processId, msg);
+        writeToStdin: async (
+          resourceId: string,
+          msg: Uint8Array,
+          nodeId: string
+        ) => {
+          console.log("process.stdin", resourceId, msg, nodeId);
         },
         readFromStdout: async () => {
-          const msg = prompt("process.stdout")!;
-          const processId = prompt("process.processId")!;
+          await new Promise((res) => setTimeout(res, 10000));
 
-          return { msg: new TextEncoder().encode(msg), processId };
+          const resourceId = prompt("process.processId")!;
+          const msg = prompt("process.stdout")!;
+          const nodeId = prompt("process.nodeId")!;
+
+          return { resourceId, msg: new TextEncoder().encode(msg), nodeId };
         },
       },
       terminal: {
-        writeToStdout: async (msg: Uint8Array, processId: string) => {
-          console.log("terminal.stdout", processId, msg);
+        writeToStdout: async (
+          resourceId: string,
+          msg: Uint8Array,
+          nodeId: string
+        ) => {
+          console.log("terminal.stdout", resourceId, msg, nodeId);
         },
         readFromStdin: async () => {
-          const msg = prompt("terminal.stdin")!;
-          const processId = prompt("terminal.processId")!;
+          await new Promise((res) => setTimeout(res, 20000));
 
-          return { msg: new TextEncoder().encode(msg), processId };
+          const resourceId = prompt("terminal.processId")!;
+          const msg = prompt("terminal.stdin")!;
+          const nodeId = prompt("terminal.nodeId")!;
+
+          return { resourceId, msg: new TextEncoder().encode(msg), nodeId };
         },
       },
     }),

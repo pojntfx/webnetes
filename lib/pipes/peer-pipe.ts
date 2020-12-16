@@ -34,7 +34,7 @@ export class PeerPipe
   private logger = getLogger();
   private bus = new Emittery();
   private ioFrameQueue = [] as Uint8Array[];
-  private ioFrameTranscoder = new IOFrameTranscoder();
+  private ioFrameTranscoder = new IOFrameTranscoder<EPeerPipeResourceTypes>();
   private transporter?: Transporter;
   private signaler?: SignalingClient;
   private nodes = [] as string[];

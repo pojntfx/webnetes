@@ -2,15 +2,32 @@ import Emittery from "emittery";
 import { getLogger } from "../utils/logger";
 import { IPipe } from "./pipe";
 import { IOFrameTranscoder } from "../frames/io-frame-transcoder";
+import { ClosedError } from "../errors/closed";
 
 export interface IResourcePipeConfig {
   process: {
-    writeToStdin: (msg: Uint8Array, processId: string) => Promise<void>;
-    readFromStdout: () => Promise<{ msg: Uint8Array; processId: string }>;
+    writeToStdin: (
+      resourceId: string,
+      msg: Uint8Array,
+      nodeId: string
+    ) => Promise<void>;
+    readFromStdout: () => Promise<{
+      resourceId: string;
+      msg: Uint8Array;
+      nodeId: string;
+    }>;
   };
   terminal: {
-    writeToStdout: (msg: Uint8Array, processId: string) => Promise<void>;
-    readFromStdin: () => Promise<{ msg: Uint8Array; processId: string }>;
+    writeToStdout: (
+      resourceId: string,
+      msg: Uint8Array,
+      nodeId: string
+    ) => Promise<void>;
+    readFromStdin: () => Promise<{
+      resourceId: string;
+      msg: Uint8Array;
+      nodeId: string;
+    }>;
   };
 }
 
@@ -28,10 +45,53 @@ export class ResourcePipe
   private logger = getLogger();
   private bus = new Emittery();
   private ioFrameQueue = [] as Uint8Array[];
-  private ioFrameTranscoder = new IOFrameTranscoder();
+  private ioFrameTranscoder = new IOFrameTranscoder<EResourcePipeTypes>();
+  config?: IResourcePipeConfig;
 
   async open(config: IResourcePipeConfig) {
     this.logger.debug("Opening ResourcePipe", { config });
+
+    (async () => {
+      while (true) {
+        const {
+          resourceId,
+          msg,
+          nodeId,
+        } = await config.process.readFromStdout();
+
+        const processedFrame = this.ioFrameTranscoder.encode({
+          resourceType: EResourcePipeTypes.PROCESS,
+          resourceId,
+          msg,
+          nodeId,
+        });
+
+        this.ioFrameQueue.push(processedFrame);
+        this.bus.emit(this.getReadKey(), processedFrame);
+      }
+    })();
+
+    (async () => {
+      while (true) {
+        const {
+          resourceId,
+          msg,
+          nodeId,
+        } = await config.terminal.readFromStdin();
+
+        const processedFrame = this.ioFrameTranscoder.encode({
+          resourceType: EResourcePipeTypes.TERMINAL,
+          resourceId,
+          msg,
+          nodeId,
+        });
+
+        this.ioFrameQueue.push(processedFrame);
+        this.bus.emit(this.getReadKey(), processedFrame);
+      }
+    })();
+
+    this.config = config;
   }
 
   async close() {
@@ -71,8 +131,6 @@ export class ResourcePipe
 
     const frame = this.ioFrameTranscoder.decode(msg);
 
-    // TODO: Handle different resourceTypes
-
     return frame;
   }
 
@@ -82,9 +140,23 @@ export class ResourcePipe
     msg: Uint8Array,
     nodeId: string
   ) {
-    // TODO: Handle different resourceTypes
+    if (this.config) {
+      switch (resourceType) {
+        case EResourcePipeTypes.PROCESS: {
+          await this.config.process.writeToStdin(resourceId, msg, nodeId);
 
-    console.log(resourceType, resourceId, msg, nodeId);
+          break;
+        }
+
+        case EResourcePipeTypes.TERMINAL: {
+          await this.config.terminal.writeToStdout(resourceId, msg, nodeId);
+
+          break;
+        }
+      }
+    } else {
+      throw new ClosedError("config");
+    }
   }
 
   private getReadKey() {
