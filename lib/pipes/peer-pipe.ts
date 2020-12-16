@@ -1,13 +1,23 @@
 import Emittery from "emittery";
 import { getLogger } from "../utils/logger";
 import { IPipe } from "./pipe";
-import { ExtendedRTCConfiguration, Transporter } from "@pojntfx/unisockets";
+import {
+  ExtendedRTCConfiguration,
+  SignalingClient,
+  Transporter,
+} from "@pojntfx/unisockets";
 import { UnknownResourceError } from "../errors/unknown-resource";
 import { ClosedError } from "../errors/closed";
-import { IIOFrame, IOFrameTranscoder } from "../frames/io-frame-transcoder";
+import { IOFrameTranscoder } from "../frames/io-frame-transcoder";
+import { KnockRejectedError } from "../errors/knock-rejected";
 
 export interface IPeerPipeConfig {
-  networkConfig: ExtendedRTCConfiguration;
+  transporter: ExtendedRTCConfiguration;
+  signaler: {
+    url: string;
+    retryAfter: number;
+    prefix: string;
+  };
 }
 
 export enum EPeerPipeResourceTypes {
@@ -26,14 +36,14 @@ export class PeerPipe
   private ioFrameQueue = [] as Uint8Array[];
   private ioFrameTranscoder = new IOFrameTranscoder();
   private transporter?: Transporter;
-  private aliases = new Map<string, string>();
+  private signaler?: SignalingClient;
   private nodes = [] as string[];
 
   async open(config: IPeerPipeConfig) {
     this.logger.debug("Opening PeerPipe", { config });
 
     const transporter = new Transporter(
-      config.networkConfig,
+      config.transporter,
       async () => {},
       async () => {},
       async (nodeId: string) => {
@@ -44,10 +54,15 @@ export class PeerPipe
         while (this.nodes.includes(nodeId)) {
           this.logger.silly("Received from peer", { nodeId });
 
-          const msg = await transporter.recv(nodeId);
+          const receivedMsg = await transporter.recv(nodeId);
+          const frame = this.ioFrameTranscoder.decode(receivedMsg);
+          const processedMsg = this.ioFrameTranscoder.encode({
+            ...frame,
+            nodeId,
+          });
 
-          this.ioFrameQueue.push(msg);
-          this.bus.emit(this.getReadKey(), msg);
+          this.ioFrameQueue.push(processedMsg);
+          this.bus.emit(this.getReadKey(), processedMsg);
         }
       },
       async (nodeId) => {
@@ -57,18 +72,90 @@ export class PeerPipe
       }
     );
 
-    this.transporter = transporter;
+    const signaler = new SignalingClient(
+      config.signaler.url,
+      config.signaler.retryAfter,
+      config.signaler.prefix,
+      async () => {
+        this.logger.debug("Connected to signaling server", {
+          url: config.signaler.url,
+        });
+      },
+      async () => {
+        this.logger.debug("Disconnected from signaling server", {
+          url: config.signaler.url,
+        });
+      },
+      async (_: string, rejected: boolean) => {
+        if (rejected) {
+          throw new KnockRejectedError();
+        } else {
+          this.bus.emit(this.getReadyKey(), true);
+        }
+      },
+      async (
+        answererId: string,
+        handleCandidate: (candidate: string) => Promise<any>
+      ) => await transporter.getOffer(answererId, handleCandidate),
+      async (
+        offererId: string,
+        offer: string,
+        handleCandidate: (candidate: string) => Promise<any>
+      ) => await transporter.handleOffer(offererId, offer, handleCandidate),
+      async (_: string, answererId: string, answer: string) =>
+        await transporter.handleAnswer(answererId, answer),
+      async (offererId: string, answererId: string, candidate: string) =>
+        await transporter.handleCandidate(offererId, candidate),
+      async (id: string) => await transporter.shutdown(id),
+      async () => {}
+    );
+
+    return new Promise<void>(async (res, rej) => {
+      try {
+        (async () => {
+          await this.bus.once(this.getReadyKey());
+
+          this.transporter = transporter;
+          this.signaler = signaler;
+
+          res();
+        })();
+
+        await signaler.open();
+      } catch (e) {
+        rej(e);
+      }
+    });
   }
 
   async close() {
     this.logger.debug("Closing PeerPipe");
 
-    await this.transporter?.close();
+    await Promise.all([this.transporter?.close(), this.signaler?.close()]);
   }
 
   async read() {
     this.logger.debug("Reading from PeerPipe");
 
+    return await this.handleRead();
+  }
+
+  async write(
+    resourceType: EPeerPipeResourceTypes,
+    resourceId: string,
+    msg: Uint8Array,
+    nodeId: string
+  ) {
+    this.logger.debug("Writing to PeerPipe");
+
+    if (Object.values(EPeerPipeResourceTypes).includes(resourceType)) {
+      await this.handleWrite(resourceType, resourceId, msg, nodeId);
+    } else {
+      throw new UnknownResourceError(resourceType);
+    }
+  }
+
+  private async handleRead() {
     let msg: Uint8Array;
     if (this.ioFrameQueue.length !== 0) {
       msg = this.ioFrameQueue.shift()!;
@@ -81,33 +168,6 @@ export class PeerPipe
     const frame = this.ioFrameTranscoder.decode(msg);
 
     return frame;
-  }
-
-  async write(
-    resourceType: EPeerPipeResourceTypes,
-    resourceId: string,
-    msg: Uint8Array,
-    nodeId: string
-  ) {
-    this.logger.debug("Writing to PeerPipe");
-
-    switch (resourceType) {
-      case EPeerPipeResourceTypes.STDOUT: {
-        await this.handleWrite(resourceType, resourceId, msg, nodeId);
-
-        break;
-      }
-
-      case EPeerPipeResourceTypes.STDIN: {
-        await this.handleWrite(resourceType, resourceId, msg, nodeId);
-
-        break;
-      }
-
-      default: {
-        throw new UnknownResourceError(resourceType);
-      }
-    }
   }
 
   private async handleWrite(
@@ -130,6 +190,10 @@ export class PeerPipe
     } else {
       throw new ClosedError("transporter");
     }
+  }
+
+  private getReadyKey() {
+    return "ready";
   }
 
   private getReadKey() {
