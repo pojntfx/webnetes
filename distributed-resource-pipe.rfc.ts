@@ -1,17 +1,15 @@
-interface IDistributedResourcePipe<C, T, S> {
+interface IDistributedResourcePipe<C, T> {
   open: (config: C) => Promise<void>;
   close: () => Promise<void>;
   read: () => Promise<{
     resourceType: T;
     resourceId: string;
-    stateType: S;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write: (
     resourceType: T,
     resourceId: string,
-    stateType: S,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
@@ -25,61 +23,52 @@ class UnknownResourceError extends Error {
 
 enum EResourcePipeResourceTypes {
   PROCESS = "webnetes.felix.pojtinger.com/v1alpha1/resources/process", // Writing to the process resource -> write to process.stdin, reading from the resource -> reading from process.stdout
+  PROCESS_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/processResolve",
+  PROCESS_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/processRejection",
   TERMINAL = "webnetes.felix.pojtinger.com/v1alpha1/resources/terminal", // Writing to the terminal resource -> write to xterm.stdout, reading from the resource -> reading from xterm.stdin
+  TERMINAL_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/terminalResolve",
+  TERMINAL_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/terminalRejection",
 }
 
 enum EPeerPipeResourceTypes {
   STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdout", // Writing to the stdout resource -> send over WebRTC, reading from the stdout resource -> receive from WebRTC
+  STDOUT_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdoutResolve",
+  STDOUT_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdoutRejection",
   STDIN = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdin", // Writing to the stdin resource -> send over WebRTC, reading from the stdin resource -> receive from WebRTC
-}
-
-enum ECommonStateTypes {
-  PENDING = "webnetes.felix.pojtinger.com/v1alpha1/states/pending", // When receiving a PENDING state, processing should be started
-  RESOLVED = "webnetes.felix.pojtinger.com/v1alpha1/states/resolved", // Processing was successful
-  REJECTED = "webnetes.felix.pojtinger.com/v1alpha1/states/rejected", // Processing was unsuccessful
+  STDIN_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinResolve",
+  STDIN_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinRejection",
 }
 
 class ResourcePipe
-  implements
-    IDistributedResourcePipe<
-      {},
-      EResourcePipeResourceTypes,
-      ECommonStateTypes
-    > {
+  implements IDistributedResourcePipe<{}, EResourcePipeResourceTypes> {
   open!: (config: {}) => Promise<void>;
   close!: () => Promise<void>;
   read!: () => Promise<{
     resourceType: EResourcePipeResourceTypes;
     resourceId: string;
-    stateType: ECommonStateTypes;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write!: (
     resourceType: EResourcePipeResourceTypes,
     resourceId: string,
-    stateType: ECommonStateTypes,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
 }
 
-class PeerPipe
-  implements
-    IDistributedResourcePipe<{}, EPeerPipeResourceTypes, ECommonStateTypes> {
+class PeerPipe implements IDistributedResourcePipe<{}, EPeerPipeResourceTypes> {
   open!: (config: {}) => Promise<void>;
   close!: () => Promise<void>;
   read!: () => Promise<{
     resourceType: EPeerPipeResourceTypes;
     resourceId: string;
-    stateType: ECommonStateTypes;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write!: (
     resourceType: EPeerPipeResourceTypes,
     resourceId: string,
-    stateType: ECommonStateTypes,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
@@ -97,7 +86,6 @@ async () => {
         const {
           resourceType,
           resourceId,
-          stateType,
           msg,
           nodeId,
         } = await resources.read();
@@ -108,7 +96,6 @@ async () => {
               await peers.write(
                 EPeerPipeResourceTypes.STDOUT,
                 resourceId,
-                stateType,
                 msg,
                 nodeId // ID of node with process resource
               );
@@ -116,7 +103,6 @@ async () => {
               await resources.write(
                 resourceType,
                 resourceId,
-                ECommonStateTypes.RESOLVED,
                 msg,
                 nodeId // ID of node with process resource
               );
@@ -124,7 +110,6 @@ async () => {
               await resources.write(
                 resourceType,
                 resourceId,
-                ECommonStateTypes.REJECTED,
                 msg,
                 nodeId // ID of node with process resource
               );
@@ -138,23 +123,20 @@ async () => {
               await peers.write(
                 EPeerPipeResourceTypes.STDIN,
                 resourceId,
-                stateType,
                 msg,
                 nodeId // ID of node with terminal resource
               );
 
               await resources.write(
-                resourceType,
+                EResourcePipeResourceTypes.TERMINAL_RESOLVE,
                 resourceId,
-                ECommonStateTypes.RESOLVED,
                 msg,
                 nodeId // ID of node with terminal resource
               );
             } catch (e) {
               await resources.write(
-                resourceType,
+                EResourcePipeResourceTypes.TERMINAL_REJECTION,
                 resourceId,
-                ECommonStateTypes.REJECTED,
                 msg,
                 nodeId // ID of node with terminal resource
               );
@@ -178,13 +160,7 @@ async () => {
   (async () => {
     try {
       while (true) {
-        const {
-          resourceType,
-          resourceId,
-          stateType,
-          msg,
-          nodeId,
-        } = await peers.read();
+        const { resourceType, resourceId, msg, nodeId } = await peers.read();
 
         switch (resourceType) {
           case EPeerPipeResourceTypes.STDOUT: {
@@ -192,23 +168,20 @@ async () => {
               await resources.write(
                 EResourcePipeResourceTypes.TERMINAL,
                 resourceId,
-                stateType,
                 msg,
                 nodeId // ID of node with stdout resource
               );
 
               await peers.write(
-                resourceType,
+                EPeerPipeResourceTypes.STDOUT_RESOLVE,
                 resourceId,
-                ECommonStateTypes.RESOLVED,
                 msg,
                 nodeId // ID of node with stdout resource
               );
             } catch (e) {
               await peers.write(
-                resourceType,
+                EPeerPipeResourceTypes.STDOUT_REJECTION,
                 resourceId,
-                ECommonStateTypes.REJECTED,
                 msg,
                 nodeId // ID of node with stdout resource
               );
@@ -222,23 +195,20 @@ async () => {
               await resources.write(
                 EResourcePipeResourceTypes.PROCESS,
                 resourceId,
-                stateType,
                 msg,
                 nodeId // ID of node with stdin resource
               );
 
               await peers.write(
-                resourceType,
+                EPeerPipeResourceTypes.STDIN_RESOLVE,
                 resourceId,
-                ECommonStateTypes.RESOLVED,
                 msg,
                 nodeId // ID of node with stdout resource
               );
             } catch (e) {
               await peers.write(
-                resourceType,
+                EPeerPipeResourceTypes.STDOUT_REJECTION,
                 resourceId,
-                ECommonStateTypes.REJECTED,
                 msg,
                 nodeId // ID of node with stdout resource
               );
