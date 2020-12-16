@@ -21,7 +21,7 @@ const peers = new PeerPipe();
           console.log("process.stdin", resourceId, msg, nodeId);
         },
         readFromStdout: async () => {
-          await new Promise((res) => setTimeout(res, 10000));
+          await new Promise((res) => setTimeout(res, 1000000));
 
           const resourceId = prompt("process.processId")!;
           const msg = prompt("process.stdout")!;
@@ -39,7 +39,7 @@ const peers = new PeerPipe();
           console.log("terminal.stdout", resourceId, msg, nodeId);
         },
         readFromStdin: async () => {
-          await new Promise((res) => setTimeout(res, 20000));
+          await new Promise((res) => setTimeout(res, 2000000));
 
           const resourceId = prompt("terminal.processId")!;
           const msg = prompt("terminal.stdin")!;
@@ -64,6 +64,17 @@ const peers = new PeerPipe();
       },
     }),
   ]);
+
+  document
+    .getElementById("create-process")
+    ?.addEventListener("click", () =>
+      peers.write(
+        EPeerPipeResourceTypes.STDIN,
+        "testresource",
+        new TextEncoder().encode("testmsg"),
+        prompt("nodeId")!
+      )
+    );
 
   (async () => {
     try {
