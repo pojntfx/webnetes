@@ -104,25 +104,61 @@ async () => {
 
         switch (resourceType) {
           case EResourcePipeResourceTypes.PROCESS: {
-            await peers.write(
-              EPeerPipeResourceTypes.STDOUT,
-              resourceId,
-              ECommonStateTypes.PENDING,
-              msg,
-              nodeId // ID of node with process resource
-            );
+            try {
+              await peers.write(
+                EPeerPipeResourceTypes.STDOUT,
+                resourceId,
+                stateType,
+                msg,
+                nodeId // ID of node with process resource
+              );
+
+              await resources.write(
+                resourceType,
+                resourceId,
+                ECommonStateTypes.RESOLVED,
+                msg,
+                nodeId // ID of node with process resource
+              );
+            } catch (e) {
+              await resources.write(
+                resourceType,
+                resourceId,
+                ECommonStateTypes.REJECTED,
+                msg,
+                nodeId // ID of node with process resource
+              );
+            }
 
             break;
           }
 
           case EResourcePipeResourceTypes.TERMINAL: {
-            await peers.write(
-              EPeerPipeResourceTypes.STDIN,
-              resourceId,
-              ECommonStateTypes.PENDING,
-              msg,
-              nodeId // ID of node with terminal resource
-            );
+            try {
+              await peers.write(
+                EPeerPipeResourceTypes.STDIN,
+                resourceId,
+                stateType,
+                msg,
+                nodeId // ID of node with terminal resource
+              );
+
+              await resources.write(
+                resourceType,
+                resourceId,
+                ECommonStateTypes.RESOLVED,
+                msg,
+                nodeId // ID of node with terminal resource
+              );
+            } catch (e) {
+              await resources.write(
+                resourceType,
+                resourceId,
+                ECommonStateTypes.REJECTED,
+                msg,
+                nodeId // ID of node with terminal resource
+              );
+            }
 
             break;
           }
