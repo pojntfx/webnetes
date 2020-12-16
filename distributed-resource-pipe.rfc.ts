@@ -4,14 +4,14 @@ interface IDistributedResourcePipe<C, T, S> {
   read: () => Promise<{
     resourceType: T;
     resourceId: string;
-    statusType: S;
+    stateType: S;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write: (
     resourceType: T,
     resourceId: string,
-    statusType: S,
+    stateType: S,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
@@ -51,14 +51,14 @@ class ResourcePipe
   read!: () => Promise<{
     resourceType: EResourcePipeResourceTypes;
     resourceId: string;
-    statusType: ECommonStateTypes;
+    stateType: ECommonStateTypes;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write!: (
     resourceType: EResourcePipeResourceTypes,
     resourceId: string,
-    statusType: ECommonStateTypes,
+    stateType: ECommonStateTypes,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
@@ -72,14 +72,14 @@ class PeerPipe
   read!: () => Promise<{
     resourceType: EPeerPipeResourceTypes;
     resourceId: string;
-    statusType: ECommonStateTypes;
+    stateType: ECommonStateTypes;
     msg: Uint8Array;
     nodeId: string;
   }>;
   write!: (
     resourceType: EPeerPipeResourceTypes,
     resourceId: string,
-    statusType: ECommonStateTypes,
+    stateType: ECommonStateTypes,
     msg: Uint8Array,
     nodeId: string
   ) => Promise<void>;
@@ -97,7 +97,7 @@ async () => {
         const {
           resourceType,
           resourceId,
-          statusType,
+          stateType,
           msg,
           nodeId,
         } = await resources.read();
@@ -145,7 +145,7 @@ async () => {
         const {
           resourceType,
           resourceId,
-          statusType,
+          stateType,
           msg,
           nodeId,
         } = await peers.read();
@@ -156,7 +156,7 @@ async () => {
               await resources.write(
                 EResourcePipeResourceTypes.TERMINAL,
                 resourceId,
-                statusType,
+                stateType,
                 msg,
                 nodeId // ID of node with stdout resource
               );
@@ -186,7 +186,7 @@ async () => {
               await resources.write(
                 EResourcePipeResourceTypes.PROCESS,
                 resourceId,
-                statusType,
+                stateType,
                 msg,
                 nodeId // ID of node with stdin resource
               );
