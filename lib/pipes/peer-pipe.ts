@@ -4,6 +4,7 @@ import { IPipe } from "./pipe";
 import { ExtendedRTCConfiguration, Transporter } from "@pojntfx/unisockets";
 import { UnknownResourceError } from "../errors/unknown-resource";
 import { ClosedError } from "../errors/closed";
+import { IIOFrame, IOFrameTranscoder } from "../frames/io-frame-transcoder";
 
 export interface IPeerPipeConfig {
   networkConfig: ExtendedRTCConfiguration;
@@ -18,24 +19,16 @@ export enum EPeerPipeResourceTypes {
   STDIN_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinRejection",
 }
 
-interface IIOFrame {
-  resourceType: EPeerPipeResourceTypes;
-  resourceId: string;
-  msg: Uint8Array;
-  nodeId: string;
-}
-
 export class PeerPipe
   implements IPipe<IPeerPipeConfig, EPeerPipeResourceTypes> {
   private logger = getLogger();
+
   private bus = new Emittery();
 
-  private encoder = new TextEncoder();
-  private decoder = new TextDecoder();
+  private ioFrameQueue = [] as IIOFrame[];
+  private ioFrameTranscoder = new IOFrameTranscoder();
 
   private transporter?: Transporter;
-
-  private queuedReceivedIOs = [] as IIOFrame[];
 
   async open(config: IPeerPipeConfig) {}
 
@@ -43,12 +36,12 @@ export class PeerPipe
 
   async read() {
     let frame: IIOFrame;
-    if (this.queuedReceivedIOs.length !== 0) {
-      frame = this.queuedReceivedIOs.shift()!;
+    if (this.ioFrameQueue.length !== 0) {
+      frame = this.ioFrameQueue.shift()!;
     } else {
       frame = (await this.bus.once(this.getReadKey())) as IIOFrame;
 
-      this.queuedReceivedIOs.shift();
+      this.ioFrameQueue.shift();
     }
 
     return frame;
@@ -86,17 +79,14 @@ export class PeerPipe
     nodeId: string
   ) {
     if (this.transporter) {
-      const frame: IIOFrame = {
+      const frame = this.ioFrameTranscoder.encode({
         resourceType,
         resourceId,
         msg,
         nodeId,
-      };
+      });
 
-      await this.transporter.send(
-        nodeId,
-        this.encoder.encode(JSON.stringify(frame))
-      );
+      await this.transporter.send(nodeId, frame);
     } else {
       throw new ClosedError("transporter");
     }
