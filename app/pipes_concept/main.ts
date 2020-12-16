@@ -11,7 +11,30 @@ const peers = new PeerPipe();
 
 (async () => {
   await Promise.all([
-    resources.open({}),
+    resources.open({
+      process: {
+        writeToStdin: async (msg: Uint8Array, processId: string) => {
+          console.log("process.stdin", processId, msg);
+        },
+        readFromStdout: async () => {
+          const msg = prompt("process.stdout")!;
+          const processId = prompt("process.processId")!;
+
+          return { msg: new TextEncoder().encode(msg), processId };
+        },
+      },
+      terminal: {
+        writeToStdout: async (msg: Uint8Array, processId: string) => {
+          console.log("terminal.stdout", processId, msg);
+        },
+        readFromStdin: async () => {
+          const msg = prompt("terminal.stdin")!;
+          const processId = prompt("terminal.processId")!;
+
+          return { msg: new TextEncoder().encode(msg), processId };
+        },
+      },
+    }),
     peers.open({
       transporter: {
         iceServers: [

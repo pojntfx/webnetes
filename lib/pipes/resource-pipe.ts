@@ -3,7 +3,16 @@ import { getLogger } from "../utils/logger";
 import { IPipe } from "./pipe";
 import { IOFrameTranscoder } from "../frames/io-frame-transcoder";
 
-export interface IResourcePipeConfig {}
+export interface IResourcePipeConfig {
+  process: {
+    writeToStdin: (msg: Uint8Array, processId: string) => Promise<void>;
+    readFromStdout: () => Promise<{ msg: Uint8Array; processId: string }>;
+  };
+  terminal: {
+    writeToStdout: (msg: Uint8Array, processId: string) => Promise<void>;
+    readFromStdin: () => Promise<{ msg: Uint8Array; processId: string }>;
+  };
+}
 
 export enum EResourcePipeTypes {
   PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/process",
