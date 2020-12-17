@@ -8,7 +8,7 @@ import {
 } from "@pojntfx/unisockets";
 import { UnknownResourceError } from "../errors/unknown-resource";
 import { ClosedError } from "../errors/closed";
-import { IOFrameTranscoder } from "../frames/io-frame-transcoder";
+import { FrameTranscoder } from "./transcoder";
 import { KnockRejectedError } from "../errors/knock-rejected";
 
 export interface IPeerPipeConfig {
@@ -32,7 +32,7 @@ export class PeerPipe
   private logger = getLogger();
   private bus = new Emittery();
   private ioFrameQueue = [] as Uint8Array[];
-  private ioFrameTranscoder = new IOFrameTranscoder<EPeerPipeResourceTypes>();
+  private ioFrameTranscoder = new FrameTranscoder<EPeerPipeResourceTypes>();
   private transporter?: Transporter;
   private signaler?: SignalingClient;
   private nodes = [] as string[];
