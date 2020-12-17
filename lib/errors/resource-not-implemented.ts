@@ -1,5 +1,5 @@
 export class ResourceNotImplementedError extends Error {
-  constructor() {
-    super("resource not implemented");
+  constructor(resourceType: string) {
+    super(`resource ${resourceType} not implemented`);
   }
 }
