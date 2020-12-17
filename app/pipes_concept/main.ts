@@ -7,6 +7,7 @@ import { EResourcesResources, Resources } from "../../lib/pipes/resources";
 import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
 import { Terminals } from "../../lib/repositories/terminals";
+import { Capability } from "../../lib/resources/capability";
 import {
   API_VERSION,
   EResourceKind,
@@ -64,6 +65,23 @@ const processors = new Processors();
           },
           spec: {},
         } as Runtime),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Runtime>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Capability",
+          metadata: {
+            name: "Binding aliases",
+            label: "bind_alias",
+          },
+          spec: {
+            privileged: true,
+          },
+        } as Capability),
         nodeId
       );
 
@@ -193,6 +211,18 @@ const processors = new Processors();
                     await processors.createRuntime(metadata, spec);
 
                     break;
+                  }
+
+                  case EResourceKind.CAPABILITY: {
+                    const { metadata, spec } = resource as Capability;
+
+                    await processors.createCapability(metadata, spec);
+
+                    break;
+                  }
+
+                  default: {
+                    throw new ResourceNotImplementedError(resource.kind);
                   }
                 }
               } else {
