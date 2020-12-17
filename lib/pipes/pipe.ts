@@ -1,5 +1,5 @@
 import Emittery from "emittery";
-import { Frame, FrameTranscoder } from "../utils/transcoder";
+import { Frame, FrameTranscoder } from "../utils/frame-transcoder";
 
 export interface IPipe<C, T> {
   open: (config: C) => Promise<void>;

@@ -2,18 +2,23 @@ import "xterm/css/xterm.css";
 import { EPeersResources, Peers } from "../../lib/pipes/peers";
 import { EResourcesResources, Resources } from "../../lib/pipes/resources";
 import { Processes } from "../../lib/repositories/processes";
+import { Processors } from "../../lib/repositories/processors";
 import { Terminals } from "../../lib/repositories/terminals";
+import { Runtime } from "../../lib/resources/runtime";
+import { ResourceTranscoder } from "../../lib/utils/resource-transcoder";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
 const resources = new Resources();
 const peers = new Peers();
 
-const terminals = new Terminals();
-const processes = new Processes();
-
 const terminalsRoot = document.getElementById("terminals")!;
 const processesRoot = document.getElementById("processes")!;
+const transcoder = new ResourceTranscoder();
+
+const terminals = new Terminals();
+const processes = new Processes();
+const processors = new Processors();
 
 (async () => {
   await Promise.all([
@@ -34,18 +39,37 @@ const processesRoot = document.getElementById("processes")!;
     }),
   ]);
 
-  document.getElementById("create-workload")?.addEventListener("click", () =>
-    peers.write(
-      EPeersResources.WORKLOAD,
-      prompt("resourceId")!,
-      new TextEncoder().encode(
-        JSON.stringify({
-          terminalHostNodeId: prompt("terminalHostNodeId")!,
-        })
-      ),
-      prompt("nodeId")!
-    )
-  );
+  document
+    .getElementById("create-server-resources")
+    ?.addEventListener("click", async () => {
+      const nodeId = prompt("nodeId")!;
+
+      await peers.write(
+        EPeersResources.RUNTIME,
+        "jssi_go",
+        transcoder.encode<Runtime>({
+          apiVersion: "apiVersion: webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Runtime",
+          metadata: {
+            name: "Go JSSI",
+            label: "jssi_go",
+          },
+          spec: {},
+        } as Runtime),
+        nodeId
+      );
+
+      // await peers.write(
+      //   EPeersResources.WORKLOAD,
+      //   prompt("resourceId")!,
+      //   new TextEncoder().encode(
+      //     JSON.stringify({
+      //       terminalHostNodeId: prompt("terminalHostNodeId")!, // TODO: Make process a proper resource with this property
+      //     })
+      //   ),
+      //   nodeId!
+      // );
+    });
 
   await Promise.all([
     (async () => {
@@ -149,7 +173,14 @@ const processesRoot = document.getElementById("processes")!;
             }
 
             case EResourcesResources.VMRUNTIME: {
-              console.log("Creating VMRuntime");
+              const { metadata, spec } = transcoder.decode<Runtime>(
+                new Uint8Array(Object.values(msg))
+              );
+
+              await processors.createRuntime(
+                { label: resourceId, name: metadata.name },
+                spec
+              );
 
               break;
             }
