@@ -1,4 +1,5 @@
 import { Capability, ICapabilitySpec } from "../resources/capability";
+import { IProcessorSpec, Processor } from "../resources/processor";
 import {
   API_VERSION,
   EResourceKind,
@@ -16,7 +17,7 @@ export class Processors extends Repository<Runtime> {
 
     const runtime = new Runtime(metadata, spec);
 
-    this.addResource<Runtime>(
+    await this.addResource<Runtime>(
       runtime.apiVersion,
       runtime.kind,
       runtime.metadata,
@@ -29,11 +30,31 @@ export class Processors extends Repository<Runtime> {
 
     const capability = new Capability(metadata, spec);
 
-    this.addResource<Capability>(
+    await this.addResource<Capability>(
       capability.apiVersion,
       capability.kind,
       capability.metadata,
       capability.spec
+    );
+  }
+
+  async createProcessor(metadata: IResourceMetadata, spec: IProcessorSpec) {
+    this.logger.debug("Creating processor", { metadata });
+
+    await Promise.all([
+      ...spec.runtimes.map(async (runtime) => await this.getRuntime(runtime)),
+      ...spec.capabilities.map(
+        async (capability) => await this.getCapability(capability)
+      ),
+    ]);
+
+    const processor = new Processor(metadata, spec);
+
+    await this.addResource<Processor>(
+      processor.apiVersion,
+      processor.kind,
+      processor.metadata,
+      processor.spec
     );
   }
 
@@ -53,6 +74,16 @@ export class Processors extends Repository<Runtime> {
     return this.findResource<Capability>(
       API_VERSION,
       EResourceKind.CAPABILITY,
+      label
+    );
+  }
+
+  async getProcessor(label: Processor["metadata"]["label"]) {
+    this.logger.debug("Getting processor", { label });
+
+    return this.findResource<Processor>(
+      API_VERSION,
+      EResourceKind.PROCESSOR,
       label
     );
   }
