@@ -5,7 +5,7 @@ import {
 } from "@pojntfx/unisockets";
 import { ClosedError } from "../errors/closed";
 import { KnockRejectedError } from "../errors/knock-rejected";
-import { UnknownResourceError } from "../errors/unknown-resource";
+import { ResourceNotImplementedError } from "../errors/resource-not-implemented";
 import { getLogger } from "../utils/logger";
 import { IPipe, Pipe } from "./pipe";
 
@@ -19,11 +19,11 @@ export interface IPeersConfig {
 }
 
 export enum EPeersResources {
-  STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/resources/Stdout",
-  STDIN = "webnetes.felix.pojtinger.com/v1alpha1/resources/Stdin",
-  WORKLOAD = "webnetes.felix.pojtinger.com/v1alpha1/resources/Workload",
-  INPUT_DEVICE = "webnetes.felix.pojtinger.com/v1alpha1/resources/InputDevice",
-  RUNTIME = "webnetes.felix.pojtinger.com/v1alpha1/resources/Runtime",
+  STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/raw/Stdout",
+  STDIN = "webnetes.felix.pojtinger.com/v1alpha1/raw/Stdin",
+  WORKLOAD = "webnetes.felix.pojtinger.com/v1alpha1/raw/Workload",
+  INPUT_DEVICE = "webnetes.felix.pojtinger.com/v1alpha1/raw/InputDevice",
+  MANAGEMENT_ENTITY = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntity",
 }
 
 export class Peers
@@ -166,7 +166,7 @@ export class Peers
         }
       }
     } else {
-      throw new UnknownResourceError(resourceType);
+      throw new ResourceNotImplementedError(resourceType);
     }
   }
 

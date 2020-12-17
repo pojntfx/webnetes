@@ -1,9 +1,17 @@
+import { v4 } from "uuid";
 import "xterm/css/xterm.css";
+import { APIVersionNotImplementedError } from "../../lib/errors/apiversion-not-implemented";
+import { ResourceNotImplementedError } from "../../lib/errors/resource-not-implemented";
 import { EPeersResources, Peers } from "../../lib/pipes/peers";
 import { EResourcesResources, Resources } from "../../lib/pipes/resources";
 import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
 import { Terminals } from "../../lib/repositories/terminals";
+import {
+  API_VERSION,
+  EResourceKind,
+  IResource,
+} from "../../lib/resources/resource";
 import { Runtime } from "../../lib/resources/runtime";
 import { ResourceTranscoder } from "../../lib/utils/resource-transcoder";
 
@@ -45,10 +53,10 @@ const processors = new Processors();
       const nodeId = prompt("nodeId")!;
 
       await peers.write(
-        EPeersResources.RUNTIME,
-        "jssi_go",
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
         transcoder.encode<Runtime>({
-          apiVersion: "apiVersion: webnetes.felix.pojtinger.com/v1alpha1",
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
           kind: "Runtime",
           metadata: {
             name: "Go JSSI",
@@ -172,21 +180,30 @@ const processors = new Processors();
               break;
             }
 
-            case EResourcesResources.VMRUNTIME: {
-              const { metadata, spec } = transcoder.decode<Runtime>(
+            case EResourcesResources.WEBNETES_ENTITY: {
+              const resource = transcoder.decode<IResource<any>>(
                 new Uint8Array(Object.values(msg))
               );
 
-              await processors.createRuntime(
-                { label: resourceId, name: metadata.name },
-                spec
-              );
+              if (resource.apiVersion === API_VERSION) {
+                switch (resource.kind) {
+                  case EResourceKind.RUNTIME: {
+                    const { metadata, spec } = resource as Runtime;
+
+                    await processors.createRuntime(metadata, spec);
+
+                    break;
+                  }
+                }
+              } else {
+                throw new APIVersionNotImplementedError(resource.apiVersion);
+              }
 
               break;
             }
 
             default: {
-              throw new UnknownResourceError(resourceType);
+              throw new ResourceNotImplementedError(resourceType);
             }
           }
         }
@@ -221,12 +238,12 @@ const processors = new Processors();
                   return EResourcesResources.TERMINAL_INSTANCE;
                 }
 
-                case EPeersResources.RUNTIME: {
-                  return EResourcesResources.RUNTIME_INSTANCE;
+                case EPeersResources.MANAGEMENT_ENTITY: {
+                  return EResourcesResources.MANAGEMENT_ENTITY_INSTANCE;
                 }
 
                 default: {
-                  throw new UnknownResourceError(resourceType);
+                  throw new ResourceNotImplementedError(resourceType);
                 }
               }
             })(),

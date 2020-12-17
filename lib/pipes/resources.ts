@@ -1,24 +1,25 @@
+import { ResourceNotImplementedError } from "../errors/resource-not-implemented";
 import { getLogger } from "../utils/logger";
 import { IPipe, Pipe } from "./pipe";
 
 export interface IResourcesConfig {}
 
 export enum EResourcesResources {
-  PROCESS = "webnetes.felix.pojtinger.com/v1alpha1/resources/Process",
-  PROCESS_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/resources/ProcessInstance",
-  PROCESS_STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/resources/ProcessStdout",
-  PROCESS_STDIN = "webnetes.felix.pojtinger.com/v1alpha1/resources/ProcessStdin",
+  PROCESS = "webnetes.felix.pojtinger.com/v1alpha1/raw/Process",
+  PROCESS_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/ProcessInstance",
+  PROCESS_STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/raw/ProcessStdout",
+  PROCESS_STDIN = "webnetes.felix.pojtinger.com/v1alpha1/raw/ProcessStdin",
 
-  TERMINAL = "webnetes.felix.pojtinger.com/v1alpha1/resources/Terminal",
-  TERMINAL_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/resources/TerminalInstance",
-  TERMINAL_STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/resources/TerminalStdout",
-  TERMINAL_STDIN = "webnetes.felix.pojtinger.com/v1alpha1/resources/TerminalStdin",
+  TERMINAL = "webnetes.felix.pojtinger.com/v1alpha1/raw/Terminal",
+  TERMINAL_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalInstance",
+  TERMINAL_STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalStdout",
+  TERMINAL_STDIN = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalStdin",
 
-  INPUT_DEVICE_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/resources/InputDeviceInstance",
-  WORKLOAD_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/resources/WorkloadInstance",
+  INPUT_DEVICE_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/InputDeviceInstance",
+  WORKLOAD_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/WorkloadInstance",
 
-  RUNTIME_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/resources/RuntimeInstance",
-  VMRUNTIME = "webnetes.felix.pojtinger.com/v1alpha1/resources/VMRuntime",
+  MANAGEMENT_ENTITY_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntityInstance",
+  WEBNETES_ENTITY = "webnetes.felix.pojtinger.com/v1alpha1/raw/WebnetesEntity",
 }
 
 export class Resources
@@ -69,12 +70,12 @@ export class Resources
             return EResourcesResources.TERMINAL;
           }
 
-          case EResourcesResources.RUNTIME_INSTANCE: {
-            return EResourcesResources.VMRUNTIME;
+          case EResourcesResources.MANAGEMENT_ENTITY_INSTANCE: {
+            return EResourcesResources.WEBNETES_ENTITY;
           }
 
           default: {
-            throw new UnknownResourceError(resourceType);
+            throw new ResourceNotImplementedError(resourceType);
           }
         }
       })(),

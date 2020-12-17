@@ -53,7 +53,7 @@ export class Worker {
       this.logger.silly("Creating resource", { resource });
 
       if (!Object.values(EResourceKind).includes(resource.kind)) {
-        throw new ResourceNotImplementedError();
+        throw new ResourceNotImplementedError(resource.kind);
       }
 
       switch (resource.kind) {
@@ -452,7 +452,7 @@ export class Worker {
       this.logger.silly("Deleting resource", { resource });
 
       if (!Object.values(EResourceKind).includes(resource.kind)) {
-        throw new ResourceNotImplementedError();
+        throw new ResourceNotImplementedError(resource.kind);
       }
 
       if (
