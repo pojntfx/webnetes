@@ -1,30 +1,34 @@
 import yaml from "js-yaml";
+import { FileRepository } from "../../controllers/file-repository";
+import { NetworkInterface } from "../../controllers/network-interface";
 import {
   ECapabilities,
   ERuntimes,
   VirtualMachine,
-} from "../compute/virtual-machine";
-import { DuplicateResourceError } from "../errors/duplicate-resource";
-import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
-import { InvalidReferenceError } from "../errors/invalid-reference";
-import { UnimplementedResourceError } from "../errors/unimplemented-resource";
-import { IArgumentsSpec } from "../models/arguments";
-import { ICapabilitySpec } from "../models/capability";
-import { File } from "../models/file";
-import { INetworkSpec, Network } from "../models/network";
-import { Processor } from "../models/processor";
-import { IRepositorySpec, Repository } from "../models/repository";
-import { API_VERSION, EResourceKind, IResource } from "../models/resource";
-import { IRuntimeSpec } from "../models/runtime";
-import { ISignalerSpec } from "../models/signaler";
-import { IStunServerSpec } from "../models/stunserver";
-import { Subnet } from "../models/subnet";
-import { ITrackerSpec } from "../models/tracker";
-import { ITurnServerSpec } from "../models/turnserver";
-import { Workload } from "../models/workload";
-import { NetworkInterface } from "../networking/network-interface";
-import { FileRepository } from "../storage/file-repository";
-import { getLogger } from "../utils/logger";
+} from "../../controllers/virtual-machine";
+import { DuplicateResourceError } from "../../errors/duplicate-resource";
+import { InstanceDoesNotExistError } from "../../errors/instance-does-not-exist";
+import { InvalidReferenceError } from "../../errors/invalid-reference";
+import { UnimplementedResourceError } from "../../errors/unimplemented-resource";
+import { IArgumentsSpec } from "../../resources/arguments";
+import { ICapabilitySpec } from "../../resources/capability";
+import { File } from "../../resources/file";
+import { INetworkSpec, Network } from "../../resources/network";
+import { Processor } from "../../resources/processor";
+import { IRepositorySpec, Repository } from "../../resources/repository";
+import {
+  API_VERSION,
+  EResourceKind,
+  IResource,
+} from "../../resources/resource";
+import { IRuntimeSpec } from "../../resources/runtime";
+import { ISignalerSpec } from "../../resources/signaler";
+import { IStunServerSpec } from "../../resources/stunserver";
+import { Subnet } from "../../resources/subnet";
+import { ITrackerSpec } from "../../resources/tracker";
+import { ITurnServerSpec } from "../../resources/turnserver";
+import { Workload } from "../../resources/workload";
+import { getLogger } from "../../utils/logger";
 
 export class Worker {
   private logger = getLogger();

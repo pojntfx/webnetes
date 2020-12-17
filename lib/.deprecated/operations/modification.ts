@@ -1,4 +1,4 @@
-import { IResource } from "../models/resource";
+import { IResource } from "../../resources/resource";
 import { EMANAGEMENT_OPCODES, IManagementOperation } from "./operation";
 
 export interface IModificationData {

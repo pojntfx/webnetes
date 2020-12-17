@@ -1,6 +1,6 @@
-import { Manager } from "../../lib/aggregates/manager";
-import { Worker } from "../../lib/aggregates/worker";
-import { IResource } from "../../lib/models/resource";
+import { Manager } from "../../lib/.deprecated/aggregates/manager";
+import { Worker } from "../../lib/.deprecated/aggregates/worker";
+import { IResource } from "../../lib/resources/resource";
 import "xterm/css/xterm.css";
 import { Terminal } from "xterm";
 import Emittery from "emittery";

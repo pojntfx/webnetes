@@ -1,17 +1,15 @@
-import Emittery from "emittery";
-import { getLogger } from "../utils/logger";
-import { IPipe } from "./pipe";
 import {
   ExtendedRTCConfiguration,
   SignalingClient,
   Transporter,
 } from "@pojntfx/unisockets";
-import { UnknownResourceError } from "../errors/unknown-resource";
 import { ClosedError } from "../errors/closed";
-import { FrameTranscoder } from "./transcoder";
 import { KnockRejectedError } from "../errors/knock-rejected";
+import { UnknownResourceError } from "../errors/unknown-resource";
+import { getLogger } from "../utils/logger";
+import { IPipe, Pipe } from "./pipe";
 
-export interface IPeerPipeConfig {
+export interface IPeersConfig {
   transporter: ExtendedRTCConfiguration;
   signaler: {
     url: string;
@@ -20,26 +18,26 @@ export interface IPeerPipeConfig {
   };
 }
 
-export enum EPeerPipeResourceTypes {
-  STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdout",
-  STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdin",
-  WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/workload",
-  INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/inputDevice",
+export enum EPeersResources {
+  STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Stdout",
+  STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Stdin",
+  WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Workload",
+  INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/InputDevice",
 }
 
-export class PeerPipe
-  implements IPipe<IPeerPipeConfig, EPeerPipeResourceTypes> {
+export class Peers
+  extends Pipe<IPeersConfig, EPeersResources>
+  implements IPipe<IPeersConfig, EPeersResources> {
   private logger = getLogger();
-  private bus = new Emittery();
-  private ioFrameQueue = [] as Uint8Array[];
-  private ioFrameTranscoder = new FrameTranscoder<EPeerPipeResourceTypes>();
+
   private transporter?: Transporter;
   private signaler?: SignalingClient;
+
   private nodes = [] as string[];
   private localNodeId = "";
 
-  async open(config: IPeerPipeConfig) {
-    this.logger.debug("Opening PeerPipe", { config });
+  async open(config: IPeersConfig) {
+    this.logger.debug("Opening peers", { config });
 
     const transporter = new Transporter(
       config.transporter,
@@ -54,14 +52,12 @@ export class PeerPipe
           this.logger.silly("Received from peer", { nodeId });
 
           const receivedMsg = await transporter.recv(nodeId);
-          const frame = this.ioFrameTranscoder.decode(receivedMsg);
-          const processedMsg = this.ioFrameTranscoder.encode({
+          const frame = this.transcoder.decode(receivedMsg);
+
+          await this.queue({
             ...frame,
             nodeId,
           });
-
-          this.ioFrameQueue.push(processedMsg);
-          this.bus.emit(this.getReadKey(), processedMsg);
         }
       },
       async (nodeId) => {
@@ -131,86 +127,49 @@ export class PeerPipe
   }
 
   async close() {
-    this.logger.debug("Closing PeerPipe");
+    this.logger.debug("Closing peers");
 
     await Promise.all([this.transporter?.close(), this.signaler?.close()]);
   }
 
-  async read() {
-    this.logger.debug("Reading from PeerPipe");
-
-    return await this.handleRead();
-  }
-
   async write(
-    resourceType: EPeerPipeResourceTypes,
+    resourceType: EPeersResources,
     resourceId: string,
     msg: Uint8Array,
     nodeId: string
   ) {
-    this.logger.debug("Writing to PeerPipe");
+    this.logger.debug("Writing to peers");
 
-    if (Object.values(EPeerPipeResourceTypes).includes(resourceType)) {
-      await this.handleWrite(resourceType, resourceId, msg, nodeId);
-    } else {
-      throw new UnknownResourceError(resourceType);
-    }
-  }
-
-  private async handleRead() {
-    let msg: Uint8Array;
-    if (this.ioFrameQueue.length !== 0) {
-      msg = this.ioFrameQueue.shift()!;
-    } else {
-      msg = (await this.bus.once(this.getReadKey())) as Uint8Array;
-
-      this.ioFrameQueue.shift();
-    }
-
-    const frame = this.ioFrameTranscoder.decode(msg);
-
-    return frame;
-  }
-
-  private async handleWrite(
-    resourceType: EPeerPipeResourceTypes,
-    resourceId: string,
-    msg: Uint8Array,
-    nodeId: string
-  ) {
-    if (this.localNodeId === nodeId) {
-      const processedMsg = this.ioFrameTranscoder.encode({
-        resourceType,
-        resourceId,
-        msg,
-        nodeId,
-      });
-
-      this.ioFrameQueue.push(processedMsg);
-      this.bus.emit(this.getReadKey(), processedMsg);
-    } else {
-      if (this.transporter) {
-        const frame = this.ioFrameTranscoder.encode({
+    if (Object.values(EPeersResources).includes(resourceType)) {
+      if (this.localNodeId === nodeId) {
+        await this.queue({
           resourceType,
           resourceId,
           msg,
           nodeId,
         });
-
-        await this.transporter.send(nodeId, frame);
-
-        this.logger.silly("Sent to peer", { nodeId });
       } else {
-        throw new ClosedError("transporter");
+        if (this.transporter) {
+          const frame = this.transcoder.encode({
+            resourceType,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          await this.transporter.send(nodeId, frame);
+
+          this.logger.silly("Sent to peer", { nodeId });
+        } else {
+          throw new ClosedError("transporter");
+        }
       }
+    } else {
+      throw new UnknownResourceError(resourceType);
     }
   }
 
   private getReadyKey() {
     return "ready";
-  }
-
-  private getReadKey() {
-    return "read";
   }
 }

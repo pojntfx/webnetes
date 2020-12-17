@@ -2,16 +2,16 @@ import { SignalingClient, Transporter } from "@pojntfx/unisockets";
 import Emittery from "emittery";
 import yaml from "js-yaml";
 import { v4 } from "uuid";
-import { ClosedError } from "../errors/closed";
-import { ConfigMissingError } from "../errors/config-missing";
-import { KnockRejectedError } from "../errors/knock-rejected";
-import { ModificationFailedError } from "../errors/modification-failed";
-import { NodeNotKnownError } from "../errors/unknown-node";
-import { EResourceKind, IResource } from "../models/resource";
-import { Signaler } from "../models/signaler";
-import { IStunServerSpec, StunServer } from "../models/stunserver";
-import { Subnet } from "../models/subnet";
-import { ITurnServerSpec, TurnServer } from "../models/turnserver";
+import { ClosedError } from "../../errors/closed";
+import { ConfigMissingError } from "../../errors/config-missing";
+import { KnockRejectedError } from "../../errors/knock-rejected";
+import { ModificationFailedError } from "../../errors/modification-failed";
+import { NodeNotKnownError } from "../../errors/unknown-node";
+import { EResourceKind, IResource } from "../../resources/resource";
+import { Signaler } from "../../resources/signaler";
+import { IStunServerSpec, StunServer } from "../../resources/stunserver";
+import { Subnet } from "../../resources/subnet";
+import { ITurnServerSpec, TurnServer } from "../../resources/turnserver";
 import { IModificationData, Modification } from "../operations/modification";
 import {
   IModificationConfirmationData,
@@ -22,7 +22,7 @@ import {
   IManagementOperation,
 } from "../operations/operation";
 import { UnimplementedOperationError } from "../operations/unimplemented-operation";
-import { getLogger } from "../utils/logger";
+import { getLogger } from "../../utils/logger";
 
 export const LOCAL = "local";
 

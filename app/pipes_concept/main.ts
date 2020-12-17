@@ -1,21 +1,19 @@
 import "xterm/css/xterm.css";
-import { Processes } from "../../lib/input-devices/processes";
-import { Terminals } from "../../lib/input-devices/terminals";
-import { EPeerPipeResourceTypes, PeerPipe } from "../../lib/pipes/peer-pipe";
-import {
-  EResourcePipeResources,
-  ResourcePipe,
-} from "../../lib/pipes/resource-pipe";
+import { EPeersResources, Peers } from "../../lib/pipes/peers";
+import { EResourcesResources, Resources } from "../../lib/pipes/resources";
+import { Processes } from "../../lib/repositories/processes";
+import { Terminals } from "../../lib/repositories/terminals";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-const resources = new ResourcePipe();
-const peers = new PeerPipe();
+const resources = new Resources();
+const peers = new Peers();
+
 const terminals = new Terminals();
 const processes = new Processes();
 
-const terminalRoot = document.getElementById("terminals")!;
-const processRoot = document.getElementById("processes")!;
+const terminalsRoot = document.getElementById("terminals")!;
+const processesRoot = document.getElementById("processes")!;
 
 (async () => {
   await Promise.all([
@@ -36,9 +34,9 @@ const processRoot = document.getElementById("processes")!;
     }),
   ]);
 
-  document.getElementById("create-process")?.addEventListener("click", () =>
+  document.getElementById("create-workload")?.addEventListener("click", () =>
     peers.write(
-      EPeerPipeResourceTypes.WORKLOAD,
+      EPeersResources.WORKLOAD,
       prompt("resourceId")!,
       new TextEncoder().encode(
         JSON.stringify({
@@ -49,177 +47,179 @@ const processRoot = document.getElementById("processes")!;
     )
   );
 
-  (async () => {
-    try {
-      while (true) {
-        const {
-          resourceType,
-          resourceId,
-          msg,
-          nodeId,
-        } = await resources.read();
+  await Promise.all([
+    (async () => {
+      try {
+        while (true) {
+          const {
+            resourceType,
+            resourceId,
+            msg,
+            nodeId,
+          } = await resources.read();
 
-        switch (resourceType) {
-          case EResourcePipeResources.PROCESS: {
-            await peers.write(
-              EPeerPipeResourceTypes.STDOUT,
-              resourceId,
-              msg,
-              nodeId // ID of node with process resource
-            );
+          switch (resourceType) {
+            case EResourcesResources.PROCESS: {
+              await peers.write(
+                EPeersResources.STDOUT,
+                resourceId,
+                msg,
+                nodeId // ID of node with process resource
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EResourcePipeResources.TERMINAL: {
-            await peers.write(
-              EPeerPipeResourceTypes.STDIN,
-              resourceId,
-              msg,
-              nodeId // ID of node with terminal resource
-            );
+            case EResourcesResources.TERMINAL: {
+              await peers.write(
+                EPeersResources.STDIN,
+                resourceId,
+                msg,
+                nodeId // ID of node with terminal resource
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EResourcePipeResources.PROCESS_STDIN: {
-            (await processes.get(resourceId)).write(
-              new Uint8Array(Object.values(msg))
-            );
+            case EResourcesResources.PROCESS_STDIN: {
+              (await processes.get(resourceId)).write(
+                new Uint8Array(Object.values(msg))
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EResourcePipeResources.TERMINAL_STDOUT: {
-            (await terminals.get(resourceId)).write(
-              new Uint8Array(Object.values(msg))
-            );
+            case EResourcesResources.TERMINAL_STDOUT: {
+              (await terminals.get(resourceId)).write(
+                new Uint8Array(Object.values(msg))
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EResourcePipeResources.WORKLOAD_INSTANCE: {
-            const { terminalHostNodeId } = JSON.parse(
-              new TextDecoder().decode(new Uint8Array(Object.values(msg)))
-            );
-
-            await peers.write(
-              EPeerPipeResourceTypes.INPUT_DEVICE,
-              resourceId,
-              new Uint8Array(),
-              terminalHostNodeId // ID of node with terminal resource
-            );
-
-            const process = await processes.create(async (key) => {
-              process.write(key);
+            case EResourcesResources.WORKLOAD_INSTANCE: {
+              const { terminalHostNodeId } = JSON.parse(
+                new TextDecoder().decode(new Uint8Array(Object.values(msg)))
+              );
 
               await peers.write(
-                EPeerPipeResourceTypes.STDOUT,
+                EPeersResources.INPUT_DEVICE,
                 resourceId,
-                new TextEncoder().encode(key),
-                terminalHostNodeId
+                new Uint8Array(),
+                terminalHostNodeId // ID of node with terminal resource
               );
-            }, resourceId);
 
-            const processesEl = document.createElement("div");
-            processRoot.appendChild(processesEl);
+              const process = await processes.create(async (key) => {
+                process.write(key);
 
-            process.open(processesEl);
+                await peers.write(
+                  EPeersResources.STDOUT,
+                  resourceId,
+                  new TextEncoder().encode(key),
+                  terminalHostNodeId
+                );
+              }, resourceId);
 
-            break;
-          }
+              const processesEl = document.createElement("div");
+              processesRoot.appendChild(processesEl);
 
-          case EResourcePipeResources.INPUT_DEVICE_INSTANCE: {
-            const terminal = await terminals.create(async (key) => {
-              terminal.write(key);
+              process.open(processesEl);
 
-              await peers.write(
-                EPeerPipeResourceTypes.STDIN,
-                resourceId,
-                new TextEncoder().encode(key),
-                nodeId
-              );
-            }, resourceId);
+              break;
+            }
 
-            const terminalEl = document.createElement("div");
-            terminalRoot.appendChild(terminalEl);
+            case EResourcesResources.INPUT_DEVICE_INSTANCE: {
+              const terminal = await terminals.create(async (key) => {
+                terminal.write(key);
 
-            terminal.open(terminalEl);
+                await peers.write(
+                  EPeersResources.STDIN,
+                  resourceId,
+                  new TextEncoder().encode(key),
+                  nodeId
+                );
+              }, resourceId);
 
-            break;
-          }
+              const terminalEl = document.createElement("div");
+              terminalsRoot.appendChild(terminalEl);
 
-          default: {
-            throw new UnknownResourceError(resourceType);
+              terminal.open(terminalEl);
+
+              break;
+            }
+
+            default: {
+              throw new UnknownResourceError(resourceType);
+            }
           }
         }
+      } catch (e) {
+        throw e;
+      } finally {
+        await resources.close();
       }
-    } catch (e) {
-      throw e;
-    } finally {
-      await resources.close();
-    }
-  })();
+    })(),
 
-  (async () => {
-    try {
-      while (true) {
-        const { resourceType, resourceId, msg, nodeId } = await peers.read();
+    (async () => {
+      try {
+        while (true) {
+          const { resourceType, resourceId, msg, nodeId } = await peers.read();
 
-        switch (resourceType) {
-          case EPeerPipeResourceTypes.STDOUT: {
-            await resources.write(
-              EResourcePipeResources.TERMINAL,
-              resourceId,
-              msg,
-              nodeId // ID of node with stdout resource
-            );
+          switch (resourceType) {
+            case EPeersResources.STDOUT: {
+              await resources.write(
+                EResourcesResources.TERMINAL,
+                resourceId,
+                msg,
+                nodeId // ID of node with stdout resource
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EPeerPipeResourceTypes.STDIN: {
-            await resources.write(
-              EResourcePipeResources.PROCESS,
-              resourceId,
-              msg,
-              nodeId // ID of node with stdin resource
-            );
+            case EPeersResources.STDIN: {
+              await resources.write(
+                EResourcesResources.PROCESS,
+                resourceId,
+                msg,
+                nodeId // ID of node with stdin resource
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EPeerPipeResourceTypes.WORKLOAD: {
-            await resources.write(
-              EResourcePipeResources.PROCESS_INSTANCE,
-              resourceId,
-              msg,
-              nodeId // ID of node with workload resource
-            );
+            case EPeersResources.WORKLOAD: {
+              await resources.write(
+                EResourcesResources.PROCESS_INSTANCE,
+                resourceId,
+                msg,
+                nodeId // ID of node with workload resource
+              );
 
-            break;
-          }
+              break;
+            }
 
-          case EPeerPipeResourceTypes.INPUT_DEVICE: {
-            await resources.write(
-              EResourcePipeResources.TERMINAL_INSTANCE,
-              resourceId,
-              msg,
-              nodeId // ID of node with input device resource
-            );
+            case EPeersResources.INPUT_DEVICE: {
+              await resources.write(
+                EResourcesResources.TERMINAL_INSTANCE,
+                resourceId,
+                msg,
+                nodeId // ID of node with input device resource
+              );
 
-            break;
-          }
+              break;
+            }
 
-          default: {
-            throw new UnknownResourceError(resourceType);
+            default: {
+              throw new UnknownResourceError(resourceType);
+            }
           }
         }
+      } catch (e) {
+        throw e;
+      } finally {
+        await peers.close();
       }
-    } catch (e) {
-      throw e;
-    } finally {
-      await peers.close();
-    }
-  })();
+    })(),
+  ]);
 })();
