@@ -38,6 +38,7 @@ export class PeerPipe
   private transporter?: Transporter;
   private signaler?: SignalingClient;
   private nodes = [] as string[];
+  private localNodeId = "";
 
   async open(config: IPeerPipeConfig) {
     this.logger.debug("Opening PeerPipe", { config });
@@ -76,17 +77,20 @@ export class PeerPipe
       config.signaler.url,
       config.signaler.retryAfter,
       config.signaler.prefix,
-      async () => {
-        this.logger.debug("Connected to signaling server", {
-          url: config.signaler.url,
-        });
-      },
+      async () => {},
       async () => {
         this.logger.debug("Disconnected from signaling server", {
           url: config.signaler.url,
         });
       },
-      async (_: string, rejected: boolean) => {
+      async (localNodeId: string, rejected: boolean) => {
+        this.logger.debug("Connected to signaling server", {
+          url: config.signaler.url,
+          localNodeId,
+        });
+
+        this.localNodeId = localNodeId;
+
         if (rejected) {
           throw new KnockRejectedError();
         } else {
@@ -176,19 +180,31 @@ export class PeerPipe
     msg: Uint8Array,
     nodeId: string
   ) {
-    if (this.transporter) {
-      const frame = this.ioFrameTranscoder.encode({
+    if (this.localNodeId === nodeId) {
+      const processedMsg = this.ioFrameTranscoder.encode({
         resourceType,
         resourceId,
         msg,
         nodeId,
       });
 
-      await this.transporter.send(nodeId, frame);
-
-      this.logger.silly("Sent to peer", { nodeId });
+      this.ioFrameQueue.push(processedMsg);
+      this.bus.emit(this.getReadKey(), processedMsg);
     } else {
-      throw new ClosedError("transporter");
+      if (this.transporter) {
+        const frame = this.ioFrameTranscoder.encode({
+          resourceType,
+          resourceId,
+          msg,
+          nodeId,
+        });
+
+        await this.transporter.send(nodeId, frame);
+
+        this.logger.silly("Sent to peer", { nodeId });
+      } else {
+        throw new ClosedError("transporter");
+      }
     }
   }
 
