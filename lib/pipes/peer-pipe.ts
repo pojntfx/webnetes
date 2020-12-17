@@ -24,6 +24,7 @@ export enum EPeerPipeResourceTypes {
   STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdout",
   STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdin",
   WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/workload",
+  INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/inputDevice",
 }
 
 export class PeerPipe

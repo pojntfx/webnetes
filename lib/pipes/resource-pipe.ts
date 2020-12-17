@@ -15,6 +15,8 @@ export enum EResourcePipeTypes {
   CREATE_WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/createWorkload",
   PROCESS_READ_FROM_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processReadFromStdout",
   TERMINAL_READ_FROM_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalReadFromStdin",
+  INPUT_DEVICE_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/inputDeviceInstance",
+  CREATE_INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/createInputDevice",
 }
 
 export class ResourcePipe
@@ -138,6 +140,20 @@ export class ResourcePipe
         case EResourcePipeTypes.TERMINAL_READ_FROM_STDIN: {
           const processedFrame = this.ioFrameTranscoder.encode({
             resourceType: EResourcePipeTypes.TERMINAL,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          this.ioFrameQueue.push(processedFrame);
+          this.bus.emit(this.getReadKey(), processedFrame);
+
+          break;
+        }
+
+        case EResourcePipeTypes.INPUT_DEVICE_INSTANCE: {
+          const processedFrame = this.ioFrameTranscoder.encode({
+            resourceType: EResourcePipeTypes.CREATE_INPUT_DEVICE,
             resourceId,
             msg,
             nodeId,

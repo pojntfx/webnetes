@@ -34,16 +34,18 @@ const terminalIOBus = new Emittery();
     }),
   ]);
 
-  document
-    .getElementById("create-process")
-    ?.addEventListener("click", () =>
-      peers.write(
-        EPeerPipeResourceTypes.WORKLOAD,
-        "testresource",
-        new TextEncoder().encode("testmsg"),
-        prompt("nodeId")!
-      )
-    );
+  document.getElementById("create-process")?.addEventListener("click", () =>
+    peers.write(
+      EPeerPipeResourceTypes.WORKLOAD,
+      "testresource",
+      new TextEncoder().encode(
+        JSON.stringify({
+          terminalHostNodeId: prompt("terminalHostNodeId")!,
+        })
+      ),
+      prompt("nodeId")!
+    )
+  );
 
   (async () => {
     try {
@@ -111,7 +113,47 @@ const terminalIOBus = new Emittery();
               nodeId,
             });
 
-            // TODO: Encode terminal host node ID in msg and send CREATE_TERMINAL message via peers to terminal host node ID
+            const { terminalHostNodeId } = JSON.parse(
+              new TextDecoder().decode(new Uint8Array(Object.values(msg)))
+            );
+
+            await peers.write(
+              EPeerPipeResourceTypes.INPUT_DEVICE,
+              resourceId,
+              new TextEncoder().encode(
+                JSON.stringify({
+                  processHostNodeId: nodeId,
+                })
+              ),
+              terminalHostNodeId // ID of node with terminal resource
+            );
+
+            (async () => {
+              setInterval(() => {
+                processIOBus.emit(
+                  "stdout",
+                  JSON.stringify({
+                    resourceId,
+                    msg: new TextEncoder().encode("test process stdout"),
+                    terminalHostNodeId,
+                  })
+                );
+              }, 1000);
+            })();
+
+            break;
+          }
+
+          case EResourcePipeTypes.CREATE_INPUT_DEVICE: {
+            console.log("CREATE_INPUT_DEVICE", {
+              resourceId,
+              msg,
+              nodeId,
+            });
+
+            const { processHostNodeId } = JSON.parse(
+              new TextDecoder().decode(new Uint8Array(Object.values(msg)))
+            );
 
             const terminal = new Terminal();
             terminal.onData((key) =>
@@ -120,7 +162,7 @@ const terminalIOBus = new Emittery();
                 JSON.stringify({
                   resourceId,
                   msg: new TextEncoder().encode(key),
-                  nodeId,
+                  processHostNodeId,
                 })
               )
             );
@@ -154,19 +196,6 @@ const terminalIOBus = new Emittery();
                 terminal.write(receivedMsg);
               }
             });
-
-            (async () => {
-              setInterval(() => {
-                processIOBus.emit(
-                  "stdout",
-                  JSON.stringify({
-                    resourceId,
-                    msg: new TextEncoder().encode("test process stdout"),
-                    nodeId,
-                  })
-                );
-              }, 1000);
-            })();
 
             terminal.open(document.getElementById("terminal")!);
 
@@ -219,6 +248,17 @@ const terminalIOBus = new Emittery();
               resourceId,
               msg,
               nodeId // ID of node with workload resource
+            );
+
+            break;
+          }
+
+          case EPeerPipeResourceTypes.INPUT_DEVICE: {
+            await resources.write(
+              EResourcePipeTypes.INPUT_DEVICE_INSTANCE,
+              resourceId,
+              msg,
+              nodeId // ID of node with input device resource
             );
 
             break;
