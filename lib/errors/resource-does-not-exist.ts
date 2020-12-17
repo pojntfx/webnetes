@@ -1,5 +1,5 @@
 export class ResourceDoesNotExistError extends Error {
-  constructor() {
-    super("resource does not exist");
+  constructor(label: string) {
+    super(`resource ${label} does not exist`);
   }
 }

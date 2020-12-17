@@ -4,14 +4,14 @@ import { IResource } from "../resources/resource";
 export abstract class Repository<T extends IResource<any>> {
   protected resources = [] as T[];
 
-  protected addResource<R extends T>(
+  protected async addResource<R extends T>(
     apiVersion: R["apiVersion"],
     kind: R["kind"],
     metadata: R["metadata"],
     spec: R["spec"]
   ) {
     try {
-      this.findResource(apiVersion, kind, metadata.label);
+      await this.findResource(apiVersion, kind, metadata.label);
 
       this.resources.push({ apiVersion, kind, metadata, spec } as R);
     } catch (e) {
@@ -19,7 +19,7 @@ export abstract class Repository<T extends IResource<any>> {
     }
   }
 
-  protected findResource<R extends T>(
+  protected async findResource<R extends T>(
     apiVersion: R["apiVersion"],
     kind: R["kind"],
     label: R["metadata"]["label"]
@@ -34,7 +34,7 @@ export abstract class Repository<T extends IResource<any>> {
     if (resource) {
       return resource as IResource<R>;
     } else {
-      throw new ResourceDoesNotExistError();
+      throw new ResourceDoesNotExistError(label);
     }
   }
 }

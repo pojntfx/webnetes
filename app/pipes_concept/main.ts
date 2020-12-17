@@ -8,6 +8,7 @@ import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
 import { Terminals } from "../../lib/repositories/terminals";
 import { Capability } from "../../lib/resources/capability";
+import { Processor } from "../../lib/resources/processor";
 import {
   API_VERSION,
   EResourceKind,
@@ -82,6 +83,24 @@ const processors = new Processors();
             privileged: true,
           },
         } as Capability),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Runtime>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Processor",
+          metadata: {
+            name: "Felicitas's iPhone",
+            label: "felicitass_iphone",
+          },
+          spec: {
+            runtimes: ["jssi_go"],
+            capabilities: ["bind_alias"],
+          },
+        } as Processor),
         nodeId
       );
 
@@ -221,6 +240,14 @@ const processors = new Processors();
                     break;
                   }
 
+                  case EResourceKind.PROCESSOR: {
+                    const { metadata, spec } = resource as Processor;
+
+                    await processors.createProcessor(metadata, spec);
+
+                    break;
+                  }
+
                   default: {
                     throw new ResourceNotImplementedError(resource.kind);
                   }
@@ -228,6 +255,8 @@ const processors = new Processors();
               } else {
                 throw new APIVersionNotImplementedError(resource.apiVersion);
               }
+
+              // TODO: Send back confirmation for resource.id
 
               break;
             }
