@@ -1,3 +1,4 @@
+import Emittery from "emittery";
 import { PeerPipe, EPeerPipeResourceTypes } from "../../lib/pipes/peer-pipe";
 import {
   ResourcePipe,
@@ -9,60 +10,12 @@ import {
 const resources = new ResourcePipe();
 const peers = new PeerPipe();
 
+const processIOBus = new Emittery();
+const terminalIOBus = new Emittery();
+
 (async () => {
   await Promise.all([
-    resources.open({
-      process: {
-        writeToStdin: async (
-          resourceId: string,
-          msg: Uint8Array,
-          nodeId: string
-        ) => {
-          console.log("process.stdin", resourceId, msg, nodeId);
-        },
-        readFromStdout: async () => {
-          await new Promise((res) => setTimeout(res, 1000000));
-
-          const resourceId = prompt("process.processId")!;
-          const msg = prompt("process.stdout")!;
-          const nodeId = prompt("process.nodeId")!;
-
-          return { resourceId, msg: new TextEncoder().encode(msg), nodeId };
-        },
-      },
-      terminal: {
-        writeToStdout: async (
-          resourceId: string,
-          msg: Uint8Array,
-          nodeId: string
-        ) => {
-          console.log("terminal.stdout", resourceId, msg, nodeId);
-        },
-        readFromStdin: async () => {
-          await new Promise((res) => setTimeout(res, 2000000));
-
-          const resourceId = prompt("terminal.processId")!;
-          const msg = prompt("terminal.stdin")!;
-          const nodeId = prompt("terminal.nodeId")!;
-
-          return { resourceId, msg: new TextEncoder().encode(msg), nodeId };
-        },
-      },
-      workload: {
-        createWorkload: async (
-          resourceId: string,
-          msg: Uint8Array,
-          nodeId: string
-        ) => {
-          console.log(
-            "creating terminal and process, attaching process and terminal stdio for",
-            resourceId,
-            msg,
-            nodeId
-          );
-        },
-      },
-    }),
+    resources.open({}),
     peers.open({
       transporter: {
         iceServers: [
@@ -102,7 +55,6 @@ const peers = new PeerPipe();
 
         switch (resourceType) {
           case EResourcePipeTypes.PROCESS: {
-            // try {
             await peers.write(
               EPeerPipeResourceTypes.STDOUT,
               resourceId,
@@ -110,26 +62,10 @@ const peers = new PeerPipe();
               nodeId // ID of node with process resource
             );
 
-            // await resources.write(
-            //   EResourcePipeTypes.PROCESS_RESOLVE,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with process resource
-            // );
-            // } catch (e) {
-            // await resources.write(
-            //   EResourcePipeTypes.PROCESS_REJECTION,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with process resource
-            // );
-            // }
-
             break;
           }
 
           case EResourcePipeTypes.TERMINAL: {
-            // try {
             await peers.write(
               EPeerPipeResourceTypes.STDIN,
               resourceId,
@@ -137,20 +73,41 @@ const peers = new PeerPipe();
               nodeId // ID of node with terminal resource
             );
 
-            // await resources.write(
-            //   EResourcePipeTypes.TERMINAL_RESOLVE,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with terminal resource
-            // );
-            // } catch (e) {
-            // await resources.write(
-            //   EResourcePipeTypes.TERMINAL_REJECTION,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with terminal resource
-            // );
-            // }
+            break;
+          }
+
+          case EResourcePipeTypes.PROCESS_WRITE_TO_STDIN: {
+            await processIOBus.emit(
+              "stdin",
+              JSON.stringify({
+                resourceId,
+                msg,
+                nodeId,
+              })
+            );
+
+            break;
+          }
+
+          case EResourcePipeTypes.TERMINAL_WRITE_TO_STDOUT: {
+            await terminalIOBus.emit(
+              "stdout",
+              JSON.stringify({
+                resourceId,
+                msg,
+                nodeId,
+              })
+            );
+
+            break;
+          }
+
+          case EResourcePipeTypes.CREATE_WORKLOAD: {
+            console.log("CREATE_WORKLOAD", {
+              resourceId,
+              msg,
+              nodeId,
+            });
 
             break;
           }
@@ -174,7 +131,6 @@ const peers = new PeerPipe();
 
         switch (resourceType) {
           case EPeerPipeResourceTypes.STDOUT: {
-            // try {
             await resources.write(
               EResourcePipeTypes.TERMINAL,
               resourceId,
@@ -182,47 +138,16 @@ const peers = new PeerPipe();
               nodeId // ID of node with stdout resource
             );
 
-            // await peers.write(
-            //   EPeerPipeResourceTypes.STDOUT_RESOLVE,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with stdout resource
-            // );
-            // } catch (e) {
-            // await peers.write(
-            //   EPeerPipeResourceTypes.STDOUT_REJECTION,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with stdout resource
-            // );
-            // }
-
             break;
           }
 
           case EPeerPipeResourceTypes.STDIN: {
-            // try {
             await resources.write(
               EResourcePipeTypes.PROCESS,
               resourceId,
               msg,
               nodeId // ID of node with stdin resource
             );
-
-            // await peers.write(
-            //   EPeerPipeResourceTypes.STDIN_RESOLVE,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with stdout resource
-            // );
-            // } catch (e) {
-            // await peers.write(
-            //   EPeerPipeResourceTypes.STDOUT_REJECTION,
-            //   resourceId,
-            //   msg,
-            //   nodeId // ID of node with stdout resource
-            // );
-            // }
 
             break;
           }
@@ -249,4 +174,26 @@ const peers = new PeerPipe();
       await peers.close();
     }
   })();
+
+  processIOBus.on("stdout", async (rawMessage) => {
+    const { resourceId, msg, nodeId } = JSON.parse(rawMessage as string);
+
+    await resources.write(
+      EResourcePipeTypes.PROCESS_READ_FROM_STDOUT,
+      resourceId,
+      msg,
+      nodeId
+    );
+  });
+
+  terminalIOBus.on("stdin", async (rawMessage) => {
+    const { resourceId, msg, nodeId } = JSON.parse(rawMessage as string);
+
+    await resources.write(
+      EResourcePipeTypes.TERMINAL_READ_FROM_STDIN,
+      resourceId,
+      msg,
+      nodeId
+    );
+  });
 })();
