@@ -11,6 +11,8 @@ import {
 const resources = new ResourcePipe();
 const peers = new PeerPipe();
 
+const terminal = new Terminal();
+
 (async () => {
   await Promise.all([
     resources.open({}),
@@ -93,6 +95,8 @@ const peers = new PeerPipe();
               nodeId,
             });
 
+            terminal.write(new Uint8Array(Object.values(msg)));
+
             break;
           }
 
@@ -110,11 +114,7 @@ const peers = new PeerPipe();
             await peers.write(
               EPeerPipeResourceTypes.INPUT_DEVICE,
               resourceId,
-              new TextEncoder().encode(
-                JSON.stringify({
-                  processHostNodeId: nodeId,
-                })
-              ),
+              new Uint8Array(),
               terminalHostNodeId // ID of node with terminal resource
             );
 
@@ -141,18 +141,13 @@ const peers = new PeerPipe();
               nodeId,
             });
 
-            const { processHostNodeId } = JSON.parse(
-              new TextDecoder().decode(new Uint8Array(Object.values(msg)))
-            );
-
-            const terminal = new Terminal();
             terminal.onData(
               async (key) =>
                 await peers.write(
                   EPeerPipeResourceTypes.STDIN,
                   resourceId,
                   new TextEncoder().encode(key),
-                  processHostNodeId
+                  nodeId
                 )
             );
 
