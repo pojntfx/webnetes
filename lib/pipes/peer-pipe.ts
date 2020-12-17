@@ -22,11 +22,7 @@ export interface IPeerPipeConfig {
 
 export enum EPeerPipeResourceTypes {
   STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdout",
-  // STDOUT_RESOLVE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdoutResolve",
-  // STDOUT_REJECTION = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdoutRejection",
   STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdin",
-  // STDIN_RESOLVE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdinResolve",
-  // STDIN_REJECTION = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/stdinRejection",
   WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/workload",
 }
 

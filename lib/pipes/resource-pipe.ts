@@ -4,48 +4,17 @@ import { IPipe } from "./pipe";
 import { IOFrameTranscoder } from "../frames/io-frame-transcoder";
 import { ClosedError } from "../errors/closed";
 
-export interface IResourcePipeConfig {
-  process: {
-    writeToStdin: (
-      resourceId: string,
-      msg: Uint8Array,
-      nodeId: string
-    ) => Promise<void>;
-    readFromStdout: () => Promise<{
-      resourceId: string;
-      msg: Uint8Array;
-      nodeId: string;
-    }>;
-  };
-  terminal: {
-    writeToStdout: (
-      resourceId: string,
-      msg: Uint8Array,
-      nodeId: string
-    ) => Promise<void>;
-    readFromStdin: () => Promise<{
-      resourceId: string;
-      msg: Uint8Array;
-      nodeId: string;
-    }>;
-  };
-  workload: {
-    createWorkload: (
-      resourceId: string,
-      msg: Uint8Array,
-      nodeId: string
-    ) => Promise<void>;
-  };
-}
+export interface IResourcePipeConfig {}
 
 export enum EResourcePipeTypes {
   PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/process",
-  // PROCESS_RESOLVE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processResolve",
-  // PROCESS_REJECTION = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processRejection",
   TERMINAL = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminal",
-  // TERMINAL_RESOLVE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalResolve",
-  // TERMINAL_REJECTION = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalRejection",
-  WORKLOAD_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/WORKLOAD_INSTANCE",
+  WORKLOAD_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/workloadInstance",
+  PROCESS_WRITE_TO_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processWriteToStdin",
+  TERMINAL_WRITE_TO_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalWriteToStdout",
+  CREATE_WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/createWorkload",
+  PROCESS_READ_FROM_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processReadFromStdout",
+  TERMINAL_READ_FROM_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalReadFromStdin",
 }
 
 export class ResourcePipe
@@ -58,46 +27,6 @@ export class ResourcePipe
 
   async open(config: IResourcePipeConfig) {
     this.logger.debug("Opening ResourcePipe", { config });
-
-    (async () => {
-      while (true) {
-        const {
-          resourceId,
-          msg,
-          nodeId,
-        } = await config.process.readFromStdout();
-
-        const processedFrame = this.ioFrameTranscoder.encode({
-          resourceType: EResourcePipeTypes.PROCESS,
-          resourceId,
-          msg,
-          nodeId,
-        });
-
-        this.ioFrameQueue.push(processedFrame);
-        this.bus.emit(this.getReadKey(), processedFrame);
-      }
-    })();
-
-    (async () => {
-      while (true) {
-        const {
-          resourceId,
-          msg,
-          nodeId,
-        } = await config.terminal.readFromStdin();
-
-        const processedFrame = this.ioFrameTranscoder.encode({
-          resourceType: EResourcePipeTypes.TERMINAL,
-          resourceId,
-          msg,
-          nodeId,
-        });
-
-        this.ioFrameQueue.push(processedFrame);
-        this.bus.emit(this.getReadKey(), processedFrame);
-      }
-    })();
 
     this.config = config;
   }
@@ -151,19 +80,71 @@ export class ResourcePipe
     if (this.config) {
       switch (resourceType) {
         case EResourcePipeTypes.PROCESS: {
-          await this.config.process.writeToStdin(resourceId, msg, nodeId);
+          const processedFrame = this.ioFrameTranscoder.encode({
+            resourceType: EResourcePipeTypes.PROCESS_WRITE_TO_STDIN,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          this.ioFrameQueue.push(processedFrame);
+          this.bus.emit(this.getReadKey(), processedFrame);
 
           break;
         }
 
         case EResourcePipeTypes.TERMINAL: {
-          await this.config.terminal.writeToStdout(resourceId, msg, nodeId);
+          const processedFrame = this.ioFrameTranscoder.encode({
+            resourceType: EResourcePipeTypes.TERMINAL_WRITE_TO_STDOUT,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          this.ioFrameQueue.push(processedFrame);
+          this.bus.emit(this.getReadKey(), processedFrame);
 
           break;
         }
 
         case EResourcePipeTypes.WORKLOAD_INSTANCE: {
-          await this.config.workload.createWorkload(resourceId, msg, nodeId);
+          const processedFrame = this.ioFrameTranscoder.encode({
+            resourceType: EResourcePipeTypes.CREATE_WORKLOAD,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          this.ioFrameQueue.push(processedFrame);
+          this.bus.emit(this.getReadKey(), processedFrame);
+
+          break;
+        }
+
+        case EResourcePipeTypes.PROCESS_READ_FROM_STDOUT: {
+          const processedFrame = this.ioFrameTranscoder.encode({
+            resourceType: EResourcePipeTypes.PROCESS,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          this.ioFrameQueue.push(processedFrame);
+          this.bus.emit(this.getReadKey(), processedFrame);
+
+          break;
+        }
+
+        case EResourcePipeTypes.TERMINAL_READ_FROM_STDIN: {
+          const processedFrame = this.ioFrameTranscoder.encode({
+            resourceType: EResourcePipeTypes.TERMINAL,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          this.ioFrameQueue.push(processedFrame);
+          this.bus.emit(this.getReadKey(), processedFrame);
 
           break;
         }
