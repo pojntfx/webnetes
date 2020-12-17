@@ -3,7 +3,7 @@ import { Processes } from "../../lib/input-devices/processes";
 import { Terminals } from "../../lib/input-devices/terminals";
 import { EPeerPipeResourceTypes, PeerPipe } from "../../lib/pipes/peer-pipe";
 import {
-  EResourcePipeTypes,
+  EResourcePipeResources,
   ResourcePipe,
 } from "../../lib/pipes/resource-pipe";
 
@@ -60,7 +60,7 @@ const processRoot = document.getElementById("processes")!;
         } = await resources.read();
 
         switch (resourceType) {
-          case EResourcePipeTypes.PROCESS: {
+          case EResourcePipeResources.PROCESS: {
             await peers.write(
               EPeerPipeResourceTypes.STDOUT,
               resourceId,
@@ -71,7 +71,7 @@ const processRoot = document.getElementById("processes")!;
             break;
           }
 
-          case EResourcePipeTypes.TERMINAL: {
+          case EResourcePipeResources.TERMINAL: {
             await peers.write(
               EPeerPipeResourceTypes.STDIN,
               resourceId,
@@ -82,7 +82,7 @@ const processRoot = document.getElementById("processes")!;
             break;
           }
 
-          case EResourcePipeTypes.PROCESS_WRITE_TO_STDIN: {
+          case EResourcePipeResources.PROCESS_STDIN: {
             (await processes.get(resourceId)).write(
               new Uint8Array(Object.values(msg))
             );
@@ -90,7 +90,7 @@ const processRoot = document.getElementById("processes")!;
             break;
           }
 
-          case EResourcePipeTypes.TERMINAL_WRITE_TO_STDOUT: {
+          case EResourcePipeResources.TERMINAL_STDOUT: {
             (await terminals.get(resourceId)).write(
               new Uint8Array(Object.values(msg))
             );
@@ -98,7 +98,7 @@ const processRoot = document.getElementById("processes")!;
             break;
           }
 
-          case EResourcePipeTypes.CREATE_WORKLOAD: {
+          case EResourcePipeResources.WORKLOAD_INSTANCE: {
             const { terminalHostNodeId } = JSON.parse(
               new TextDecoder().decode(new Uint8Array(Object.values(msg)))
             );
@@ -129,7 +129,7 @@ const processRoot = document.getElementById("processes")!;
             break;
           }
 
-          case EResourcePipeTypes.CREATE_INPUT_DEVICE: {
+          case EResourcePipeResources.INPUT_DEVICE_INSTANCE: {
             const terminal = await terminals.create(async (key) => {
               terminal.write(key);
 
@@ -169,7 +169,7 @@ const processRoot = document.getElementById("processes")!;
         switch (resourceType) {
           case EPeerPipeResourceTypes.STDOUT: {
             await resources.write(
-              EResourcePipeTypes.TERMINAL,
+              EResourcePipeResources.TERMINAL,
               resourceId,
               msg,
               nodeId // ID of node with stdout resource
@@ -180,7 +180,7 @@ const processRoot = document.getElementById("processes")!;
 
           case EPeerPipeResourceTypes.STDIN: {
             await resources.write(
-              EResourcePipeTypes.PROCESS,
+              EResourcePipeResources.PROCESS,
               resourceId,
               msg,
               nodeId // ID of node with stdin resource
@@ -191,7 +191,7 @@ const processRoot = document.getElementById("processes")!;
 
           case EPeerPipeResourceTypes.WORKLOAD: {
             await resources.write(
-              EResourcePipeTypes.WORKLOAD_INSTANCE,
+              EResourcePipeResources.PROCESS_INSTANCE,
               resourceId,
               msg,
               nodeId // ID of node with workload resource
@@ -202,7 +202,7 @@ const processRoot = document.getElementById("processes")!;
 
           case EPeerPipeResourceTypes.INPUT_DEVICE: {
             await resources.write(
-              EResourcePipeTypes.INPUT_DEVICE_INSTANCE,
+              EResourcePipeResources.TERMINAL_INSTANCE,
               resourceId,
               msg,
               nodeId // ID of node with input device resource

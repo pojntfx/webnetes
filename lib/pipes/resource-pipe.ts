@@ -1,30 +1,32 @@
 import Emittery from "emittery";
+import { ClosedError } from "../errors/closed";
 import { getLogger } from "../utils/logger";
 import { IPipe } from "./pipe";
-import { IIOFrame, IOFrameTranscoder } from "../frames/io-frame-transcoder";
-import { ClosedError } from "../errors/closed";
+import { Frame, FrameTranscoder } from "./transcoder";
 
 export interface IResourcePipeConfig {}
 
-export enum EResourcePipeTypes {
-  PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/process",
-  TERMINAL = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminal",
-  WORKLOAD_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/workloadInstance",
-  PROCESS_WRITE_TO_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processWriteToStdin",
-  TERMINAL_WRITE_TO_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalWriteToStdout",
-  CREATE_WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/createWorkload",
-  PROCESS_READ_FROM_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/processReadFromStdout",
-  TERMINAL_READ_FROM_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/terminalReadFromStdin",
-  INPUT_DEVICE_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/inputDeviceInstance",
-  CREATE_INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/createInputDevice",
+export enum EResourcePipeResources {
+  PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Process",
+  PROCESS_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/ProcessInstance",
+  PROCESS_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/ProcessStdout",
+  PROCESS_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/ProcessStdin",
+
+  TERMINAL = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Terminal",
+  TERMINAL_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/TerminalInstance",
+  TERMINAL_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/TerminalStdout",
+  TERMINAL_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/TerminalStdin",
+
+  INPUT_DEVICE_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/InputDeviceInstance",
+  WORKLOAD_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/WorkloadInstance",
 }
 
 export class ResourcePipe
-  implements IPipe<IResourcePipeConfig, EResourcePipeTypes> {
+  implements IPipe<IResourcePipeConfig, EResourcePipeResources> {
   private logger = getLogger();
   private bus = new Emittery();
   private frames = [] as Uint8Array[];
-  private transcoder = new IOFrameTranscoder<EResourcePipeTypes>();
+  private transcoder = new FrameTranscoder<EResourcePipeResources>();
   config?: IResourcePipeConfig;
 
   async open(config: IResourcePipeConfig) {
@@ -55,91 +57,91 @@ export class ResourcePipe
   }
 
   async write(
-    resourceType: EResourcePipeTypes,
+    resourceType: EResourcePipeResources,
     resourceId: string,
     msg: Uint8Array,
     nodeId: string
   ) {
     this.logger.debug("Writing to ResourcePipe");
 
-    if (Object.values(EResourcePipeTypes).includes(resourceType)) {
-      if (this.config) {
-        switch (resourceType) {
-          case EResourcePipeTypes.PROCESS: {
-            await this.queueFrame({
-              resourceType: EResourcePipeTypes.PROCESS_WRITE_TO_STDIN,
-              resourceId,
-              msg,
-              nodeId,
-            });
+    if (this.config) {
+      switch (resourceType) {
+        case EResourcePipeResources.PROCESS: {
+          await this.queue({
+            resourceType: EResourcePipeResources.PROCESS_STDIN,
+            resourceId,
+            msg,
+            nodeId,
+          });
 
-            break;
-          }
-
-          case EResourcePipeTypes.TERMINAL: {
-            await this.queueFrame({
-              resourceType: EResourcePipeTypes.TERMINAL_WRITE_TO_STDOUT,
-              resourceId,
-              msg,
-              nodeId,
-            });
-
-            break;
-          }
-
-          case EResourcePipeTypes.WORKLOAD_INSTANCE: {
-            await this.queueFrame({
-              resourceType: EResourcePipeTypes.CREATE_WORKLOAD,
-              resourceId,
-              msg,
-              nodeId,
-            });
-
-            break;
-          }
-
-          case EResourcePipeTypes.PROCESS_READ_FROM_STDOUT: {
-            await this.queueFrame({
-              resourceType: EResourcePipeTypes.PROCESS,
-              resourceId,
-              msg,
-              nodeId,
-            });
-
-            break;
-          }
-
-          case EResourcePipeTypes.TERMINAL_READ_FROM_STDIN: {
-            await this.queueFrame({
-              resourceType: EResourcePipeTypes.TERMINAL,
-              resourceId,
-              msg,
-              nodeId,
-            });
-
-            break;
-          }
-
-          case EResourcePipeTypes.INPUT_DEVICE_INSTANCE: {
-            await this.queueFrame({
-              resourceType: EResourcePipeTypes.CREATE_INPUT_DEVICE,
-              resourceId,
-              msg,
-              nodeId,
-            });
-
-            break;
-          }
+          break;
         }
-      } else {
-        throw new ClosedError("config");
+
+        case EResourcePipeResources.PROCESS_INSTANCE: {
+          await this.queue({
+            resourceType: EResourcePipeResources.WORKLOAD_INSTANCE,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          break;
+        }
+
+        case EResourcePipeResources.PROCESS_STDOUT: {
+          await this.queue({
+            resourceType: EResourcePipeResources.PROCESS,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          break;
+        }
+
+        case EResourcePipeResources.TERMINAL: {
+          await this.queue({
+            resourceType: EResourcePipeResources.TERMINAL_STDOUT,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          break;
+        }
+
+        case EResourcePipeResources.TERMINAL_INSTANCE: {
+          await this.queue({
+            resourceType: EResourcePipeResources.INPUT_DEVICE_INSTANCE,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          break;
+        }
+
+        case EResourcePipeResources.TERMINAL_STDIN: {
+          await this.queue({
+            resourceType: EResourcePipeResources.TERMINAL,
+            resourceId,
+            msg,
+            nodeId,
+          });
+
+          break;
+        }
+
+        default: {
+          throw new UnknownResourceError(resourceType);
+        }
       }
     } else {
-      throw new UnknownResourceError(resourceType);
+      throw new ClosedError("config");
     }
   }
 
-  private async queueFrame(frame: IIOFrame<EResourcePipeTypes>) {
+  private async queue(frame: Frame<EResourcePipeResources>) {
     const encodedFrame = this.transcoder.encode(frame);
 
     this.frames.push(encodedFrame);
