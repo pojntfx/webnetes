@@ -1,8 +1,10 @@
 import Emittery from "emittery";
-import { PeerPipe, EPeerPipeResourceTypes } from "../../lib/pipes/peer-pipe";
+import { Terminal } from "xterm";
+import "xterm/css/xterm.css";
+import { EPeerPipeResourceTypes, PeerPipe } from "../../lib/pipes/peer-pipe";
 import {
-  ResourcePipe,
   EResourcePipeTypes,
+  ResourcePipe,
 } from "../../lib/pipes/resource-pipe";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -108,6 +110,20 @@ const terminalIOBus = new Emittery();
               msg,
               nodeId,
             });
+
+            const terminal = new Terminal();
+            terminal.onData((key) =>
+              terminalIOBus.emit(
+                "stdin",
+                JSON.stringify({
+                  resourceId,
+                  msg: new TextEncoder().encode(key),
+                  nodeId,
+                })
+              )
+            );
+
+            terminal.open(document.getElementById("terminal")!);
 
             break;
           }
