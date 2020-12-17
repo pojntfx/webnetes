@@ -165,55 +165,34 @@ const processesRoot = document.getElementById("processes")!;
         while (true) {
           const { resourceType, resourceId, msg, nodeId } = await peers.read();
 
-          switch (resourceType) {
-            case EPeersResources.STDOUT: {
-              await resources.write(
-                EResourcesResources.TERMINAL,
-                resourceId,
-                msg,
-                nodeId // ID of node with stdout resource
-              );
+          await resources.write(
+            (() => {
+              switch (resourceType) {
+                case EPeersResources.STDOUT: {
+                  return EResourcesResources.TERMINAL;
+                }
 
-              break;
-            }
+                case EPeersResources.STDIN: {
+                  return EResourcesResources.PROCESS;
+                }
 
-            case EPeersResources.STDIN: {
-              await resources.write(
-                EResourcesResources.PROCESS,
-                resourceId,
-                msg,
-                nodeId // ID of node with stdin resource
-              );
+                case EPeersResources.WORKLOAD: {
+                  return EResourcesResources.PROCESS_INSTANCE;
+                }
 
-              break;
-            }
+                case EPeersResources.INPUT_DEVICE: {
+                  return EResourcesResources.TERMINAL_INSTANCE;
+                }
 
-            case EPeersResources.WORKLOAD: {
-              await resources.write(
-                EResourcesResources.PROCESS_INSTANCE,
-                resourceId,
-                msg,
-                nodeId // ID of node with workload resource
-              );
-
-              break;
-            }
-
-            case EPeersResources.INPUT_DEVICE: {
-              await resources.write(
-                EResourcesResources.TERMINAL_INSTANCE,
-                resourceId,
-                msg,
-                nodeId // ID of node with input device resource
-              );
-
-              break;
-            }
-
-            default: {
-              throw new UnknownResourceError(resourceType);
-            }
-          }
+                default: {
+                  throw new UnknownResourceError(resourceType);
+                }
+              }
+            })(),
+            resourceId,
+            msg,
+            nodeId
+          );
         }
       } catch (e) {
         throw e;
