@@ -1,4 +1,3 @@
-import Emittery from "emittery";
 import { Terminal } from "xterm";
 import "xterm/css/xterm.css";
 import { EPeerPipeResourceTypes, PeerPipe } from "../../lib/pipes/peer-pipe";
@@ -11,9 +10,6 @@ import {
 
 const resources = new ResourcePipe();
 const peers = new PeerPipe();
-
-const processIOBus = new Emittery();
-const terminalIOBus = new Emittery();
 
 (async () => {
   await Promise.all([
@@ -29,7 +25,7 @@ const terminalIOBus = new Emittery();
       signaler: {
         url: "wss://unisockets.herokuapp.com",
         retryAfter: 1000,
-        prefix: "127.0.5",
+        prefix: "127.0.6",
       },
     }),
   ]);
@@ -81,27 +77,21 @@ const terminalIOBus = new Emittery();
           }
 
           case EResourcePipeTypes.PROCESS_WRITE_TO_STDIN: {
-            await processIOBus.emit(
-              "stdin",
-              JSON.stringify({
-                resourceId,
-                msg,
-                nodeId,
-              })
-            );
+            console.log("Writing to process stdin", {
+              resourceId,
+              msg,
+              nodeId,
+            });
 
             break;
           }
 
           case EResourcePipeTypes.TERMINAL_WRITE_TO_STDOUT: {
-            await terminalIOBus.emit(
-              "stdout",
-              JSON.stringify({
-                resourceId,
-                msg,
-                nodeId,
-              })
-            );
+            console.log("Writing to terminal stdout", {
+              resourceId,
+              msg,
+              nodeId,
+            });
 
             break;
           }
@@ -129,16 +119,16 @@ const terminalIOBus = new Emittery();
             );
 
             (async () => {
-              setInterval(() => {
-                processIOBus.emit(
-                  "stdout",
-                  JSON.stringify({
+              setInterval(
+                async () =>
+                  await peers.write(
+                    EPeerPipeResourceTypes.STDOUT,
                     resourceId,
-                    msg: new TextEncoder().encode("test process stdout"),
-                    terminalHostNodeId,
-                  })
-                );
-              }, 1000);
+                    new TextEncoder().encode("test process stdout"),
+                    terminalHostNodeId
+                  ),
+                1000
+              );
             })();
 
             break;
@@ -156,46 +146,15 @@ const terminalIOBus = new Emittery();
             );
 
             const terminal = new Terminal();
-            terminal.onData((key) =>
-              terminalIOBus.emit(
-                "stdin",
-                JSON.stringify({
+            terminal.onData(
+              async (key) =>
+                await peers.write(
+                  EPeerPipeResourceTypes.STDIN,
                   resourceId,
-                  msg: new TextEncoder().encode(key),
-                  processHostNodeId,
-                })
-              )
+                  new TextEncoder().encode(key),
+                  processHostNodeId
+                )
             );
-
-            terminalIOBus.on("stdout", (rawMessage) => {
-              const {
-                resourceId: receivedResourceId,
-                msg: receivedMsg,
-                nodeId: receivedNodeId,
-              } = JSON.parse(rawMessage as string);
-
-              if (
-                resourceId === receivedResourceId &&
-                nodeId === receivedNodeId
-              ) {
-                terminal.write(receivedMsg);
-              }
-            });
-
-            processIOBus.on("stdin", (rawMessage) => {
-              const {
-                resourceId: receivedResourceId,
-                msg: receivedMsg,
-                nodeId: receivedNodeId,
-              } = JSON.parse(rawMessage as string);
-
-              if (
-                resourceId === receivedResourceId &&
-                nodeId === receivedNodeId
-              ) {
-                terminal.write(receivedMsg);
-              }
-            });
 
             terminal.open(document.getElementById("terminal")!);
 
@@ -275,26 +234,4 @@ const terminalIOBus = new Emittery();
       await peers.close();
     }
   })();
-
-  processIOBus.on("stdout", async (rawMessage) => {
-    const { resourceId, msg, nodeId } = JSON.parse(rawMessage as string);
-
-    await resources.write(
-      EResourcePipeTypes.PROCESS_READ_FROM_STDOUT,
-      resourceId,
-      msg,
-      nodeId
-    );
-  });
-
-  terminalIOBus.on("stdin", async (rawMessage) => {
-    const { resourceId, msg, nodeId } = JSON.parse(rawMessage as string);
-
-    await resources.write(
-      EResourcePipeTypes.TERMINAL_READ_FROM_STDIN,
-      resourceId,
-      msg,
-      nodeId
-    );
-  });
 })();
