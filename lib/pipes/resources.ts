@@ -16,6 +16,9 @@ export enum EResourcesResources {
 
   INPUT_DEVICE_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/InputDeviceInstance",
   WORKLOAD_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/WorkloadInstance",
+
+  RUNTIME_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/RuntimeInstance",
+  VMRUNTIME = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/VMRuntime",
 }
 
 export class Resources
@@ -64,6 +67,10 @@ export class Resources
 
           case EResourcesResources.TERMINAL_STDIN: {
             return EResourcesResources.TERMINAL;
+          }
+
+          case EResourcesResources.RUNTIME_INSTANCE: {
+            return EResourcesResources.VMRUNTIME;
           }
 
           default: {

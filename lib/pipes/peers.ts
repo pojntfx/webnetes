@@ -23,6 +23,7 @@ export enum EPeersResources {
   STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Stdin",
   WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Workload",
   INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/InputDevice",
+  RUNTIME = "webnetes.felicitas.pojtinger.com/v1alpha1/resources/Runtime",
 }
 
 export class Peers
