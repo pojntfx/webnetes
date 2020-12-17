@@ -1,5 +1,6 @@
-import { Terminal } from "xterm";
 import "xterm/css/xterm.css";
+import { Processes } from "../../lib/input-devices/processes";
+import { Terminals } from "../../lib/input-devices/terminals";
 import { EPeerPipeResourceTypes, PeerPipe } from "../../lib/pipes/peer-pipe";
 import {
   EResourcePipeTypes,
@@ -10,8 +11,11 @@ import {
 
 const resources = new ResourcePipe();
 const peers = new PeerPipe();
+const terminals = new Terminals();
+const processes = new Processes();
 
-const terminal = new Terminal();
+const terminalRoot = document.getElementById("terminals")!;
+const processRoot = document.getElementById("processes")!;
 
 (async () => {
   await Promise.all([
@@ -35,7 +39,7 @@ const terminal = new Terminal();
   document.getElementById("create-process")?.addEventListener("click", () =>
     peers.write(
       EPeerPipeResourceTypes.WORKLOAD,
-      "testresource",
+      prompt("resourceId")!,
       new TextEncoder().encode(
         JSON.stringify({
           terminalHostNodeId: prompt("terminalHostNodeId")!,
@@ -79,34 +83,22 @@ const terminal = new Terminal();
           }
 
           case EResourcePipeTypes.PROCESS_WRITE_TO_STDIN: {
-            console.log("Writing to process stdin", {
-              resourceId,
-              msg,
-              nodeId,
-            });
+            (await processes.get(resourceId)).write(
+              new Uint8Array(Object.values(msg))
+            );
 
             break;
           }
 
           case EResourcePipeTypes.TERMINAL_WRITE_TO_STDOUT: {
-            console.log("Writing to terminal stdout", {
-              resourceId,
-              msg,
-              nodeId,
-            });
-
-            terminal.write(new Uint8Array(Object.values(msg)));
+            (await terminals.get(resourceId)).write(
+              new Uint8Array(Object.values(msg))
+            );
 
             break;
           }
 
           case EResourcePipeTypes.CREATE_WORKLOAD: {
-            console.log("CREATE_WORKLOAD", {
-              resourceId,
-              msg,
-              nodeId,
-            });
-
             const { terminalHostNodeId } = JSON.parse(
               new TextDecoder().decode(new Uint8Array(Object.values(msg)))
             );
@@ -118,40 +110,41 @@ const terminal = new Terminal();
               terminalHostNodeId // ID of node with terminal resource
             );
 
-            (async () => {
-              setInterval(
-                async () =>
-                  await peers.write(
-                    EPeerPipeResourceTypes.STDOUT,
-                    resourceId,
-                    new TextEncoder().encode("test process stdout"),
-                    terminalHostNodeId
-                  ),
-                1000
+            const process = await processes.create(async (key) => {
+              process.write(key);
+
+              await peers.write(
+                EPeerPipeResourceTypes.STDOUT,
+                resourceId,
+                new TextEncoder().encode(key),
+                terminalHostNodeId
               );
-            })();
+            }, resourceId);
+
+            const processesEl = document.createElement("div");
+            processRoot.appendChild(processesEl);
+
+            process.open(processesEl);
 
             break;
           }
 
           case EResourcePipeTypes.CREATE_INPUT_DEVICE: {
-            console.log("CREATE_INPUT_DEVICE", {
-              resourceId,
-              msg,
-              nodeId,
-            });
+            const terminal = await terminals.create(async (key) => {
+              terminal.write(key);
 
-            terminal.onData(
-              async (key) =>
-                await peers.write(
-                  EPeerPipeResourceTypes.STDIN,
-                  resourceId,
-                  new TextEncoder().encode(key),
-                  nodeId
-                )
-            );
+              await peers.write(
+                EPeerPipeResourceTypes.STDIN,
+                resourceId,
+                new TextEncoder().encode(key),
+                nodeId
+              );
+            }, resourceId);
 
-            terminal.open(document.getElementById("terminal")!);
+            const terminalEl = document.createElement("div");
+            terminalRoot.appendChild(terminalEl);
+
+            terminal.open(terminalEl);
 
             break;
           }
