@@ -9,7 +9,7 @@ import {
 import { DuplicateResourceError } from "../../errors/duplicate-resource";
 import { InstanceDoesNotExistError } from "../../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../../errors/invalid-reference";
-import { UnimplementedResourceError } from "../../errors/unimplemented-resource";
+import { ResourceNotImplementedError } from "../../errors/resource-not-implemented";
 import { IArgumentsSpec } from "../../resources/arguments";
 import { ICapabilitySpec } from "../../resources/capability";
 import { File } from "../../resources/file";
@@ -53,7 +53,7 @@ export class Worker {
       this.logger.silly("Creating resource", { resource });
 
       if (!Object.values(EResourceKind).includes(resource.kind)) {
-        throw new UnimplementedResourceError();
+        throw new ResourceNotImplementedError();
       }
 
       switch (resource.kind) {
@@ -452,7 +452,7 @@ export class Worker {
       this.logger.silly("Deleting resource", { resource });
 
       if (!Object.values(EResourceKind).includes(resource.kind)) {
-        throw new UnimplementedResourceError();
+        throw new ResourceNotImplementedError();
       }
 
       if (

@@ -148,6 +148,12 @@ const processesRoot = document.getElementById("processes")!;
               break;
             }
 
+            case EResourcesResources.VMRUNTIME: {
+              console.log("Creating VMRuntime");
+
+              break;
+            }
+
             default: {
               throw new UnknownResourceError(resourceType);
             }
@@ -182,6 +188,10 @@ const processesRoot = document.getElementById("processes")!;
 
                 case EPeersResources.INPUT_DEVICE: {
                   return EResourcesResources.TERMINAL_INSTANCE;
+                }
+
+                case EPeersResources.RUNTIME: {
+                  return EResourcesResources.RUNTIME_INSTANCE;
                 }
 
                 default: {
