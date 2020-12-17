@@ -111,6 +111,8 @@ const terminalIOBus = new Emittery();
               nodeId,
             });
 
+            // TODO: Encode terminal host node ID in msg and send CREATE_TERMINAL message via peers to terminal host node ID
+
             const terminal = new Terminal();
             terminal.onData((key) =>
               terminalIOBus.emit(
@@ -122,6 +124,49 @@ const terminalIOBus = new Emittery();
                 })
               )
             );
+
+            terminalIOBus.on("stdout", (rawMessage) => {
+              const {
+                resourceId: receivedResourceId,
+                msg: receivedMsg,
+                nodeId: receivedNodeId,
+              } = JSON.parse(rawMessage as string);
+
+              if (
+                resourceId === receivedResourceId &&
+                nodeId === receivedNodeId
+              ) {
+                terminal.write(receivedMsg);
+              }
+            });
+
+            processIOBus.on("stdin", (rawMessage) => {
+              const {
+                resourceId: receivedResourceId,
+                msg: receivedMsg,
+                nodeId: receivedNodeId,
+              } = JSON.parse(rawMessage as string);
+
+              if (
+                resourceId === receivedResourceId &&
+                nodeId === receivedNodeId
+              ) {
+                terminal.write(receivedMsg);
+              }
+            });
+
+            (async () => {
+              setInterval(() => {
+                processIOBus.emit(
+                  "stdout",
+                  JSON.stringify({
+                    resourceId,
+                    msg: new TextEncoder().encode("test process stdout"),
+                    nodeId,
+                  })
+                );
+              }, 1000);
+            })();
 
             terminal.open(document.getElementById("terminal")!);
 
