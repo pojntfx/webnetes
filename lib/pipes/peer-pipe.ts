@@ -27,6 +27,7 @@ export enum EPeerPipeResourceTypes {
   STDIN = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdin",
   // STDIN_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinResolve",
   // STDIN_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/stdinRejection",
+  WORKLOAD = "webnetes.felix.pojtinger.com/v1alpha1/resources/workload",
 }
 
 export class PeerPipe

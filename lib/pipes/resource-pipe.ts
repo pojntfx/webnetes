@@ -29,6 +29,13 @@ export interface IResourcePipeConfig {
       nodeId: string;
     }>;
   };
+  workload: {
+    createWorkload: (
+      resourceId: string,
+      msg: Uint8Array,
+      nodeId: string
+    ) => Promise<void>;
+  };
 }
 
 export enum EResourcePipeTypes {
@@ -38,6 +45,7 @@ export enum EResourcePipeTypes {
   TERMINAL = "webnetes.felix.pojtinger.com/v1alpha1/resources/terminal",
   // TERMINAL_RESOLVE = "webnetes.felix.pojtinger.com/v1alpha1/resources/terminalResolve",
   // TERMINAL_REJECTION = "webnetes.felix.pojtinger.com/v1alpha1/resources/terminalRejection",
+  WORKLOAD_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/resources/WORKLOAD_INSTANCE",
 }
 
 export class ResourcePipe
@@ -150,6 +158,12 @@ export class ResourcePipe
 
         case EResourcePipeTypes.TERMINAL: {
           await this.config.terminal.writeToStdout(resourceId, msg, nodeId);
+
+          break;
+        }
+
+        case EResourcePipeTypes.WORKLOAD_INSTANCE: {
+          await this.config.workload.createWorkload(resourceId, msg, nodeId);
 
           break;
         }

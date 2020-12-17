@@ -48,6 +48,20 @@ const peers = new PeerPipe();
           return { resourceId, msg: new TextEncoder().encode(msg), nodeId };
         },
       },
+      workload: {
+        createWorkload: async (
+          resourceId: string,
+          msg: Uint8Array,
+          nodeId: string
+        ) => {
+          console.log(
+            "creating terminal and process, attaching process and terminal stdio for",
+            resourceId,
+            msg,
+            nodeId
+          );
+        },
+      },
     }),
     peers.open({
       transporter: {
@@ -69,7 +83,7 @@ const peers = new PeerPipe();
     .getElementById("create-process")
     ?.addEventListener("click", () =>
       peers.write(
-        EPeerPipeResourceTypes.STDIN,
+        EPeerPipeResourceTypes.WORKLOAD,
         "testresource",
         new TextEncoder().encode("testmsg"),
         prompt("nodeId")!
@@ -209,6 +223,17 @@ const peers = new PeerPipe();
             //   nodeId // ID of node with stdout resource
             // );
             // }
+
+            break;
+          }
+
+          case EPeerPipeResourceTypes.WORKLOAD: {
+            await resources.write(
+              EResourcePipeTypes.WORKLOAD_INSTANCE,
+              resourceId,
+              msg,
+              nodeId // ID of node with workload resource
+            );
 
             break;
           }
