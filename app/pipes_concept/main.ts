@@ -6,8 +6,10 @@ import { EPeersResources, Peers } from "../../lib/pipes/peers";
 import { EResourcesResources, Resources } from "../../lib/pipes/resources";
 import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
+import { Subnets } from "../../lib/repositories/subnets";
 import { Terminals } from "../../lib/repositories/terminals";
 import { Capability } from "../../lib/resources/capability";
+import { Network } from "../../lib/resources/network";
 import { Processor } from "../../lib/resources/processor";
 import {
   API_VERSION,
@@ -15,6 +17,9 @@ import {
   IResource,
 } from "../../lib/resources/resource";
 import { Runtime } from "../../lib/resources/runtime";
+import { Signaler } from "../../lib/resources/signaler";
+import { StunServer } from "../../lib/resources/stunserver";
+import { TurnServer } from "../../lib/resources/turnserver";
 import { ResourceTranscoder } from "../../lib/utils/resource-transcoder";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -29,6 +34,7 @@ const transcoder = new ResourceTranscoder();
 const terminals = new Terminals();
 const processes = new Processes();
 const processors = new Processors();
+const subnets = new Subnets();
 
 (async () => {
   await Promise.all([
@@ -101,6 +107,80 @@ const processors = new Processors();
             capabilities: ["bind_alias"],
           },
         } as Processor),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<StunServer>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "StunServer",
+          metadata: {
+            name: "Google STUN Server",
+            label: "google",
+          },
+          spec: {
+            urls: ["stun:stun.l.google.com:19302"],
+          },
+        } as StunServer),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<TurnServer>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "TurnServer",
+          metadata: {
+            name: "Twillio TURN Server (UDP)",
+            label: "twillio_udp",
+          },
+          spec: {
+            urls: ["turn:global.turn.twilio.com:3478?transport=tcp"],
+            username:
+              "f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d",
+            credential: "w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=",
+          },
+        } as TurnServer),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Signaler>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Signaler",
+          metadata: {
+            name: "Public unisockets Signaling Server",
+            label: "unisockets_public",
+          },
+          spec: {
+            urls: ["wss://unisockets.herokuapp.com"],
+            retryAfter: 1000,
+          },
+        } as Signaler),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Network>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Network",
+          metadata: {
+            name: "Public unisockets network",
+            label: "unisockets_public",
+          },
+          spec: {
+            signaler: "unisockets_public",
+            stunServers: ["google"],
+            turnServers: ["twillio_udp"],
+          },
+        } as Network),
         nodeId
       );
 
@@ -260,6 +340,62 @@ const processors = new Processors();
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Processor>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.STUNSERVER: {
+                    const { metadata, spec } = resource as StunServer;
+
+                    await subnets.createStunServer(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<StunServer>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.TURNSERVER: {
+                    const { metadata, spec } = resource as TurnServer;
+
+                    await subnets.createTurnServer(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<TurnServer>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.SIGNALER: {
+                    const { metadata, spec } = resource as Signaler;
+
+                    await subnets.createSignaler(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Signaler>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.NETWORK: {
+                    const { metadata, spec } = resource as Network;
+
+                    await subnets.createNetwork(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Network>(resource),
                       nodeId
                     );
 
