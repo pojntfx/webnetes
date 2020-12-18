@@ -1,5 +1,5 @@
 export class InstanceDoesNotExistError extends Error {
-  constructor() {
-    super("instance does not exist");
+  constructor(label: string) {
+    super(`instance ${label} does not exist`);
   }
 }

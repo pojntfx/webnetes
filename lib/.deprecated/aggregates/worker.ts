@@ -623,7 +623,7 @@ export class Worker {
         this.getInstanceKey(apiVersion, kind, label)
       )! as T; // We check with .has
     } else {
-      throw new InstanceDoesNotExistError();
+      throw new InstanceDoesNotExistError(label);
     }
   }
 
@@ -637,7 +637,7 @@ export class Worker {
     if (this.instances.has(this.getInstanceKey(apiVersion, kind, label))) {
       this.instances.delete(this.getInstanceKey(apiVersion, kind, label)); // We check with .has
     } else {
-      throw new InstanceDoesNotExistError();
+      throw new InstanceDoesNotExistError(label);
     }
   }
 
