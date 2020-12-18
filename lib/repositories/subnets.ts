@@ -4,7 +4,6 @@ import { INetworkSpec, Network } from "../resources/network";
 import {
   API_VERSION,
   EResourceKind,
-  IResource,
   IResourceMetadata,
 } from "../resources/resource";
 import { ISignalerSpec, Signaler } from "../resources/signaler";
