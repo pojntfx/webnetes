@@ -72,7 +72,7 @@ const processors = new Processors();
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY,
         v4(),
-        transcoder.encode<Runtime>({
+        transcoder.encode<Capability>({
           apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
           kind: "Capability",
           metadata: {
@@ -89,7 +89,7 @@ const processors = new Processors();
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY,
         v4(),
-        transcoder.encode<Runtime>({
+        transcoder.encode<Processor>({
           apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
           kind: "Processor",
           metadata: {
@@ -228,6 +228,12 @@ const processors = new Processors();
                     const { metadata, spec } = resource as Runtime;
 
                     await processors.createRuntime(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Runtime>(resource),
+                      nodeId
+                    );
 
                     break;
                   }
@@ -236,6 +242,12 @@ const processors = new Processors();
                     const { metadata, spec } = resource as Capability;
 
                     await processors.createCapability(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Capability>(resource),
+                      nodeId
+                    );
 
                     break;
                   }
@@ -244,6 +256,12 @@ const processors = new Processors();
                     const { metadata, spec } = resource as Processor;
 
                     await processors.createProcessor(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Processor>(resource),
+                      nodeId
+                    );
 
                     break;
                   }
@@ -255,8 +273,6 @@ const processors = new Processors();
               } else {
                 throw new APIVersionNotImplementedError(resource.apiVersion);
               }
-
-              // TODO: Send back confirmation for resource.id
 
               break;
             }
@@ -278,38 +294,48 @@ const processors = new Processors();
         while (true) {
           const { resourceType, resourceId, msg, nodeId } = await peers.read();
 
-          await resources.write(
-            (() => {
-              switch (resourceType) {
-                case EPeersResources.STDOUT: {
-                  return EResourcesResources.TERMINAL;
-                }
+          switch (resourceType) {
+            case EPeersResources.MANAGEMENT_ENTITY_CONFIRM: {
+              // Changed; resolves & rejections could be handled here
 
-                case EPeersResources.STDIN: {
-                  return EResourcesResources.PROCESS;
-                }
+              break;
+            }
 
-                case EPeersResources.WORKLOAD: {
-                  return EResourcesResources.PROCESS_INSTANCE;
-                }
+            default: {
+              await resources.write(
+                (() => {
+                  switch (resourceType) {
+                    case EPeersResources.STDOUT: {
+                      return EResourcesResources.TERMINAL;
+                    }
 
-                case EPeersResources.INPUT_DEVICE: {
-                  return EResourcesResources.TERMINAL_INSTANCE;
-                }
+                    case EPeersResources.STDIN: {
+                      return EResourcesResources.PROCESS;
+                    }
 
-                case EPeersResources.MANAGEMENT_ENTITY: {
-                  return EResourcesResources.MANAGEMENT_ENTITY_INSTANCE;
-                }
+                    case EPeersResources.WORKLOAD: {
+                      return EResourcesResources.PROCESS_INSTANCE;
+                    }
 
-                default: {
-                  throw new ResourceNotImplementedError(resourceType);
-                }
-              }
-            })(),
-            resourceId,
-            msg,
-            nodeId
-          );
+                    case EPeersResources.INPUT_DEVICE: {
+                      return EResourcesResources.TERMINAL_INSTANCE;
+                    }
+
+                    case EPeersResources.MANAGEMENT_ENTITY: {
+                      return EResourcesResources.MANAGEMENT_ENTITY_INSTANCE;
+                    }
+
+                    default: {
+                      throw new ResourceNotImplementedError(resourceType);
+                    }
+                  }
+                })(),
+                resourceId,
+                msg,
+                nodeId
+              );
+            }
+          }
         }
       } catch (e) {
         throw e;

@@ -12,11 +12,11 @@ export abstract class Repository<T extends IResource<any>> {
   ) {
     try {
       await this.findResource(apiVersion, kind, metadata.label);
-
-      this.resources.push({ apiVersion, kind, metadata, spec } as R);
     } catch (e) {
       if (!(e instanceof ResourceDoesNotExistError)) throw e;
     }
+
+    this.resources.push({ apiVersion, kind, metadata, spec } as R);
   }
 
   protected async findResource<R extends T>(
