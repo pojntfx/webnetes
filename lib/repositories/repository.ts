@@ -32,7 +32,7 @@ export abstract class Repository<T extends IResource<any>> {
     );
 
     if (resource) {
-      return resource as IResource<R>;
+      return resource as R;
     } else {
       throw new ResourceDoesNotExistError(label);
     }
