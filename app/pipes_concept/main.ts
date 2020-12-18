@@ -19,6 +19,7 @@ import {
 import { Runtime } from "../../lib/resources/runtime";
 import { Signaler } from "../../lib/resources/signaler";
 import { StunServer } from "../../lib/resources/stunserver";
+import { Subnet } from "../../lib/resources/subnet";
 import { TurnServer } from "../../lib/resources/turnserver";
 import { ResourceTranscoder } from "../../lib/utils/resource-transcoder";
 
@@ -181,6 +182,24 @@ const subnets = new Subnets();
             turnServers: ["twillio_udp"],
           },
         } as Network),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Subnet>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Subnet",
+          metadata: {
+            name: "Echo Network",
+            label: "echo_network",
+          },
+          spec: {
+            network: "unisockets_public",
+            prefix: "127.0.0",
+          },
+        } as Subnet),
         nodeId
       );
 
@@ -396,6 +415,20 @@ const subnets = new Subnets();
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Network>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.SUBNET: {
+                    const { metadata, spec } = resource as Subnet;
+
+                    await subnets.createSubnet(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Subnet>(resource),
                       nodeId
                     );
 

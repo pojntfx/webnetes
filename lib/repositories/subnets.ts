@@ -1,3 +1,4 @@
+import { NetworkInterface } from "../controllers/network-interface";
 import { INetworkSpec, Network } from "../resources/network";
 import {
   API_VERSION,
@@ -6,7 +7,7 @@ import {
 } from "../resources/resource";
 import { ISignalerSpec, Signaler } from "../resources/signaler";
 import { IStunServerSpec, StunServer } from "../resources/stunserver";
-import { Subnet } from "../resources/subnet";
+import { ISubnetSpec, Subnet } from "../resources/subnet";
 import { ITurnServerSpec, TurnServer } from "../resources/turnserver";
 import { getLogger } from "../utils/logger";
 import { Repository } from "./repository";
@@ -78,6 +79,52 @@ export class Subnets extends Repository<
     );
   }
 
+  async createSubnet(metadata: IResourceMetadata, spec: ISubnetSpec) {
+    this.logger.debug("Creating subnet", { metadata });
+
+    const network = await this.getNetwork(spec.network);
+
+    const [stunServers, turnServers, signaler] = await Promise.all([
+      Promise.all(
+        network.spec.stunServers
+          .map(async (stunServer) => await this.getStunServer(stunServer))
+          .map(async (stunServer) => ({ urls: (await stunServer).spec.urls }))
+      ),
+      Promise.all(
+        network.spec.turnServers
+          .map(async (turnServer) => await this.getTurnServer(turnServer))
+          .map(async (turnServer) => ({
+            urls: (await turnServer).spec.urls,
+            username: (await turnServer).spec.username,
+            credential: (await turnServer).spec.credential,
+          }))
+      ),
+      await this.getSignaler(network.spec.signaler),
+    ]);
+
+    const subnet = new Subnet(metadata, spec);
+
+    const iface = new NetworkInterface(
+      {
+        iceServers: [...stunServers, ...turnServers],
+      },
+      signaler.spec.urls[0],
+      signaler.spec.retryAfter,
+      subnet.spec.prefix
+    );
+
+    (async () => {
+      await iface.open();
+    })();
+
+    await this.addResource<Subnet>(
+      subnet.apiVersion,
+      subnet.kind,
+      subnet.metadata,
+      subnet.spec
+    );
+  }
+
   async getStunServer(label: StunServer["metadata"]["label"]) {
     this.logger.debug("Getting STUN server", { label });
 
@@ -116,5 +163,11 @@ export class Subnets extends Repository<
       EResourceKind.NETWORK,
       label
     );
+  }
+
+  async getSubnet(label: Subnet["metadata"]["label"]) {
+    this.logger.debug("Getting subnet", { label });
+
+    return this.findResource<Subnet>(API_VERSION, EResourceKind.SUBNET, label);
   }
 }
