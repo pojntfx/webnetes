@@ -9,6 +9,8 @@ import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
 import { Subnets } from "../../lib/repositories/subnets";
 import { Terminals } from "../../lib/repositories/terminals";
+import { Workloads } from "../../lib/repositories/workloads";
+import { Arguments } from "../../lib/resources/arguments";
 import { Capability } from "../../lib/resources/capability";
 import { File } from "../../lib/resources/file";
 import { Network } from "../../lib/resources/network";
@@ -44,6 +46,7 @@ const files = new Files(
   async (label: string) => await subnets.getStunServer(label),
   async (label: string) => await subnets.getTurnServer(label)
 );
+const workloads = new Workloads();
 
 (async () => {
   await Promise.all([
@@ -280,6 +283,23 @@ const files = new Files(
               "magnet:?xt=urn:btih:6891bba71f536bf8e80796cc3f6e4f99bc49faa9&dn=echo_server.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com",
           },
         } as File),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Arguments>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Arguments",
+          metadata: {
+            name: "Echo Server Configuration",
+            label: "echo_server",
+          },
+          spec: {
+            argv: ["-laddr", "127.0.0.1:1234"],
+          },
+        } as Arguments),
         nodeId
       );
 
@@ -551,6 +571,20 @@ const files = new Files(
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<File>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.ARGUMENTS: {
+                    const { metadata, spec } = resource as Arguments;
+
+                    await workloads.createArguments(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Arguments>(resource),
                       nodeId
                     );
 
