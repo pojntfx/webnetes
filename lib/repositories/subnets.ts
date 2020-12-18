@@ -1,8 +1,10 @@
 import { NetworkInterface } from "../controllers/network-interface";
+import { IInstance } from "../resources/instance";
 import { INetworkSpec, Network } from "../resources/network";
 import {
   API_VERSION,
   EResourceKind,
+  IResource,
   IResourceMetadata,
 } from "../resources/resource";
 import { ISignalerSpec, Signaler } from "../resources/signaler";
@@ -13,7 +15,8 @@ import { getLogger } from "../utils/logger";
 import { Repository } from "./repository";
 
 export class Subnets extends Repository<
-  StunServer | TurnServer | Signaler | Network | Subnet
+  StunServer | TurnServer | Signaler | Network | Subnet,
+  IInstance<NetworkInterface>
 > {
   private logger = getLogger();
 
@@ -116,6 +119,13 @@ export class Subnets extends Repository<
     (async () => {
       await iface.open();
     })();
+
+    await this.addInstance<IInstance<NetworkInterface>>(
+      subnet.apiVersion,
+      subnet.kind,
+      subnet.metadata,
+      iface
+    );
 
     await this.addResource<Subnet>(
       subnet.apiVersion,
