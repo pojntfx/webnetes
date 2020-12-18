@@ -1,5 +1,5 @@
 import { FileRepository } from "../controllers/file-repository";
-import { File } from "../resources/file";
+import { File, IFileSpec } from "../resources/file";
 import { IInstance } from "../resources/instance";
 import {
   IRepositorySpec,
@@ -18,7 +18,7 @@ import { Repository } from "./repository";
 
 export class Files extends Repository<
   Tracker | RepositoryResource | File,
-  IInstance<FileRepository>
+  IInstance<FileRepository> | IInstance<Uint8Array>
 > {
   private logger = getLogger();
 
@@ -97,6 +97,31 @@ export class Files extends Repository<
     );
   }
 
+  async createFile(metadata: IResourceMetadata, spec: IFileSpec) {
+    this.logger.debug("Creating file", { metadata });
+
+    await this.getRepository(spec.repository);
+    const fileRepo = await this.getRepositoryInstance(spec.repository);
+
+    const file = new File(metadata, spec);
+
+    const fileInstance = await fileRepo.instance.add(spec.uri);
+
+    await this.addInstance<IInstance<Uint8Array>>(
+      file.apiVersion,
+      file.kind,
+      file.metadata,
+      fileInstance
+    );
+
+    await this.addResource<File>(
+      file.apiVersion,
+      file.kind,
+      file.metadata,
+      file.spec
+    );
+  }
+
   async getTracker(label: Tracker["metadata"]["label"]) {
     this.logger.debug("Getting tracker", { label });
 
@@ -111,6 +136,18 @@ export class Files extends Repository<
     this.logger.debug("Getting repository", { label });
 
     return this.findResource<RepositoryResource>(
+      API_VERSION,
+      EResourceKind.REPOSITORY,
+      label
+    );
+  }
+
+  async getRepositoryInstance(
+    label: IInstance<FileRepository>["metadata"]["label"]
+  ) {
+    this.logger.debug("Getting repository instance", { label });
+
+    return this.findInstance<IInstance<FileRepository>>(
       API_VERSION,
       EResourceKind.REPOSITORY,
       label

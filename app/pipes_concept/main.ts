@@ -10,6 +10,7 @@ import { Processors } from "../../lib/repositories/processors";
 import { Subnets } from "../../lib/repositories/subnets";
 import { Terminals } from "../../lib/repositories/terminals";
 import { Capability } from "../../lib/resources/capability";
+import { File } from "../../lib/resources/file";
 import { Network } from "../../lib/resources/network";
 import { Processor } from "../../lib/resources/processor";
 import { Repository } from "../../lib/resources/repository";
@@ -260,6 +261,25 @@ const files = new Files(
             turnServers: ["twillio_udp"],
           },
         } as Repository),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<File>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "File",
+          metadata: {
+            name: "Go Echo Server Binary",
+            label: "go_echo_server",
+          },
+          spec: {
+            repository: "webtorrent_public",
+            uri:
+              "magnet:?xt=urn:btih:6891bba71f536bf8e80796cc3f6e4f99bc49faa9&dn=echo_server.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com",
+          },
+        } as File),
         nodeId
       );
 
@@ -517,6 +537,20 @@ const files = new Files(
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Repository>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.FILE: {
+                    const { metadata, spec } = resource as File;
+
+                    await files.createFile(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<File>(resource),
                       nodeId
                     );
 
