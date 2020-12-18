@@ -8,6 +8,7 @@ import { KnockRejectedError } from "../errors/knock-rejected";
 import { ResourceNotImplementedError } from "../errors/resource-not-implemented";
 import { getLogger } from "../utils/logger";
 import { IPipe, Pipe } from "./pipe";
+import { Mutex } from "async-mutex";
 
 export interface IPeersConfig {
   transporter: ExtendedRTCConfiguration;
@@ -24,6 +25,7 @@ export enum EPeersResources {
   WORKLOAD = "webnetes.felix.pojtinger.com/v1alpha1/raw/Workload",
   INPUT_DEVICE = "webnetes.felix.pojtinger.com/v1alpha1/raw/InputDevice",
   MANAGEMENT_ENTITY = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntity",
+  MANAGEMENT_ENTITY_CONFIRM = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntityConfirm",
 }
 
 export class Peers
@@ -36,6 +38,8 @@ export class Peers
 
   private nodes = [] as string[];
   private localNodeId = "";
+
+  private managementEntityLock = new Mutex();
 
   async open(config: IPeersConfig) {
     this.logger.debug("Opening peers", { config });
@@ -133,6 +137,16 @@ export class Peers
     await Promise.all([this.transporter?.close(), this.signaler?.close()]);
   }
 
+  async read() {
+    const read = await super.read();
+
+    if (read.resourceType === EPeersResources.MANAGEMENT_ENTITY_CONFIRM) {
+      this.managementEntityLock.release();
+    }
+
+    return read;
+  }
+
   async write(
     resourceType: EPeersResources,
     resourceId: string,
@@ -140,6 +154,9 @@ export class Peers
     nodeId: string
   ) {
     this.logger.debug("Writing to peers");
+
+    if (resourceType === EPeersResources.MANAGEMENT_ENTITY)
+      await this.managementEntityLock.acquire();
 
     if (Object.values(EPeersResources).includes(resourceType)) {
       if (this.localNodeId === nodeId) {
