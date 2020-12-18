@@ -9,7 +9,7 @@ import { IRuntimeSpec, Runtime } from "../resources/runtime";
 import { getLogger } from "../utils/logger";
 import { Repository } from "./repository";
 
-export class Processors extends Repository<Runtime> {
+export class Processors extends Repository<Runtime | Capability | Processor> {
   private logger = getLogger();
 
   async createRuntime(metadata: IResourceMetadata, spec: IRuntimeSpec) {
