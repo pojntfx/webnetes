@@ -4,6 +4,7 @@ import { APIVersionNotImplementedError } from "../../lib/errors/apiversion-not-i
 import { ResourceNotImplementedError } from "../../lib/errors/resource-not-implemented";
 import { EPeersResources, Peers } from "../../lib/pipes/peers";
 import { EResourcesResources, Resources } from "../../lib/pipes/resources";
+import { Files } from "../../lib/repositories/files";
 import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
 import { Subnets } from "../../lib/repositories/subnets";
@@ -11,6 +12,7 @@ import { Terminals } from "../../lib/repositories/terminals";
 import { Capability } from "../../lib/resources/capability";
 import { Network } from "../../lib/resources/network";
 import { Processor } from "../../lib/resources/processor";
+import { Repository } from "../../lib/resources/repository";
 import {
   API_VERSION,
   EResourceKind,
@@ -20,6 +22,7 @@ import { Runtime } from "../../lib/resources/runtime";
 import { Signaler } from "../../lib/resources/signaler";
 import { StunServer } from "../../lib/resources/stunserver";
 import { Subnet } from "../../lib/resources/subnet";
+import { Tracker } from "../../lib/resources/tracker";
 import { TurnServer } from "../../lib/resources/turnserver";
 import { ResourceTranscoder } from "../../lib/utils/resource-transcoder";
 
@@ -36,6 +39,10 @@ const terminals = new Terminals();
 const processes = new Processes();
 const processors = new Processors();
 const subnets = new Subnets();
+const files = new Files(
+  async (label: string) => await subnets.getStunServer(label),
+  async (label: string) => await subnets.getTurnServer(label)
+);
 
 (async () => {
   await Promise.all([
@@ -200,6 +207,59 @@ const subnets = new Subnets();
             prefix: "127.0.0",
           },
         } as Subnet),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Tracker>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Tracker",
+          metadata: {
+            name: "OpenWebTorrent",
+            label: "openwebtorrent",
+          },
+          spec: {
+            urls: ["wss://tracker.openwebtorrent.com"],
+          },
+        } as Tracker),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Tracker>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Tracker",
+          metadata: {
+            name: "Fastcast",
+            label: "fastcast",
+          },
+          spec: {
+            urls: ["wss://tracker.fastcast.nz"],
+          },
+        } as Tracker),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Repository>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Repository",
+          metadata: {
+            name: "Public WebTorrent",
+            label: "webtorrent_public",
+          },
+          spec: {
+            trackers: ["openwebtorrent", "fastcast"],
+            stunServers: ["google"],
+            turnServers: ["twillio_udp"],
+          },
+        } as Repository),
         nodeId
       );
 
@@ -429,6 +489,34 @@ const subnets = new Subnets();
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Subnet>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.TRACKER: {
+                    const { metadata, spec } = resource as Tracker;
+
+                    await files.createTracker(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Tracker>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.REPOSITORY: {
+                    const { metadata, spec } = resource as Repository;
+
+                    await files.createRepository(metadata, spec);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Repository>(resource),
                       nodeId
                     );
 
