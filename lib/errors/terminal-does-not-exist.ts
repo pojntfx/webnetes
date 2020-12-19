@@ -1,5 +1,5 @@
 export class TerminalDoesNotExistError extends Error {
-  constructor() {
-    super("terminal does not exist");
+  constructor(id: string) {
+    super(`terminal ${id} does not exist`);
   }
 }

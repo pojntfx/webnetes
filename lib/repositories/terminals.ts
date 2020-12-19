@@ -28,7 +28,7 @@ export class Terminals {
     if (this.terminals.has(id)) {
       return this.terminals.get(id)!.dispose(); // We check above
     } else {
-      throw new TerminalDoesNotExistError();
+      throw new TerminalDoesNotExistError(id);
     }
   }
 
@@ -36,7 +36,7 @@ export class Terminals {
     if (this.terminals.has(id)) {
       return this.terminals.get(id)!.write(msg.replace(/\n/g, "\n\r")); // We check above
     } else {
-      throw new TerminalDoesNotExistError();
+      throw new TerminalDoesNotExistError(id);
     }
   }
 }

@@ -24,6 +24,7 @@ export enum EPeersResources {
   STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Stdin",
   WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Workload",
   INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDevice",
+  INPUT_DEVICE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDeviceDeletion",
   MANAGEMENT_ENTITY = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntity",
   MANAGEMENT_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletion",
   MANAGEMENT_ENTITY_CONFIRM = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityConfirm",
