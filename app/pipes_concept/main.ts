@@ -370,8 +370,9 @@ const workloads = new Workloads(
             }
 
             case EResourcesResources.TERMINAL_STDOUT: {
-              (await terminals.get(resourceId)).write(
-                new Uint8Array(Object.values(msg))
+              await terminals.writeToStdout(
+                resourceId,
+                new TextDecoder().decode(new Uint8Array(Object.values(msg)))
               );
 
               break;
