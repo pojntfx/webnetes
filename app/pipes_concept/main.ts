@@ -329,6 +329,20 @@ const workloads = new Workloads(
         } as Workload),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Runtime>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Runtime",
+          metadata: {
+            label: "jssi_go",
+          },
+          spec: {},
+        } as Runtime),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -617,6 +631,37 @@ const workloads = new Workloads(
               break;
             }
 
+            case EResourcesResources.WEBNETES_ENTITY_DELETION: {
+              const resource = transcoder.decode<IResource<any>>(
+                new Uint8Array(Object.values(msg))
+              );
+
+              if (resource.apiVersion === API_VERSION) {
+                switch (resource.kind) {
+                  case EResourceKind.RUNTIME: {
+                    const { metadata } = resource as Runtime;
+
+                    await processors.deleteRuntime(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Runtime>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+                  default: {
+                    throw new ResourceNotImplementedError(resource.kind);
+                  }
+                }
+              } else {
+                throw new APIVersionNotImplementedError(resource.apiVersion);
+              }
+
+              break;
+            }
+
             default: {
               throw new ResourceNotImplementedError(resourceType);
             }
@@ -659,6 +704,10 @@ const workloads = new Workloads(
 
                     case EPeersResources.MANAGEMENT_ENTITY: {
                       return EResourcesResources.MANAGEMENT_ENTITY_INSTANCE;
+                    }
+
+                    case EPeersResources.MANAGEMENT_ENTITY_DELETION: {
+                      return EResourcesResources.MANAGEMENT_ENTITY_INSTANCE_DELETION;
                     }
 
                     default: {

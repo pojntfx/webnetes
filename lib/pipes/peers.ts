@@ -25,6 +25,7 @@ export enum EPeersResources {
   WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Workload",
   INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDevice",
   MANAGEMENT_ENTITY = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntity",
+  MANAGEMENT_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletion",
   MANAGEMENT_ENTITY_CONFIRM = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityConfirm",
 }
 
@@ -155,7 +156,10 @@ export class Peers
   ) {
     this.logger.debug("Writing to peers");
 
-    if (resourceType === EPeersResources.MANAGEMENT_ENTITY)
+    if (
+      resourceType === EPeersResources.MANAGEMENT_ENTITY ||
+      resourceType === EPeersResources.MANAGEMENT_ENTITY_DELETION
+    )
       await this.managementEntityLock.acquire();
 
     if (Object.values(EPeersResources).includes(resourceType)) {

@@ -18,7 +18,10 @@ export enum EResourcesResources {
   INPUT_DEVICE_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDeviceInstance",
 
   MANAGEMENT_ENTITY_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityInstance",
+  MANAGEMENT_ENTITY_INSTANCE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityInstanceDeletion",
+
   WEBNETES_ENTITY = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/WebnetesEntity",
+  WEBNETES_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/WebnetesEntityDeletion",
 }
 
 export class Resources
@@ -67,6 +70,10 @@ export class Resources
 
           case EResourcesResources.MANAGEMENT_ENTITY_INSTANCE: {
             return EResourcesResources.WEBNETES_ENTITY;
+          }
+
+          case EResourcesResources.MANAGEMENT_ENTITY_INSTANCE_DELETION: {
+            return EResourcesResources.WEBNETES_ENTITY_DELETION;
           }
 
           default: {

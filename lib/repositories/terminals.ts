@@ -24,6 +24,14 @@ export class Terminals {
     return terminal;
   }
 
+  async delete(id: string) {
+    if (this.terminals.has(id)) {
+      return this.terminals.get(id)!.dispose(); // We check above
+    } else {
+      throw new TerminalDoesNotExistError();
+    }
+  }
+
   async writeToStdout(id: string, msg: string) {
     if (this.terminals.has(id)) {
       return this.terminals.get(id)!.write(msg.replace(/\n/g, "\n\r")); // We check above
