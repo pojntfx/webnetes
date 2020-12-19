@@ -46,7 +46,14 @@ const files = new Files(
   async (label: string) => await subnets.getStunServer(label),
   async (label: string) => await subnets.getTurnServer(label)
 );
-const workloads = new Workloads();
+const workloads = new Workloads(
+  async (label: string) => await files.getFile(label),
+  async (label: string) => (await files.getFileInstance(label)).instance,
+  async (label: string) => await processors.getRuntime(label),
+  async (label: string) => await processors.getCapability(label),
+  async (label: string) => await subnets.getSubnet(label),
+  async (label: string) => (await subnets.getSubnetInstance(label)).instance
+);
 
 (async () => {
   await Promise.all([

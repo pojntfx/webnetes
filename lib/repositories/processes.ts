@@ -4,10 +4,10 @@ import { TerminalDoesNotExistError } from "../errors/terminal-does-not-exist";
 export class Processes {
   private processes = new Map<string, Terminal>();
 
-  async create(onStdin: (key: string) => Promise<void>, id: string) {
+  async create(onStdout: (key: string) => Promise<void>, id: string) {
     const terminal = new Terminal();
 
-    terminal.onData(onStdin);
+    terminal.onData(onStdout);
     this.processes.set(id, terminal);
 
     return terminal;
