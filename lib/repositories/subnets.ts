@@ -32,6 +32,18 @@ export class Subnets extends Repository<
     );
   }
 
+  async deleteStunServer(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting STUN server", { metadata });
+
+    const stunServer = new StunServer(metadata, {} as any);
+
+    await this.removeResource<StunServer>(
+      stunServer.apiVersion,
+      stunServer.kind,
+      stunServer.metadata.label
+    );
+  }
+
   async createTurnServer(metadata: IResourceMetadata, spec: ITurnServerSpec) {
     this.logger.debug("Creating TURN server", { metadata });
 
@@ -45,6 +57,18 @@ export class Subnets extends Repository<
     );
   }
 
+  async deleteTurnServer(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting TURN server", { metadata });
+
+    const turnServer = new TurnServer(metadata, {} as any);
+
+    await this.removeResource<TurnServer>(
+      turnServer.apiVersion,
+      turnServer.kind,
+      turnServer.metadata.label
+    );
+  }
+
   async createSignaler(metadata: IResourceMetadata, spec: ISignalerSpec) {
     this.logger.debug("Creating signaler", { metadata });
 
@@ -55,6 +79,18 @@ export class Subnets extends Repository<
       signaler.kind,
       signaler.metadata,
       signaler.spec
+    );
+  }
+
+  async deleteSignaler(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting signaler", { metadata });
+
+    const signaler = new Signaler(metadata, {} as any);
+
+    await this.removeResource<Signaler>(
+      signaler.apiVersion,
+      signaler.kind,
+      signaler.metadata.label
     );
   }
 

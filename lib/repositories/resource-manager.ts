@@ -43,6 +43,12 @@ export abstract class ResourceManager<T extends IResource<any>> {
     kind: R["kind"],
     label: R["metadata"]["label"]
   ) {
+    try {
+      await this.findResource(apiVersion, kind, label);
+    } catch (e) {
+      if (!(e instanceof ResourceDoesNotExistError)) throw e;
+    }
+
     this.resources = this.resources.filter(
       (candidate) =>
         !(

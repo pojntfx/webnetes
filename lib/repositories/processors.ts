@@ -84,6 +84,18 @@ export class Processors extends ResourceManager<
     );
   }
 
+  async deleteProcessor(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting processor", { metadata });
+
+    const runtime = new Processor(metadata, {} as any);
+
+    await this.removeResource<Processor>(
+      runtime.apiVersion,
+      runtime.kind,
+      runtime.metadata.label
+    );
+  }
+
   async getRuntime(label: Runtime["metadata"]["label"]) {
     this.logger.debug("Getting runtime", { label });
 
