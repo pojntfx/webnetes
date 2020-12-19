@@ -248,7 +248,7 @@ export class VirtualMachine {
         }
       }
     } else {
-      throw new InstanceDoesNotExistError();
+      throw new InstanceDoesNotExistError(id);
     }
   }
 }
