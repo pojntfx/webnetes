@@ -160,6 +160,16 @@ export class Files extends Repository<
     );
   }
 
+  async seedFile(repositoryLabel: string, content: Uint8Array) {
+    this.logger.debug("Seeding file", { repositoryLabel });
+
+    const fileRepo = await this.getRepositoryInstance(repositoryLabel);
+
+    const magnetURI = await fileRepo.instance.seed(content);
+
+    return magnetURI;
+  }
+
   async deleteFile(metadata: IResourceMetadata) {
     this.logger.debug("Deleting file", { metadata });
 
