@@ -117,6 +117,18 @@ export class Subnets extends Repository<
     );
   }
 
+  async deleteNetwork(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting network", { metadata });
+
+    const network = new Network(metadata, {} as any);
+
+    await this.removeResource<Network>(
+      network.apiVersion,
+      network.kind,
+      network.metadata.label
+    );
+  }
+
   async createSubnet(metadata: IResourceMetadata, spec: ISubnetSpec) {
     this.logger.debug("Creating subnet", { metadata });
 
@@ -167,6 +179,32 @@ export class Subnets extends Repository<
       subnet.kind,
       subnet.metadata,
       subnet.spec
+    );
+  }
+
+  async deleteSubnet(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting subnet", { metadata });
+
+    const subnet = new Subnet(metadata, {} as any);
+
+    const subnetInstance = await this.findInstance<IInstance<NetworkInterface>>(
+      subnet.apiVersion,
+      subnet.kind,
+      subnet.metadata.label
+    );
+
+    await subnetInstance.instance.close();
+
+    await this.removeResource<Subnet>(
+      subnet.apiVersion,
+      subnet.kind,
+      subnet.metadata.label
+    );
+
+    await this.removeInstance<IInstance<NetworkInterface>>(
+      subnet.apiVersion,
+      subnet.kind,
+      subnet.metadata.label
     );
   }
 
