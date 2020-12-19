@@ -413,6 +413,34 @@ const workloads = new Workloads(
         } as Signaler),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Network>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Network",
+          metadata: {
+            label: "unisockets_public",
+          },
+          spec: {},
+        } as Network),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Subnet>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Subnet",
+          metadata: {
+            label: "echo_network",
+          },
+          spec: {},
+        } as Subnet),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -786,6 +814,34 @@ const workloads = new Workloads(
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Signaler>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.NETWORK: {
+                    const { metadata } = resource as Network;
+
+                    await subnets.deleteNetwork(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Network>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.SUBNET: {
+                    const { metadata } = resource as Subnet;
+
+                    await subnets.deleteSubnet(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Subnet>(resource),
                       nodeId
                     );
 

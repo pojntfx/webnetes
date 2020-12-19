@@ -42,4 +42,25 @@ export abstract class Repository<
       throw new InstanceDoesNotExistError(label);
     }
   }
+
+  protected async removeInstance<R extends I>(
+    apiVersion: R["apiVersion"],
+    kind: R["kind"],
+    label: R["metadata"]["label"]
+  ) {
+    try {
+      await this.findInstance(apiVersion, kind, label);
+    } catch (e) {
+      if (!(e instanceof InstanceDoesNotExistError)) throw e;
+    }
+
+    this.instances = this.instances.filter(
+      (candidate) =>
+        !(
+          candidate.apiVersion === apiVersion &&
+          candidate.kind === kind &&
+          candidate.metadata.label === label
+        )
+    );
+  }
 }
