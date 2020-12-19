@@ -12,10 +12,12 @@ export enum EResourcesResources {
 
   TERMINAL = "webnetes.felix.pojtinger.com/v1alpha1/raw/Terminal",
   TERMINAL_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalInstance",
+  TERMINAL_INSTANCE_DELETION = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalInstanceDeletion",
   TERMINAL_STDOUT = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalStdout",
   TERMINAL_STDIN = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalStdin",
 
   INPUT_DEVICE_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/InputDeviceInstance",
+  INPUT_DEVICE_INSTANCE_DELETION = "webnetes.felix.pojtinger.com/v1alpha1/raw/InputDeviceInstanceDeletion",
 
   MANAGEMENT_ENTITY_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntityInstance",
   MANAGEMENT_ENTITY_INSTANCE_DELETION = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntityInstanceDeletion",
@@ -62,6 +64,10 @@ export class Resources
 
           case EResourcesResources.TERMINAL_INSTANCE: {
             return EResourcesResources.INPUT_DEVICE_INSTANCE;
+          }
+
+          case EResourcesResources.TERMINAL_INSTANCE_DELETION: {
+            return EResourcesResources.INPUT_DEVICE_INSTANCE_DELETION;
           }
 
           case EResourcesResources.TERMINAL_STDIN: {

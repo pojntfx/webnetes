@@ -594,6 +594,12 @@ const workloads = new Workloads(
               break;
             }
 
+            case EResourcesResources.INPUT_DEVICE_INSTANCE_DELETION: {
+              await terminals.delete(resourceId);
+
+              break;
+            }
+
             case EResourcesResources.WEBNETES_ENTITY: {
               const resource = transcoder.decode<IResource<any>>(
                 new Uint8Array(Object.values(msg))
@@ -989,15 +995,20 @@ const workloads = new Workloads(
                   }
 
                   case EResourceKind.WORKLOAD: {
-                    const { metadata } = resource as Workload;
+                    const { metadata, spec } = resource as Workload;
 
                     await workloads.deleteWorkload(metadata, async () => {
-                      // TODO: Delete terminal on terminal host node
-
                       await peers.write(
                         EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                         resourceId,
                         transcoder.encode<Workload>(resource),
+                        nodeId
+                      );
+
+                      await peers.write(
+                        EPeersResources.INPUT_DEVICE_DELETION,
+                        resourceId,
+                        new Uint8Array(),
                         nodeId
                       );
 
@@ -1056,6 +1067,10 @@ const workloads = new Workloads(
 
                     case EPeersResources.INPUT_DEVICE: {
                       return EResourcesResources.TERMINAL_INSTANCE;
+                    }
+
+                    case EPeersResources.INPUT_DEVICE_DELETION: {
+                      return EResourcesResources.TERMINAL_INSTANCE_DELETION;
                     }
 
                     case EPeersResources.MANAGEMENT_ENTITY: {
