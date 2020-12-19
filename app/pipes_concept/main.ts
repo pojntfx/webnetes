@@ -357,6 +357,62 @@ const workloads = new Workloads(
         } as Capability),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Processor>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Processor",
+          metadata: {
+            label: "felicitass_iphone",
+          },
+          spec: {},
+        } as Processor),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<StunServer>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "StunServer",
+          metadata: {
+            label: "google",
+          },
+          spec: {},
+        } as StunServer),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<TurnServer>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "TurnServer",
+          metadata: {
+            label: "twillio_udp",
+          },
+          spec: {},
+        } as TurnServer),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Signaler>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Signaler",
+          metadata: {
+            label: "unisockets_public",
+          },
+          spec: {},
+        } as Signaler),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -674,6 +730,62 @@ const workloads = new Workloads(
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Capability>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.PROCESSOR: {
+                    const { metadata } = resource as Processor;
+
+                    await processors.deleteProcessor(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Processor>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.STUNSERVER: {
+                    const { metadata } = resource as StunServer;
+
+                    await subnets.deleteStunServer(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<StunServer>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.TURNSERVER: {
+                    const { metadata } = resource as TurnServer;
+
+                    await subnets.deleteTurnServer(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<TurnServer>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.SIGNALER: {
+                    const { metadata } = resource as Signaler;
+
+                    await subnets.deleteSignaler(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Signaler>(resource),
                       nodeId
                     );
 
