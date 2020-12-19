@@ -5,7 +5,6 @@ import { ResourceNotImplementedError } from "../../lib/errors/resource-not-imple
 import { EPeersResources, Peers } from "../../lib/pipes/peers";
 import { EResourcesResources, Resources } from "../../lib/pipes/resources";
 import { Files } from "../../lib/repositories/files";
-import { Processes } from "../../lib/repositories/processes";
 import { Processors } from "../../lib/repositories/processors";
 import { Subnets } from "../../lib/repositories/subnets";
 import { Terminals } from "../../lib/repositories/terminals";
@@ -27,6 +26,7 @@ import { StunServer } from "../../lib/resources/stunserver";
 import { Subnet } from "../../lib/resources/subnet";
 import { Tracker } from "../../lib/resources/tracker";
 import { TurnServer } from "../../lib/resources/turnserver";
+import { Workload } from "../../lib/resources/workload";
 import { ResourceTranscoder } from "../../lib/utils/resource-transcoder";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -35,11 +35,9 @@ const resources = new Resources();
 const peers = new Peers();
 
 const terminalsRoot = document.getElementById("terminals")!;
-const processesRoot = document.getElementById("processes")!;
 const transcoder = new ResourceTranscoder();
 
 const terminals = new Terminals();
-const processes = new Processes();
 const processors = new Processors();
 const subnets = new Subnets();
 const files = new Files(
@@ -310,16 +308,27 @@ const workloads = new Workloads(
         nodeId
       );
 
-      // await peers.write(
-      //   EPeersResources.WORKLOAD,
-      //   prompt("resourceId")!,
-      //   new TextEncoder().encode(
-      //     JSON.stringify({
-      //       terminalHostNodeId: prompt("terminalHostNodeId")!, // TODO: Make process a proper resource with this property
-      //     })
-      //   ),
-      //   nodeId!
-      // );
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY,
+        v4(),
+        transcoder.encode<Workload>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Workload",
+          metadata: {
+            name: "Go Echo Server",
+            label: "go_echo_server",
+          },
+          spec: {
+            file: "go_echo_server",
+            runtime: "jssi_go",
+            capabilities: ["bind_alias"],
+            subnet: "echo_network",
+            arguments: "echo_server",
+            terminalHostNodeId: prompt("terminalHostNodeId")!,
+          },
+        } as Workload),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -339,25 +348,21 @@ const workloads = new Workloads(
                 EPeersResources.STDOUT,
                 resourceId,
                 msg,
-                nodeId // ID of node with process resource
+                nodeId
               );
 
               break;
             }
 
             case EResourcesResources.TERMINAL: {
-              await peers.write(
-                EPeersResources.STDIN,
-                resourceId,
-                msg,
-                nodeId // ID of node with terminal resource
-              );
+              await peers.write(EPeersResources.STDIN, resourceId, msg, nodeId);
 
               break;
             }
 
             case EResourcesResources.PROCESS_STDIN: {
-              (await processes.get(resourceId)).write(
+              await workloads.writeToStdin(
+                resourceId,
                 new Uint8Array(Object.values(msg))
               );
 
@@ -368,37 +373,6 @@ const workloads = new Workloads(
               (await terminals.get(resourceId)).write(
                 new Uint8Array(Object.values(msg))
               );
-
-              break;
-            }
-
-            case EResourcesResources.WORKLOAD_INSTANCE: {
-              const { terminalHostNodeId } = JSON.parse(
-                new TextDecoder().decode(new Uint8Array(Object.values(msg)))
-              );
-
-              await peers.write(
-                EPeersResources.INPUT_DEVICE,
-                resourceId,
-                new Uint8Array(),
-                terminalHostNodeId // ID of node with terminal resource
-              );
-
-              const process = await processes.create(async (key) => {
-                process.write(key);
-
-                await peers.write(
-                  EPeersResources.STDOUT,
-                  resourceId,
-                  new TextEncoder().encode(key),
-                  terminalHostNodeId
-                );
-              }, resourceId);
-
-              const processesEl = document.createElement("div");
-              processesRoot.appendChild(processesEl);
-
-              process.open(processesEl);
 
               break;
             }
@@ -598,6 +572,39 @@ const workloads = new Workloads(
                     break;
                   }
 
+                  case EResourceKind.WORKLOAD: {
+                    const { metadata, spec } = resource as Workload;
+
+                    await workloads.createWorkload(
+                      metadata,
+                      spec,
+                      async (msg: Uint8Array) => {
+                        await peers.write(
+                          EPeersResources.STDOUT,
+                          resourceId,
+                          msg,
+                          spec.terminalHostNodeId
+                        );
+                      }
+                    );
+
+                    await peers.write(
+                      EPeersResources.INPUT_DEVICE,
+                      resourceId,
+                      new Uint8Array(),
+                      spec.terminalHostNodeId
+                    );
+
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Workload>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
                   default: {
                     throw new ResourceNotImplementedError(resource.kind);
                   }
@@ -643,10 +650,6 @@ const workloads = new Workloads(
 
                     case EPeersResources.STDIN: {
                       return EResourcesResources.PROCESS;
-                    }
-
-                    case EPeersResources.WORKLOAD: {
-                      return EResourcesResources.PROCESS_INSTANCE;
                     }
 
                     case EPeersResources.INPUT_DEVICE: {
