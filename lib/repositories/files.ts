@@ -160,14 +160,35 @@ export class Files extends Repository<
     );
   }
 
-  async seedFile(repositoryLabel: string, content: Uint8Array) {
-    this.logger.debug("Seeding file", { repositoryLabel });
+  async seedFile(
+    label: string,
+    name: string,
+    repository: string,
+    fileInstance: Uint8Array
+  ) {
+    this.logger.debug("Seeding file", { label, name, repository });
 
-    const fileRepo = await this.getRepositoryInstance(repositoryLabel);
+    const fileRepo = await this.getRepositoryInstance(repository);
 
-    const magnetURI = await fileRepo.instance.seed(content);
+    const uri = await fileRepo.instance.seed(fileInstance);
 
-    return magnetURI;
+    const file = new File({ label, name }, { repository, uri });
+
+    await this.addInstance<IInstance<Uint8Array>>(
+      file.apiVersion,
+      file.kind,
+      file.metadata,
+      fileInstance
+    );
+
+    await this.addResource<File>(
+      file.apiVersion,
+      file.kind,
+      file.metadata,
+      file.spec
+    );
+
+    return file;
   }
 
   async deleteFile(metadata: IResourceMetadata) {
