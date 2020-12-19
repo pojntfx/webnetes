@@ -76,6 +76,7 @@ const workloads = new Workloads(
     .getElementById("create-server-resources")
     ?.addEventListener("click", async () => {
       const nodeId = prompt("nodeId")!;
+      const terminalLabel = prompt("terminalLabel")!;
       const terminalHostNodeId = prompt("terminalHostNodeId")!;
 
       await peers.write(
@@ -309,10 +310,9 @@ const workloads = new Workloads(
         nodeId
       );
 
-      const workloadResourceId = v4();
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY,
-        workloadResourceId,
+        v4(),
         transcoder.encode<Workload>({
           apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
           kind: "Workload",
@@ -326,6 +326,7 @@ const workloads = new Workloads(
             capabilities: ["bind_alias"],
             subnet: "echo_network",
             arguments: "echo_server",
+            terminalLabel,
             terminalHostNodeId,
           },
         } as Workload),
@@ -516,7 +517,7 @@ const workloads = new Workloads(
 
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY_DELETION,
-        workloadResourceId,
+        v4(),
         transcoder.encode<Workload>({
           apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
           kind: "Workload",
@@ -524,6 +525,7 @@ const workloads = new Workloads(
             label: "go_echo_server",
           },
           spec: {
+            terminalLabel,
             terminalHostNodeId,
           },
         } as Workload),
@@ -791,7 +793,7 @@ const workloads = new Workloads(
                       async (msg: Uint8Array) => {
                         await peers.write(
                           EPeersResources.STDOUT,
-                          resourceId,
+                          spec.terminalLabel,
                           msg,
                           spec.terminalHostNodeId
                         );
@@ -800,7 +802,7 @@ const workloads = new Workloads(
 
                     await peers.write(
                       EPeersResources.INPUT_DEVICE,
-                      resourceId,
+                      spec.terminalLabel,
                       new Uint8Array(),
                       spec.terminalHostNodeId
                     );
@@ -1014,7 +1016,7 @@ const workloads = new Workloads(
 
                       await peers.write(
                         EPeersResources.INPUT_DEVICE_DELETION,
-                        resourceId,
+                        spec.terminalLabel,
                         new Uint8Array(),
                         spec.terminalHostNodeId
                       );
