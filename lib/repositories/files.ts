@@ -46,6 +46,18 @@ export class Files extends Repository<
     );
   }
 
+  async deleteTracker(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting tracker", { metadata });
+
+    const tracker = new Tracker(metadata, {} as any);
+
+    await this.removeResource<Tracker>(
+      tracker.apiVersion,
+      tracker.kind,
+      tracker.metadata.label
+    );
+  }
+
   async createRepository(metadata: IResourceMetadata, spec: IRepositorySpec) {
     this.logger.debug("Creating repository", { metadata });
 
@@ -94,6 +106,32 @@ export class Files extends Repository<
       repo.kind,
       repo.metadata,
       repo.spec
+    );
+  }
+
+  async deleteRepository(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting repository", { metadata });
+
+    const repo = new RepositoryResource(metadata, {} as any);
+
+    const repoInstance = await this.findInstance<IInstance<FileRepository>>(
+      repo.apiVersion,
+      repo.kind,
+      repo.metadata.label
+    );
+
+    await repoInstance.instance.close();
+
+    await this.removeResource<RepositoryResource>(
+      repo.apiVersion,
+      repo.kind,
+      repo.metadata.label
+    );
+
+    await this.removeInstance<IInstance<FileRepository>>(
+      repo.apiVersion,
+      repo.kind,
+      repo.metadata.label
     );
   }
 

@@ -441,6 +441,48 @@ const workloads = new Workloads(
         } as Subnet),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Tracker>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Tracker",
+          metadata: {
+            label: "openwebtorrent",
+          },
+          spec: {},
+        } as Tracker),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Tracker>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Tracker",
+          metadata: {
+            label: "fastcast",
+          },
+          spec: {},
+        } as Tracker),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Repository>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Repository",
+          metadata: {
+            label: "webtorrent_public",
+          },
+          spec: {},
+        } as Repository),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -842,6 +884,34 @@ const workloads = new Workloads(
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Subnet>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.TRACKER: {
+                    const { metadata } = resource as Tracker;
+
+                    await files.deleteTracker(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Tracker>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.REPOSITORY: {
+                    const { metadata } = resource as Repository;
+
+                    await files.deleteRepository(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Repository>(resource),
                       nodeId
                     );
 
