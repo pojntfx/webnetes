@@ -483,6 +483,20 @@ const workloads = new Workloads(
         } as Repository),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<File>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "File",
+          metadata: {
+            label: "go_echo_server",
+          },
+          spec: {},
+        } as File),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -912,6 +926,20 @@ const workloads = new Workloads(
                       EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                       resourceId,
                       transcoder.encode<Repository>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.FILE: {
+                    const { metadata } = resource as File;
+
+                    await files.deleteFile(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<File>(resource),
                       nodeId
                     );
 

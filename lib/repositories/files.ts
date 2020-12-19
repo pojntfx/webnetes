@@ -160,6 +160,24 @@ export class Files extends Repository<
     );
   }
 
+  async deleteFile(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting file", { metadata });
+
+    const file = new File(metadata, {} as any);
+
+    await this.removeResource<File>(
+      file.apiVersion,
+      file.kind,
+      file.metadata.label
+    );
+
+    await this.removeInstance<IInstance<Uint8Array>>(
+      file.apiVersion,
+      file.kind,
+      file.metadata.label
+    );
+  }
+
   async getTracker(label: Tracker["metadata"]["label"]) {
     this.logger.debug("Getting tracker", { label });
 
