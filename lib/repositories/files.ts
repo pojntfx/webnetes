@@ -153,4 +153,20 @@ export class Files extends Repository<
       label
     );
   }
+
+  async getFile(label: File["metadata"]["label"]) {
+    this.logger.debug("Getting file", { label });
+
+    return this.findResource<File>(API_VERSION, EResourceKind.FILE, label);
+  }
+
+  async getFileInstance(label: IInstance<File>["metadata"]["label"]) {
+    this.logger.debug("Getting file instance", { label });
+
+    return this.findInstance<IInstance<Uint8Array>>(
+      API_VERSION,
+      EResourceKind.FILE,
+      label
+    );
+  }
 }

@@ -179,4 +179,16 @@ export class Subnets extends Repository<
 
     return this.findResource<Subnet>(API_VERSION, EResourceKind.SUBNET, label);
   }
+
+  async getSubnetInstance(
+    label: IInstance<NetworkInterface>["metadata"]["label"]
+  ) {
+    this.logger.debug("Getting subnet instance", { label });
+
+    return this.findInstance<IInstance<NetworkInterface>>(
+      API_VERSION,
+      EResourceKind.SUBNET,
+      label
+    );
+  }
 }
