@@ -343,6 +343,20 @@ const workloads = new Workloads(
         } as Runtime),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Capability>({
+          apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
+          kind: "Capability",
+          metadata: {
+            label: "bind_alias",
+          },
+          spec: {},
+        } as Capability),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -651,6 +665,21 @@ const workloads = new Workloads(
 
                     break;
                   }
+
+                  case EResourceKind.CAPABILITY: {
+                    const { metadata } = resource as Capability;
+
+                    await processors.deleteCapability(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Capability>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
                   default: {
                     throw new ResourceNotImplementedError(resource.kind);
                   }
