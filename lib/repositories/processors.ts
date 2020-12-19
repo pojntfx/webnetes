@@ -52,6 +52,18 @@ export class Processors extends ResourceManager<
     );
   }
 
+  async deleteCapability(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting capability", { metadata });
+
+    const runtime = new Capability(metadata, {} as any);
+
+    await this.removeResource<Capability>(
+      runtime.apiVersion,
+      runtime.kind,
+      runtime.metadata.label
+    );
+  }
+
   async createProcessor(metadata: IResourceMetadata, spec: IProcessorSpec) {
     this.logger.debug("Creating processor", { metadata });
 
