@@ -497,6 +497,34 @@ const workloads = new Workloads(
         } as File),
         nodeId
       );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Arguments>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Arguments",
+          metadata: {
+            label: "echo_server",
+          },
+          spec: {},
+        } as Arguments),
+        nodeId
+      );
+
+      await peers.write(
+        EPeersResources.MANAGEMENT_ENTITY_DELETION,
+        v4(),
+        transcoder.encode<Workload>({
+          apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
+          kind: "Workload",
+          metadata: {
+            label: "go_echo_server",
+          },
+          spec: {},
+        } as Workload),
+        nodeId
+      );
     });
 
   await Promise.all([
@@ -942,6 +970,39 @@ const workloads = new Workloads(
                       transcoder.encode<File>(resource),
                       nodeId
                     );
+
+                    break;
+                  }
+
+                  case EResourceKind.ARGUMENTS: {
+                    const { metadata } = resource as Arguments;
+
+                    await workloads.deleteArguments(metadata);
+                    await peers.write(
+                      EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                      resourceId,
+                      transcoder.encode<Arguments>(resource),
+                      nodeId
+                    );
+
+                    break;
+                  }
+
+                  case EResourceKind.WORKLOAD: {
+                    const { metadata } = resource as Workload;
+
+                    await workloads.deleteWorkload(metadata, async () => {
+                      // TODO: Delete terminal on terminal host node
+
+                      await peers.write(
+                        EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                        resourceId,
+                        transcoder.encode<Workload>(resource),
+                        nodeId
+                      );
+
+                      window.location.reload(); // We can't manually stop WASM binaries, so we have to "restart" the node here
+                    });
 
                     break;
                   }

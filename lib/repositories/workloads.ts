@@ -67,6 +67,18 @@ export class Workloads extends Repository<
     );
   }
 
+  async deleteArguments(metadata: IResourceMetadata) {
+    this.logger.debug("Deleting arguments", { metadata });
+
+    const args = new Arguments(metadata, {} as any);
+
+    await this.removeResource<Arguments>(
+      args.apiVersion,
+      args.kind,
+      args.metadata.label
+    );
+  }
+
   async createWorkload(
     metadata: IResourceMetadata,
     spec: IWorkloadSpec,
@@ -131,6 +143,29 @@ export class Workloads extends Repository<
       workload.metadata,
       workload.spec
     );
+  }
+
+  async deleteWorkload(
+    metadata: IResourceMetadata,
+    onHandleInstanceDeletion: () => Promise<void>
+  ) {
+    this.logger.debug("Deleting workload", { metadata });
+
+    const workload = new Workload(metadata, {} as any);
+
+    await this.removeResource<Workload>(
+      workload.apiVersion,
+      workload.kind,
+      workload.metadata.label
+    );
+
+    await this.removeInstance<IInstance<VirtualMachine>>(
+      workload.apiVersion,
+      workload.kind,
+      workload.metadata.label
+    );
+
+    await onHandleInstanceDeletion();
   }
 
   async getArguments(label: Arguments["metadata"]["label"]) {
