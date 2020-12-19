@@ -37,4 +37,19 @@ export abstract class ResourceManager<T extends IResource<any>> {
       throw new ResourceDoesNotExistError(label);
     }
   }
+
+  protected async removeResource<R extends T>(
+    apiVersion: R["apiVersion"],
+    kind: R["kind"],
+    label: R["metadata"]["label"]
+  ) {
+    this.resources = this.resources.filter(
+      (candidate) =>
+        !(
+          candidate.apiVersion === apiVersion &&
+          candidate.kind === kind &&
+          candidate.metadata.label === label
+        )
+    );
+  }
 }
