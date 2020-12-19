@@ -76,6 +76,7 @@ const workloads = new Workloads(
     .getElementById("create-server-resources")
     ?.addEventListener("click", async () => {
       const nodeId = prompt("nodeId")!;
+      const terminalHostNodeId = prompt("terminalHostNodeId")!;
 
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY,
@@ -308,9 +309,10 @@ const workloads = new Workloads(
         nodeId
       );
 
+      const workloadResourceId = v4();
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY,
-        v4(),
+        workloadResourceId,
         transcoder.encode<Workload>({
           apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
           kind: "Workload",
@@ -324,7 +326,7 @@ const workloads = new Workloads(
             capabilities: ["bind_alias"],
             subnet: "echo_network",
             arguments: "echo_server",
-            terminalHostNodeId: prompt("terminalHostNodeId")!,
+            terminalHostNodeId,
           },
         } as Workload),
         nodeId
@@ -514,14 +516,16 @@ const workloads = new Workloads(
 
       await peers.write(
         EPeersResources.MANAGEMENT_ENTITY_DELETION,
-        v4(),
+        workloadResourceId,
         transcoder.encode<Workload>({
           apiVersion: "webnetes.felix.pojtinger.com/v1alpha1",
           kind: "Workload",
           metadata: {
             label: "go_echo_server",
           },
-          spec: {},
+          spec: {
+            terminalHostNodeId,
+          },
         } as Workload),
         nodeId
       );
@@ -587,6 +591,7 @@ const workloads = new Workloads(
               }, resourceId);
 
               const terminalEl = document.createElement("div");
+              terminalEl.setAttribute("id", resourceId);
               terminalsRoot.appendChild(terminalEl);
 
               terminal.open(terminalEl);
@@ -596,6 +601,8 @@ const workloads = new Workloads(
 
             case EResourcesResources.INPUT_DEVICE_INSTANCE_DELETION: {
               await terminals.delete(resourceId);
+
+              document.getElementById(resourceId)?.remove();
 
               break;
             }
@@ -1009,10 +1016,10 @@ const workloads = new Workloads(
                         EPeersResources.INPUT_DEVICE_DELETION,
                         resourceId,
                         new Uint8Array(),
-                        nodeId
+                        spec.terminalHostNodeId
                       );
 
-                      window.location.reload(); // We can't manually stop WASM binaries, so we have to "restart" the node here
+                      setTimeout(() => window.location.reload(), 1000); // We can't manually stop WASM binaries, so we have to "restart" the node here
                     });
 
                     break;
