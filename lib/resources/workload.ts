@@ -11,6 +11,7 @@ export interface IWorkloadSpec {
   capabilities: string[];
   subnet: string;
   arguments: string;
+  terminalHostNodeId: string;
 }
 
 export class Workload implements IResource<IWorkloadSpec> {

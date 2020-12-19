@@ -16,7 +16,6 @@ export enum EResourcesResources {
   TERMINAL_STDIN = "webnetes.felix.pojtinger.com/v1alpha1/raw/TerminalStdin",
 
   INPUT_DEVICE_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/InputDeviceInstance",
-  WORKLOAD_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/WorkloadInstance",
 
   MANAGEMENT_ENTITY_INSTANCE = "webnetes.felix.pojtinger.com/v1alpha1/raw/ManagementEntityInstance",
   WEBNETES_ENTITY = "webnetes.felix.pojtinger.com/v1alpha1/raw/WebnetesEntity",
@@ -48,10 +47,6 @@ export class Resources
         switch (resourceType) {
           case EResourcesResources.PROCESS: {
             return EResourcesResources.PROCESS_STDIN;
-          }
-
-          case EResourcesResources.PROCESS_INSTANCE: {
-            return EResourcesResources.WORKLOAD_INSTANCE;
           }
 
           case EResourcesResources.PROCESS_STDOUT: {
