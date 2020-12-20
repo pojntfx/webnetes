@@ -58,7 +58,7 @@ export class Node {
 
   async open(resources: string | TNodeConfiguration) {
     if (typeof resources === "string") {
-      resources = yaml.safeLoad(resources) as TNodeConfiguration;
+      resources = yaml.safeLoadAll(resources) as TNodeConfiguration;
     }
 
     const stunServers = resources
@@ -756,7 +756,7 @@ export class Node {
   async createResources(resources: string | IResource<any>[], nodeId: string) {
     if (this.peers && this.transcoder) {
       if (typeof resources === "string") {
-        resources = yaml.safeLoad(resources) as TNodeConfiguration;
+        resources = yaml.safeLoadAll(resources) as TNodeConfiguration;
       }
 
       for (const resource of resources) {
@@ -775,7 +775,7 @@ export class Node {
   async deleteResources(resources: string | IResource<any>[], nodeId: string) {
     if (this.peers && this.transcoder) {
       if (typeof resources === "string") {
-        resources = yaml.safeLoad(resources) as TNodeConfiguration;
+        resources = yaml.safeLoadAll(resources) as TNodeConfiguration;
       }
 
       for (const resource of resources) {
