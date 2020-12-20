@@ -3,16 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pipes Concept</title>
+    <title>Webnetes Demo</title>
   </head>
   <body>
-    <h1>Pipes Concept</h1>
+    <h1>Webnetes Demo</h1>
 
-    <button id="create-server-resources">Create Server Resources</button>
-    <button id="delete-server-resources">Delete Server Resources</button>
+    <h2>Resources</h2>
+    <button id="create-resources">Create Resources</button>
+    <button id="delete-resources">Delete Resources</button>
 
     <h2>Terminals</h2>
     <div id="terminals"></div>
+
+    <h2>Files</h2>
+    <label for="seed-file-repository">Repo</label>
+    <input type="text" id="seed-file-repository" />
+
+    <input type="file" id="seed-file-input" aria-label="File to upload" />
+    <button id="seed-file">Seed</button>
 
     <h2>Log</h2>
     <pre style="white-space: pre-line; background: black; color: white">
