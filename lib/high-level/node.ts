@@ -734,7 +734,13 @@ export class Node {
     })();
   }
 
-  async close() {}
+  async close() {
+    if (this.peers && this.resources) {
+      await Promise.all([this.peers.close(), this.resources.close()]);
+    } else {
+      throw new ClosedError("Peers or Resources");
+    }
+  }
 
   async seedFile(
     label: string,
