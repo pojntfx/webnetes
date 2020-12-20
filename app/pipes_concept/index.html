@@ -8,33 +8,46 @@
   <body>
     <h1>Webnetes Demo</h1>
 
-    <h2>Resources</h2>
-    <button id="create-resources">Create Resources</button>
-    <button id="delete-resources">Delete Resources</button>
+    <section id="prestart">
+      <h2>Node</h2>
+      <label for="node-config">Config:</label>
+      <br />
+      <textarea id="node-config-input" placeholder="Resource YAML"></textarea>
+      <br />
+      <button id="load-example-node-config">Load Example Config</button>
+      <br />
+      <button id="start-node">Start Node</button>
+    </section>
 
-    <h2>Terminals</h2>
-    <div id="terminals"></div>
+    <section id="poststart" style="display: none">
+      <h2>Resources</h2>
+      <button id="create-resources">Create Resources</button>
+      <button id="delete-resources">Delete Resources</button>
 
-    <h2>Files</h2>
+      <h2>Terminals</h2>
+      <div id="terminals"></div>
 
-    <label for="seed-file-label">Label:</label>
-    <input type="text" id="seed-file-label" />
+      <h2>Files</h2>
 
-    <label for="seed-file-name">Name:</label>
-    <input type="text" id="seed-file-name" />
+      <label for="seed-file-label">Label:</label>
+      <input type="text" id="seed-file-label" />
 
-    <label for="seed-file-repo">Repo:</label>
-    <input type="text" id="seed-file-repo" />
+      <label for="seed-file-name">Name:</label>
+      <input type="text" id="seed-file-name" />
 
-    <label for="seed-file-file">File:</label>
-    <input type="file" id="seed-file-file" />
+      <label for="seed-file-repo">Repo:</label>
+      <input type="text" id="seed-file-repo" />
 
-    <button id="seed-file-start">Seed</button>
+      <label for="seed-file-file">File:</label>
+      <input type="file" id="seed-file-file" />
 
-    <h2>Log</h2>
-    <pre style="white-space: pre-line; background: black; color: white">
-      <code id="log"></code>
-    </pre>
+      <button id="seed-file-start">Seed</button>
+
+      <h2>Log</h2>
+      <pre style="background: black; color: white">
+<code id="log"></code>
+</pre>
+    </section>
 
     <script src="./main.ts"></script>
   </body>
