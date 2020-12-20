@@ -1,4 +1,5 @@
 import yaml from "js-yaml";
+import { v4 } from "uuid";
 import { APIVersionNotImplementedError } from "../errors/apiversion-not-implemented";
 import { ClosedError } from "../errors/closed";
 import { ConfigMissingError } from "../errors/config-missing";
@@ -755,15 +756,41 @@ export class Node {
     }
   }
 
-  async createResource(resources: string | IResource<any>[]) {
-    if (typeof resources === "string") {
-      resources = yaml.safeLoad(resources) as TNodeConfiguration;
+  async createResource(resources: string | IResource<any>[], nodeId: string) {
+    if (this.peers && this.transcoder) {
+      if (typeof resources === "string") {
+        resources = yaml.safeLoad(resources) as TNodeConfiguration;
+      }
+
+      for (const resource of resources) {
+        await this.peers.write(
+          EPeersResources.MANAGEMENT_ENTITY,
+          v4(),
+          this.transcoder.encode<IResource<any>>(resource),
+          nodeId
+        );
+      }
+    } else {
+      throw new ClosedError("Peers or ResourceTranscoder");
     }
   }
 
-  async deleteResource(resources: string | IResource<any>[]) {
-    if (typeof resources === "string") {
-      resources = yaml.safeLoad(resources) as TNodeConfiguration;
+  async deleteResource(resources: string | IResource<any>[], nodeId: string) {
+    if (this.peers && this.transcoder) {
+      if (typeof resources === "string") {
+        resources = yaml.safeLoad(resources) as TNodeConfiguration;
+      }
+
+      for (const resource of resources) {
+        await this.peers.write(
+          EPeersResources.MANAGEMENT_ENTITY_DELETION,
+          v4(),
+          this.transcoder.encode<IResource<any>>(resource),
+          nodeId
+        );
+      }
+    } else {
+      throw new ClosedError("Peers or ResourceTranscoder");
     }
   }
 }
