@@ -204,6 +204,93 @@ spec:
   terminalHostNodeId: $TERMINAL_HOST_NODE_ID
 `;
 
+const resourcesToDelete = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Runtime
+metadata:
+  label: jssi_go
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  label: bind_alias
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Processor
+metadata:
+  label: felicitass_iphone
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  label: google
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  label: twillio_udp
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  label: unisockets_public
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Network
+metadata:
+  label: unisockets_public
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Subnet
+metadata:
+  label: echo_network
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Tracker
+metadata:
+  label: openwebtorrent
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Tracker
+metadata:
+  label: fastcast
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Repository
+metadata:
+  label: webtorrent_public
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: File
+metadata:
+  label: go_echo_server
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Arguments
+metadata:
+  label: echo_server
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Workload
+metadata:
+  label: go_echo_server
+spec:
+  terminalLabel: $TERMINAL_LABEL
+  terminalHostNodeId: $TERMINAL_HOST_NODE_ID
+`;
+
 const terminalsRoot = document.getElementById("terminals")!;
 const terminals = new Terminals();
 const node = new Node(
@@ -267,123 +354,9 @@ const node = new Node(
       const terminalHostNodeId = prompt("terminalHostNodeId")!;
 
       await node.deleteResources(
-        [
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Runtime",
-            metadata: {
-              label: "jssi_go",
-            },
-            spec: {},
-          } as Runtime,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Capability",
-            metadata: {
-              label: "bind_alias",
-            },
-            spec: {},
-          } as Capability,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Processor",
-            metadata: {
-              label: "felicitass_iphone",
-            },
-            spec: {},
-          } as Processor,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "StunServer",
-            metadata: {
-              label: "google",
-            },
-            spec: {},
-          } as StunServer,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "TurnServer",
-            metadata: {
-              label: "twillio_udp",
-            },
-            spec: {},
-          } as TurnServer,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Signaler",
-            metadata: {
-              label: "unisockets_public",
-            },
-            spec: {},
-          } as Signaler,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Network",
-            metadata: {
-              label: "unisockets_public",
-            },
-            spec: {},
-          } as Network,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Subnet",
-            metadata: {
-              label: "echo_network",
-            },
-            spec: {},
-          } as Subnet,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Tracker",
-            metadata: {
-              label: "openwebtorrent",
-            },
-            spec: {},
-          } as Tracker,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Tracker",
-            metadata: {
-              label: "fastcast",
-            },
-            spec: {},
-          } as Tracker,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Repository",
-            metadata: {
-              label: "webtorrent_public",
-            },
-            spec: {},
-          } as Repository,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "File",
-            metadata: {
-              label: "go_echo_server",
-            },
-            spec: {},
-          } as File,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Arguments",
-            metadata: {
-              label: "echo_server",
-            },
-            spec: {},
-          } as Arguments,
-          {
-            apiVersion: "webnetes.felicitas.pojtinger.com/v1alpha1",
-            kind: "Workload",
-            metadata: {
-              label: "go_echo_server",
-            },
-            spec: {
-              terminalLabel,
-              terminalHostNodeId,
-            },
-          } as Workload,
-        ],
+        resourcesToDelete
+          .replace("$TERMINAL_LABEL", terminalLabel)
+          .replace("$TERMINAL_HOST_NODE_ID", terminalHostNodeId),
         nodeId
       );
     });
