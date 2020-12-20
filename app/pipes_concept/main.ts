@@ -299,7 +299,7 @@ const node = new Node(
     log("Deleted resource", resource);
   },
   async (frame) => {
-    console.error("Rejected resource", frame);
+    log("Rejected resource", frame);
   },
   async (id) => {
     log("Management node acknowledged", id);
@@ -379,6 +379,30 @@ const node = new Node(
           .replace("$TERMINAL_LABEL", terminalLabel)
           .replace("$TERMINAL_HOST_NODE_ID", terminalHostNodeId),
         nodeId
+      );
+    });
+
+  document
+    .getElementById("seed-file-start")
+    ?.addEventListener("click", async () => {
+      const label = (document.getElementById(
+        "seed-file-label"
+      ) as HTMLInputElement).value;
+      const name = (document.getElementById(
+        "seed-file-name"
+      ) as HTMLInputElement).value;
+      const repo = (document.getElementById(
+        "seed-file-repo"
+      ) as HTMLInputElement).value;
+      const file = (document.getElementById(
+        "seed-file-file"
+      ) as HTMLInputElement)?.files![0];
+
+      await node.seedFile(
+        label,
+        name,
+        repo,
+        new Uint8Array(await file.arrayBuffer())
       );
     });
 })();
