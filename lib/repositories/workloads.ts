@@ -182,7 +182,7 @@ export class Workloads extends Repository<
 
   private async readFromStdin(label: string) {
     let inputBuffer = "";
-    while (inputBuffer.slice(-1) !== "\r") {
+    while (inputBuffer.slice(-1) !== "\n") {
       let foundLabeledFrame: ILabeledFrame;
       if (this.labeledFrames.find((candidate) => candidate.label === label)) {
         foundLabeledFrame = this.labeledFrames.find(
