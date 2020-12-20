@@ -10,17 +10,31 @@
 
     <section id="prestart">
       <h2>Node</h2>
-      <label for="node-config">Config:</label>
+      <label for="node-config">Resources:</label>
       <br />
       <textarea id="node-config-input" placeholder="Resource YAML"></textarea>
       <br />
-      <button id="load-example-node-config">Load Example Config</button>
+      <button id="load-example-node-config">Load Example Resources</button>
       <br />
       <button id="start-node">Start Node</button>
     </section>
 
     <section id="poststart" style="display: none">
       <h2>Resources</h2>
+      <label for="resources">Resources:</label>
+      <br />
+      <textarea id="resources" placeholder="Resource YAML"></textarea>
+      <br />
+      <button id="load-example-server-resources">
+        Load Example Server Resources
+      </button>
+      <button id="load-example-client-resources">
+        Load Example Client Resources
+      </button>
+      <br />
+      <label for="node-id">Node ID:</label>
+      <input type="text" id="node-id" />
+      <br />
       <button id="create-resources">Create Resources</button>
       <button id="delete-resources">Delete Resources</button>
 
