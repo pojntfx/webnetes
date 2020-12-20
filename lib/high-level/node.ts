@@ -45,10 +45,7 @@ export class Node {
   constructor(
     private onCreateResource: (resource: IResource<any>) => Promise<void>,
     private onDeleteResource: (resource: IResource<any>) => Promise<void>,
-
-    private onConfirmationRejection: (
-      frame: Frame<EPeersResources>
-    ) => Promise<void>,
+    private onRejectResource: (frame: Frame<EPeersResources>) => Promise<void>,
 
     private onTerminalCreate: (
       onStdin: (key: string) => Promise<void>,
@@ -427,6 +424,8 @@ export class Node {
                         throw new ResourceNotImplementedError(resource.kind);
                       }
                     }
+
+                    await this.onCreateResource(resource);
                   } else {
                     throw new APIVersionNotImplementedError(
                       resource.apiVersion
@@ -639,6 +638,8 @@ export class Node {
                         throw new ResourceNotImplementedError(resource.kind);
                       }
                     }
+
+                    await this.onDeleteResource(resource);
                   } else {
                     throw new APIVersionNotImplementedError(
                       resource.apiVersion
@@ -672,7 +673,7 @@ export class Node {
 
               switch (resourceType) {
                 case EPeersResources.MANAGEMENT_ENTITY_CONFIRM: {
-                  await this.onConfirmationRejection({
+                  await this.onRejectResource({
                     resourceType,
                     resourceId,
                     msg,
@@ -754,7 +755,15 @@ export class Node {
     }
   }
 
-  async createResource(resources: string | IResource<any>[]) {}
+  async createResource(resources: string | IResource<any>[]) {
+    if (typeof resources === "string") {
+      resources = yaml.safeLoad(resources) as TNodeConfiguration;
+    }
+  }
 
-  async deleteResource(resources: string | IResource<any>[]) {}
+  async deleteResource(resources: string | IResource<any>[]) {
+    if (typeof resources === "string") {
+      resources = yaml.safeLoad(resources) as TNodeConfiguration;
+    }
+  }
 }
