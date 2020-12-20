@@ -11,7 +11,7 @@ export class Terminals {
     terminal.onData(async (key: string) => {
       if (key.charCodeAt(0) === 13) {
         // Return
-        await onStdin("\n\r");
+        await onStdin("\n");
       } else if (key.charCodeAt(0) === 127) {
         // Backspace
         await onStdin("\b \b");
