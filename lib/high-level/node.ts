@@ -48,6 +48,11 @@ export class Node {
     private onDeleteResource: (resource: IResource<any>) => Promise<void>,
     private onRejectResource: (frame: Frame<EPeersResources>) => Promise<void>,
 
+    private onManagementNodeJoin: (id: string) => Promise<void>,
+    private onManagementNodeLeave: (id: string) => Promise<void>,
+    private onResourceNodeJoin: (id: string) => Promise<void>,
+    private onResourceNodeLeave: (id: string) => Promise<void>,
+
     private onTerminalCreate: (
       onStdin: (key: string) => Promise<void>,
       id: string
@@ -123,6 +128,10 @@ export class Node {
           url: signaler.spec.urls[0],
           retryAfter: signaler.spec.retryAfter,
           prefix: subnet.spec.prefix,
+        },
+        handlers: {
+          onNodeJoin: this.onManagementNodeJoin,
+          onNodeLeave: this.onManagementNodeLeave,
         },
       }),
     ]);
@@ -317,7 +326,12 @@ export class Node {
                       case EResourceKind.SUBNET: {
                         const { metadata, spec } = resource as Subnet;
 
-                        await subnets.createSubnet(metadata, spec);
+                        await subnets.createSubnet(
+                          metadata,
+                          spec,
+                          this.onResourceNodeJoin,
+                          this.onResourceNodeLeave
+                        );
                         await peersPipe.write(
                           EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                           resourceId,

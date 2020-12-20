@@ -129,7 +129,13 @@ export class Subnets extends Repository<
     );
   }
 
-  async createSubnet(metadata: IResourceMetadata, spec: ISubnetSpec) {
+  async createSubnet(
+    metadata: IResourceMetadata,
+    spec: ISubnetSpec,
+
+    onNodeJoin: (id: string) => Promise<void>,
+    onNodeLeave: (id: string) => Promise<void>
+  ) {
     this.logger.debug("Creating subnet", { metadata });
 
     const network = await this.getNetwork(spec.network);
@@ -160,7 +166,9 @@ export class Subnets extends Repository<
       },
       signaler.spec.urls[0],
       signaler.spec.retryAfter,
-      subnet.spec.prefix
+      subnet.spec.prefix,
+      onNodeJoin,
+      onNodeLeave
     );
 
     (async () => {

@@ -16,12 +16,16 @@ export class NetworkInterface {
   private signalingClient?: SignalingClient;
   private transporter?: Transporter;
   private sockets?: Sockets;
+  private localNodeId?: String;
 
   constructor(
     private transporterConfig: ExtendedRTCConfiguration,
     private signalingServerConnectAddress: string,
     private reconnectTimeout: number,
-    private subnetPrefix: string
+    private subnetPrefix: string,
+
+    private onNodeJoin: (id: string) => Promise<void>,
+    private onNodeLeave: (id: string) => Promise<void>
   ) {}
 
   async open() {
@@ -40,9 +44,13 @@ export class NetworkInterface {
     };
     const handleTransporterChannelOpen = async (id: string) => {
       this.logger.silly("Handling transporter connection open", { id });
+
+      if (id.startsWith(this.subnetPrefix)) await this.onNodeJoin(id);
     };
     const handleTransporterChannelClose = async (id: string) => {
       this.logger.silly("Handling transporter connection close", { id });
+
+      if (id.startsWith(this.subnetPrefix)) await this.onNodeLeave(id);
     };
 
     const transporter = new Transporter(
@@ -66,6 +74,8 @@ export class NetworkInterface {
       if (rejected) {
         throw new KnockRejectedError();
       }
+
+      this.localNodeId = id;
 
       await ready.emit("ready", true);
     };
