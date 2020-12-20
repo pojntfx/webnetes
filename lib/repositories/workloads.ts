@@ -34,6 +34,8 @@ export class Workloads extends Repository<
   private logger = getLogger();
   private bus = new Emittery();
   private labeledFrames = [] as ILabeledFrame[];
+  private decoder = new TextDecoder();
+  private encoder = new TextEncoder();
 
   constructor(
     private getFile: (label: File["metadata"]["label"]) => Promise<File>,
@@ -112,7 +114,7 @@ export class Workloads extends Repository<
 
     const workloadInstance = new VirtualMachine(
       async (_: string, content: Uint8Array) => await onStdout(content),
-      async (_: string) => await this.readFromStdin(metadata.label)
+      async (_: string) => await this.readFromStdin(spec.terminalLabel)
     );
 
     const { memoryId, imports } = await subnetInstance.getImports();
@@ -179,29 +181,38 @@ export class Workloads extends Repository<
   }
 
   private async readFromStdin(label: string) {
-    let foundLabeledFrame: ILabeledFrame;
-    if (this.labeledFrames.find((candidate) => candidate.label === label)) {
-      foundLabeledFrame = this.labeledFrames.find(
-        (candidate) => candidate.label === label
-      )!; // We check above
-    } else {
-      foundLabeledFrame = JSON.parse(
-        (await this.bus.once(this.getReadKey(label))!) as string
-      ) as ILabeledFrame;
+    let inputBuffer = "";
+    while (inputBuffer.slice(-1) !== "\r") {
+      let foundLabeledFrame: ILabeledFrame;
+      if (this.labeledFrames.find((candidate) => candidate.label === label)) {
+        foundLabeledFrame = this.labeledFrames.find(
+          (candidate) => candidate.label === label
+        )!; // We check above
+      } else {
+        const found = JSON.parse(
+          (await this.bus.once(this.getReadKey(label))!) as string
+        ) as ILabeledFrame;
+
+        found.msg = new Uint8Array(Object.values(found.msg));
+
+        foundLabeledFrame = found;
+      }
+
+      this.labeledFrames = this.labeledFrames.filter(
+        (candidate) => candidate.id !== foundLabeledFrame.id
+      );
+
+      inputBuffer += this.decoder.decode(foundLabeledFrame.msg);
     }
 
-    this.labeledFrames = this.labeledFrames.filter(
-      (candidate) => candidate.id === foundLabeledFrame.id
-    );
-
-    return foundLabeledFrame.msg;
+    return this.encoder.encode(inputBuffer);
   }
 
   async writeToStdin(label: string, msg: Uint8Array) {
     const labeledFrame = { id: v4(), label, msg } as ILabeledFrame;
 
     this.labeledFrames.push(labeledFrame);
-    await this.bus.emit(this.getReadKey(label), msg);
+    await this.bus.emit(this.getReadKey(label), JSON.stringify(labeledFrame));
   }
 
   private getReadKey(label: string) {
