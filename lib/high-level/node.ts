@@ -1,5 +1,6 @@
 import yaml from "js-yaml";
 import { APIVersionNotImplementedError } from "../errors/apiversion-not-implemented";
+import { ClosedError } from "../errors/closed";
 import { ConfigMissingError } from "../errors/config-missing";
 import { ResourceNotImplementedError } from "../errors/resource-not-implemented";
 import { EPeersResources, Peers } from "../pipes/peers";
@@ -738,7 +739,20 @@ export class Node {
     name: string,
     repository: string,
     fileInstance: Uint8Array
-  ) {}
+  ) {
+    if (this.files) {
+      const file = await this.files.seedFile(
+        label,
+        name,
+        repository,
+        fileInstance
+      );
+
+      await this.onCreateResource(file);
+    } else {
+      throw new ClosedError("FileRepository");
+    }
+  }
 
   async createResource(resources: string | IResource<any>[]) {}
 
