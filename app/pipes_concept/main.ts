@@ -45,7 +45,7 @@ spec:
   prefix: 127.0.0
 `;
 
-const resourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+const exampleServerResourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Runtime
 metadata:
   name: Go JSSI
@@ -185,96 +185,11 @@ spec:
   - bind_alias
   subnet: echo_network
   arguments: echo_server
-  terminalLabel: $TERMINAL_LABEL
-  terminalHostNodeId: $TERMINAL_HOST_NODE_ID
+  terminalLabel: my_terminal_label
+  terminalHostNodeId: my_terminal_host_node_id
 `;
 
-const resourcesToDelete = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Runtime
-metadata:
-  label: jssi_go
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Capability
-metadata:
-  label: bind_alias
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Processor
-metadata:
-  label: felixs_iphone
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  label: google
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: TurnServer
-metadata:
-  label: twillio_udp
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Signaler
-metadata:
-  label: unisockets_public
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Network
-metadata:
-  label: unisockets_public
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Subnet
-metadata:
-  label: echo_network
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Tracker
-metadata:
-  label: openwebtorrent
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Tracker
-metadata:
-  label: fastcast
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Repository
-metadata:
-  label: webtorrent_public
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  label: go_echo_server
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Arguments
-metadata:
-  label: echo_server
-spec: {}
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Workload
-metadata:
-  label: go_echo_server
-spec:
-  terminalLabel: $TERMINAL_LABEL
-  terminalHostNodeId: $TERMINAL_HOST_NODE_ID
-`;
+const exampleClientResourcesToCreate = exampleServerResourcesToCreate; // TODO: Create actual example resources
 
 const terminalsRoot = document.getElementById("terminals")!;
 const terminals = new Terminals();
@@ -359,6 +274,26 @@ document
       ) as HTMLInputElement).value = exampleNodeConfig)
   );
 
+document
+  .getElementById("load-example-server-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleServerResourcesToCreate)
+  );
+
+document
+  .getElementById("load-example-client-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleClientResourcesToCreate)
+  );
+
 document.getElementById("start-node")?.addEventListener("click", async () => {
   await node.open(
     (document.getElementById("node-config-input") as HTMLInputElement).value
@@ -369,33 +304,25 @@ document.getElementById("start-node")?.addEventListener("click", async () => {
 
   document
     .getElementById("create-resources")
-    ?.addEventListener("click", async () => {
-      const nodeId = prompt("nodeId")!;
-      const terminalLabel = prompt("terminalLabel")!;
-      const terminalHostNodeId = prompt("terminalHostNodeId")!;
-
-      await node.createResources(
-        resourcesToCreate
-          .replace("$TERMINAL_LABEL", terminalLabel)
-          .replace("$TERMINAL_HOST_NODE_ID", terminalHostNodeId),
-        nodeId
-      );
-    });
+    ?.addEventListener(
+      "click",
+      async () =>
+        await node.createResources(
+          (document.getElementById("resources") as HTMLInputElement).value,
+          (document.getElementById("node-id") as HTMLInputElement).value
+        )
+    );
 
   document
     .getElementById("delete-resources")
-    ?.addEventListener("click", async () => {
-      const nodeId = prompt("nodeId")!;
-      const terminalLabel = prompt("terminalLabel")!;
-      const terminalHostNodeId = prompt("terminalHostNodeId")!;
-
-      await node.deleteResources(
-        resourcesToDelete
-          .replace("$TERMINAL_LABEL", terminalLabel)
-          .replace("$TERMINAL_HOST_NODE_ID", terminalHostNodeId),
-        nodeId
-      );
-    });
+    ?.addEventListener(
+      "click",
+      async () =>
+        await node.deleteResources(
+          (document.getElementById("resources") as HTMLInputElement).value,
+          (document.getElementById("node-id") as HTMLInputElement).value
+        )
+    );
 
   document
     .getElementById("seed-file-start")
