@@ -16,11 +16,16 @@ import { File } from "../resources/file";
 import { Network } from "../resources/network";
 import { Processor } from "../resources/processor";
 import { Repository } from "../resources/repository";
-import { API_VERSION, EResourceKind, IResource } from "../resources/resource";
+import {
+  API_VERSION,
+  EResourceKind,
+  IResource,
+  IResourceMetadata,
+} from "../resources/resource";
 import { Runtime } from "../resources/runtime";
 import { Signaler } from "../resources/signaler";
 import { StunServer } from "../resources/stunserver";
-import { Subnet } from "../resources/subnet";
+import { ISubnetSpec, Subnet } from "../resources/subnet";
 import { Tracker } from "../resources/tracker";
 import { TurnServer } from "../resources/turnserver";
 import { Workload } from "../resources/workload";
@@ -48,10 +53,25 @@ export class Node {
     private onDeleteResource: (resource: IResource<any>) => Promise<void>,
     private onRejectResource: (frame: Frame<EPeersResources>) => Promise<void>,
 
+    private onManagementNodeAcknowledged: (id: string) => Promise<void>,
     private onManagementNodeJoin: (id: string) => Promise<void>,
     private onManagementNodeLeave: (id: string) => Promise<void>,
-    private onResourceNodeJoin: (id: string) => Promise<void>,
-    private onResourceNodeLeave: (id: string) => Promise<void>,
+
+    private onResourceNodeAcknowledged: (
+      metadata: IResourceMetadata,
+      spec: ISubnetSpec,
+      id: string
+    ) => Promise<void>,
+    private onResourceNodeJoin: (
+      metadata: IResourceMetadata,
+      spec: ISubnetSpec,
+      id: string
+    ) => Promise<void>,
+    private onResourceNodeLeave: (
+      metadata: IResourceMetadata,
+      spec: ISubnetSpec,
+      id: string
+    ) => Promise<void>,
 
     private onTerminalCreate: (
       onStdin: (key: string) => Promise<void>,
@@ -130,6 +150,7 @@ export class Node {
           prefix: subnet.spec.prefix,
         },
         handlers: {
+          onNodeAcknowledged: this.onManagementNodeAcknowledged,
           onNodeJoin: this.onManagementNodeJoin,
           onNodeLeave: this.onManagementNodeLeave,
         },
@@ -329,6 +350,7 @@ export class Node {
                         await subnets.createSubnet(
                           metadata,
                           spec,
+                          this.onResourceNodeAcknowledged,
                           this.onResourceNodeJoin,
                           this.onResourceNodeLeave
                         );

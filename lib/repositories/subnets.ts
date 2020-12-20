@@ -133,8 +133,21 @@ export class Subnets extends Repository<
     metadata: IResourceMetadata,
     spec: ISubnetSpec,
 
-    onNodeJoin: (id: string) => Promise<void>,
-    onNodeLeave: (id: string) => Promise<void>
+    onNodeAcknowledged: (
+      metadata: IResourceMetadata,
+      spec: ISubnetSpec,
+      id: string
+    ) => Promise<void>,
+    onNodeJoin: (
+      metadata: IResourceMetadata,
+      spec: ISubnetSpec,
+      id: string
+    ) => Promise<void>,
+    onNodeLeave: (
+      metadata: IResourceMetadata,
+      spec: ISubnetSpec,
+      id: string
+    ) => Promise<void>
   ) {
     this.logger.debug("Creating subnet", { metadata });
 
@@ -167,8 +180,9 @@ export class Subnets extends Repository<
       signaler.spec.urls[0],
       signaler.spec.retryAfter,
       subnet.spec.prefix,
-      onNodeJoin,
-      onNodeLeave
+      async (id: string) => await onNodeAcknowledged(metadata, spec, id),
+      async (id: string) => await onNodeJoin(metadata, spec, id),
+      async (id: string) => await onNodeLeave(metadata, spec, id)
     );
 
     (async () => {

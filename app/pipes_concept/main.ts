@@ -1,9 +1,7 @@
 import "xterm/css/xterm.css";
 import { Node } from "../../lib/high-level/node";
-import { EPeersResources } from "../../lib/pipes/peers";
 import { Terminals } from "../../lib/repositories/terminals";
-import { IResource } from "../../lib/resources/resource";
-import { Frame } from "../../lib/utils/frame-transcoder";
+import { ISubnetSpec } from "../../lib/resources/subnet";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
@@ -281,28 +279,34 @@ spec:
 const terminalsRoot = document.getElementById("terminals")!;
 const terminals = new Terminals();
 const node = new Node(
-  async (resource: IResource<any>) => {
+  async (resource) => {
     console.log("Created resource", resource);
   },
-  async (resource: IResource<any>) => {
+  async (resource) => {
     console.log("Deleted resource", resource);
   },
-  async (frame: Frame<EPeersResources>) => {
+  async (frame) => {
     console.error("Rejected resource", frame);
   },
-  async (id: string) => {
+  async (id) => {
+    console.log("Management node acknowledged", id);
+  },
+  async (id) => {
     console.log("Management node joined", id);
   },
-  async (id: string) => {
+  async (id) => {
     console.log("Management node left", id);
   },
-  async (id: string) => {
-    console.log("Resource node joined", id);
+  async (metadata, spec, id) => {
+    console.log("Resource node acknowledged", metadata, spec, id);
   },
-  async (id: string) => {
-    console.log("Resource node left", id);
+  async (metadata, spec: ISubnetSpec, id) => {
+    console.log("Resource node joined", metadata, spec, id);
   },
-  async (onStdin: (key: string) => Promise<void>, id: string) => {
+  async (metadata, spec, id) => {
+    console.log("Resource node left", metadata, spec, id);
+  },
+  async (onStdin: (key: string) => Promise<void>, id) => {
     console.log("Creating terminal", onStdin, id);
 
     const terminal = await terminals.create(onStdin, id);
@@ -313,12 +317,12 @@ const node = new Node(
 
     terminal.open(terminalEl);
   },
-  async (id: string, msg: string) => {
+  async (id, msg) => {
     console.log("Writing to terminal");
 
     await terminals.write(id, msg);
   },
-  async (id: string) => {
+  async (id) => {
     console.log("Deleting terminal");
 
     await terminals.delete(id);
