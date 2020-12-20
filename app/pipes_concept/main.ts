@@ -5,7 +5,7 @@ import { ISubnetSpec } from "../../lib/resources/subnet";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-const nodeConfiguration = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+const exampleNodeConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Signaler
 metadata:
   name: Public unisockets Signaling Server
@@ -349,8 +349,23 @@ const node = new Node(
   }
 );
 
-(async () => {
-  await node.open(nodeConfiguration);
+document
+  .getElementById("load-example-node-config")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "node-config-input"
+      ) as HTMLInputElement).value = exampleNodeConfig)
+  );
+
+document.getElementById("start-node")?.addEventListener("click", async () => {
+  await node.open(
+    (document.getElementById("node-config-input") as HTMLInputElement).value
+  );
+
+  document.getElementById("prestart")!.style.cssText = "display: none";
+  document.getElementById("poststart")!.style.cssText = "display: block";
 
   document
     .getElementById("create-resources")
@@ -405,4 +420,4 @@ const node = new Node(
         new Uint8Array(await file.arrayBuffer())
       );
     });
-})();
+});
