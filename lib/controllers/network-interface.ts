@@ -24,6 +24,7 @@ export class NetworkInterface {
     private reconnectTimeout: number,
     private subnetPrefix: string,
 
+    private onNodeAcknowledged: (id: string) => Promise<void>,
     private onNodeJoin: (id: string) => Promise<void>,
     private onNodeLeave: (id: string) => Promise<void>
   ) {}
@@ -76,8 +77,9 @@ export class NetworkInterface {
       }
 
       this.localNodeId = id;
-
       await ready.emit("ready", true);
+
+      await this.onNodeAcknowledged(id);
     };
     const getOffer = async (
       answererId: string,

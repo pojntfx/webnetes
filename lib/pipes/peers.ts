@@ -3,12 +3,12 @@ import {
   SignalingClient,
   Transporter,
 } from "@pojntfx/unisockets";
+import { Mutex } from "async-mutex";
 import { ClosedError } from "../errors/closed";
 import { KnockRejectedError } from "../errors/knock-rejected";
 import { ResourceNotImplementedError } from "../errors/resource-not-implemented";
 import { getLogger } from "../utils/logger";
 import { IPipe, Pipe } from "./pipe";
-import { Mutex } from "async-mutex";
 
 export interface IPeersConfig {
   transporter: ExtendedRTCConfiguration;
@@ -18,6 +18,7 @@ export interface IPeersConfig {
     prefix: string;
   };
   handlers: {
+    onNodeAcknowledged: (id: string) => Promise<void>;
     onNodeJoin: (id: string) => Promise<void>;
     onNodeLeave: (id: string) => Promise<void>;
   };
@@ -101,12 +102,13 @@ export class Peers
           localNodeId,
         });
 
-        this.localNodeId = localNodeId;
-
         if (rejected) {
           throw new KnockRejectedError();
         } else {
+          this.localNodeId = localNodeId;
           this.bus.emit(this.getReadyKey(), true);
+
+          await config.handlers.onNodeAcknowledged(localNodeId);
         }
       },
       async (
