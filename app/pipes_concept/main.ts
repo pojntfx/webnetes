@@ -324,9 +324,16 @@ const node = new Node(
 
     const terminal = await terminals.create(onStdin, id);
 
+    const terminalWrapper = document.createElement("div");
+    terminalWrapper.setAttribute("id", id);
+    terminalsRoot.appendChild(terminalWrapper);
+
+    const terminalHeader = document.createElement("h3");
+    terminalHeader.textContent = id;
+    terminalWrapper.appendChild(terminalHeader);
+
     const terminalEl = document.createElement("div");
-    terminalEl.setAttribute("id", id);
-    terminalsRoot.appendChild(terminalEl);
+    terminalWrapper.appendChild(terminalEl);
 
     terminal.open(terminalEl);
   },
@@ -346,7 +353,7 @@ const node = new Node(
   await node.open(nodeConfiguration);
 
   document
-    .getElementById("create-server-resources")
+    .getElementById("create-resources")
     ?.addEventListener("click", async () => {
       const nodeId = prompt("nodeId")!;
       const terminalLabel = prompt("terminalLabel")!;
@@ -361,7 +368,7 @@ const node = new Node(
     });
 
   document
-    .getElementById("delete-server-resources")
+    .getElementById("delete-resources")
     ?.addEventListener("click", async () => {
       const nodeId = prompt("nodeId")!;
       const terminalLabel = prompt("terminalLabel")!;
