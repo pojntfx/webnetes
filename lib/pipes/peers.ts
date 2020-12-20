@@ -17,6 +17,10 @@ export interface IPeersConfig {
     retryAfter: number;
     prefix: string;
   };
+  handlers: {
+    onNodeJoin: (id: string) => Promise<void>;
+    onNodeLeave: (id: string) => Promise<void>;
+  };
 }
 
 export enum EPeersResources {
@@ -55,6 +59,9 @@ export class Peers
 
         this.nodes.push(nodeId);
 
+        if (nodeId.startsWith(config.signaler.prefix))
+          await config.handlers.onNodeJoin(nodeId);
+
         while (this.nodes.includes(nodeId)) {
           this.logger.silly("Received from peer", { nodeId });
 
@@ -69,6 +76,9 @@ export class Peers
       },
       async (nodeId) => {
         this.logger.debug("Disconnected from peer", { nodeId });
+
+        if (nodeId.startsWith(config.signaler.prefix))
+          await config.handlers.onNodeLeave(nodeId);
 
         this.nodes = this.nodes.filter((candidate) => candidate !== nodeId);
       }

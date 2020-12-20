@@ -2,20 +2,7 @@ import "xterm/css/xterm.css";
 import { Node } from "../../lib/high-level/node";
 import { EPeersResources } from "../../lib/pipes/peers";
 import { Terminals } from "../../lib/repositories/terminals";
-import { Arguments } from "../../lib/resources/arguments";
-import { Capability } from "../../lib/resources/capability";
-import { File } from "../../lib/resources/file";
-import { Network } from "../../lib/resources/network";
-import { Processor } from "../../lib/resources/processor";
-import { Repository } from "../../lib/resources/repository";
 import { IResource } from "../../lib/resources/resource";
-import { Runtime } from "../../lib/resources/runtime";
-import { Signaler } from "../../lib/resources/signaler";
-import { StunServer } from "../../lib/resources/stunserver";
-import { Subnet } from "../../lib/resources/subnet";
-import { Tracker } from "../../lib/resources/tracker";
-import { TurnServer } from "../../lib/resources/turnserver";
-import { Workload } from "../../lib/resources/workload";
 import { Frame } from "../../lib/utils/frame-transcoder";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -302,6 +289,18 @@ const node = new Node(
   },
   async (frame: Frame<EPeersResources>) => {
     console.error("Rejected resource", frame);
+  },
+  async (id: string) => {
+    console.log("Management node joined", id);
+  },
+  async (id: string) => {
+    console.log("Management node left", id);
+  },
+  async (id: string) => {
+    console.log("Resource node joined", id);
+  },
+  async (id: string) => {
+    console.log("Resource node left", id);
   },
   async (onStdin: (key: string) => Promise<void>, id: string) => {
     console.log("Creating terminal", onStdin, id);
