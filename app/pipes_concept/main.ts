@@ -22,7 +22,16 @@ metadata:
   label: google
 spec:
   urls:
-    - stun:stun.l.google.com:19302
+  - stun:stun.l.google.com:19302
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+  - stun:global.stun.twilio.com:3478?transport=udp
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: TurnServer
@@ -31,7 +40,29 @@ metadata:
   label: twillio_udp
 spec:
   urls:
-    - turn:global.turn.twilio.com:3478?transport=tcp
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (TCP)
+  label: twillio_tcp
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server Fallback (TCP)
+  label: twillio_tcp_fallback
+spec:
+  urls:
+  - turn:global.turn.twilio.com:443?transport=tcp
   username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
@@ -72,6 +103,16 @@ spec:
   - bind_alias
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+    - wss://unisockets.herokuapp.com
+  retryAfter: 1000
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: StunServer
 metadata:
   name: Google STUN Server
@@ -79,6 +120,15 @@ metadata:
 spec:
   urls:
   - stun:stun.l.google.com:19302
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+  - stun:global.stun.twilio.com:3478?transport=udp
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: TurnServer
@@ -92,14 +142,26 @@ spec:
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Signaler
+kind: TurnServer
 metadata:
-  name: Public unisockets Signaling Server
-  label: unisockets_public
+  name: Twillio TURN Server (TCP)
+  label: twillio_tcp
 spec:
   urls:
-  - wss://unisockets.herokuapp.com
-  retryAfter: 1000
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server Fallback (TCP)
+  label: twillio_tcp_fallback
+spec:
+  urls:
+  - turn:global.turn.twilio.com:443?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Network
@@ -110,8 +172,11 @@ spec:
   signaler: unisockets_public
   stunServers:
   - google
+  - twillio
   turnServers:
   - twillio_udp
+  - twillio_tcp
+  - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Subnet
@@ -120,7 +185,7 @@ metadata:
   label: echo_network
 spec:
   network: unisockets_public
-  prefix: 127.0.0
+  prefix: 127.19.0
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Tracker
@@ -151,8 +216,11 @@ spec:
   - fastcast
   stunServers:
   - google
+  - twillio
   turnServers:
   - twillio_udp
+  - twillio_tcp
+  - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: File
@@ -171,7 +239,7 @@ metadata:
 spec:
   argv:
   - "-laddr"
-  - 127.0.0.1:1234
+  - 127.19.0.1:1234
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Workload
@@ -185,11 +253,190 @@ spec:
   - bind_alias
   subnet: echo_network
   arguments: echo_server
-  terminalLabel: my_terminal_label
+  terminalLabel: echo_server
   terminalHostNodeId: my_terminal_host_node_id
 `;
 
-const exampleClientResourcesToCreate = exampleServerResourcesToCreate; // TODO: Create actual example resources
+const exampleClientResourcesToCreate = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Runtime
+metadata:
+  name: Go JSSI
+  label: jssi_go
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Connecting to aliases
+  label: connect_to_alias
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Processor
+metadata:
+  name: Felicitas's iPhone
+  label: felicitass_iphone
+spec:
+  runtimes:
+  - jssi_go
+  capabilities:
+  - connect_to_alias
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+    - wss://unisockets.herokuapp.com
+  retryAfter: 1000
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Google STUN Server
+  label: google
+spec:
+  urls:
+  - stun:stun.l.google.com:19302
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+  - stun:global.stun.twilio.com:3478?transport=udp
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (UDP)
+  label: twillio_udp
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (TCP)
+  label: twillio_tcp
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server Fallback (TCP)
+  label: twillio_tcp_fallback
+spec:
+  urls:
+  - turn:global.turn.twilio.com:443?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Network
+metadata:
+  name: Public unisockets network
+  label: unisockets_public
+spec:
+  signaler: unisockets_public
+  stunServers:
+  - google
+  - twillio
+  turnServers:
+  - twillio_udp
+  - twillio_tcp
+  - twillio_tcp_fallback
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Subnet
+metadata:
+  name: Echo Network
+  label: echo_network
+spec:
+  network: unisockets_public
+  prefix: 127.19.0
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Tracker
+metadata:
+  name: OpenWebTorrent
+  label: openwebtorrent
+spec:
+  urls:
+  - wss://tracker.openwebtorrent.com
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Tracker
+metadata:
+  name: Fastcast
+  label: fastcast
+spec:
+  urls:
+  - wss://tracker.fastcast.nz
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Repository
+metadata:
+  name: Public WebTorrent
+  label: webtorrent_public
+spec:
+  trackers:
+  - openwebtorrent
+  - fastcast
+  stunServers:
+  - google
+  - twillio
+  turnServers:
+  - twillio_udp
+  - twillio_tcp
+  - twillio_tcp_fallback
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: File
+metadata:
+  name: Go Echo Client Binary
+  label: go_echo_client
+spec:
+  repository: webtorrent_public
+  uri: magnet:?xt=urn:btih:251cc6a9a733ea8b44b5cad0827895bb194f0e27&dn=echo_client.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Arguments
+metadata:
+  name: Echo Client Configuration
+  label: echo_client
+spec:
+  argv:
+  - "-raddr"
+  - 127.19.0.1:1234
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Workload
+metadata:
+  name: Go Echo Client
+  label: go_echo_client
+spec:
+  file: go_echo_client
+  runtime: jssi_go
+  capabilities:
+  - connect_to_alias
+  subnet: echo_network
+  arguments: echo_client
+  terminalLabel: echo_client
+  terminalHostNodeId: my_terminal_host_node_id
+`;
 
 const terminalsRoot = document.getElementById("terminals")!;
 const terminals = new Terminals();
