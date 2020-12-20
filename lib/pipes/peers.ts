@@ -30,8 +30,9 @@ export enum EPeersResources {
   INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDevice",
   INPUT_DEVICE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDeviceDeletion",
   MANAGEMENT_ENTITY = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntity",
-  MANAGEMENT_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletion",
   MANAGEMENT_ENTITY_CONFIRM = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityConfirm",
+  MANAGEMENT_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletion",
+  MANAGEMENT_ENTITY_DELETION_CONFIRM = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletionConfirm",
 }
 
 export class Peers
@@ -152,7 +153,10 @@ export class Peers
   async read() {
     const read = await super.read();
 
-    if (read.resourceType === EPeersResources.MANAGEMENT_ENTITY_CONFIRM) {
+    if (
+      read.resourceType === EPeersResources.MANAGEMENT_ENTITY_CONFIRM ||
+      read.resourceType === EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM
+    ) {
       this.managementEntityLock.release();
     }
 

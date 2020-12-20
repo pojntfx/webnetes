@@ -458,7 +458,7 @@ export class Node {
 
                         await processors.deleteRuntime(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Runtime>(resource),
                           nodeId
@@ -472,7 +472,7 @@ export class Node {
 
                         await processors.deleteCapability(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Capability>(resource),
                           nodeId
@@ -486,7 +486,7 @@ export class Node {
 
                         await processors.deleteProcessor(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Processor>(resource),
                           nodeId
@@ -500,7 +500,7 @@ export class Node {
 
                         await subnets.deleteStunServer(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<StunServer>(resource),
                           nodeId
@@ -514,7 +514,7 @@ export class Node {
 
                         await subnets.deleteTurnServer(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<TurnServer>(resource),
                           nodeId
@@ -528,7 +528,7 @@ export class Node {
 
                         await subnets.deleteSignaler(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Signaler>(resource),
                           nodeId
@@ -542,7 +542,7 @@ export class Node {
 
                         await subnets.deleteNetwork(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Network>(resource),
                           nodeId
@@ -556,7 +556,7 @@ export class Node {
 
                         await subnets.deleteSubnet(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Subnet>(resource),
                           nodeId
@@ -570,7 +570,7 @@ export class Node {
 
                         await files.deleteTracker(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Tracker>(resource),
                           nodeId
@@ -584,7 +584,7 @@ export class Node {
 
                         await files.deleteRepository(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Repository>(resource),
                           nodeId
@@ -598,7 +598,7 @@ export class Node {
 
                         await files.deleteFile(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<File>(resource),
                           nodeId
@@ -612,7 +612,7 @@ export class Node {
 
                         await workloads.deleteArguments(metadata);
                         await peersPipe.write(
-                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
                           transcoder.encode<Arguments>(resource),
                           nodeId
@@ -626,7 +626,7 @@ export class Node {
 
                         await workloads.deleteWorkload(metadata, async () => {
                           await peersPipe.write(
-                            EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                            EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                             resourceId,
                             transcoder.encode<Workload>(resource),
                             nodeId
@@ -684,7 +684,21 @@ export class Node {
 
               switch (resourceType) {
                 case EPeersResources.MANAGEMENT_ENTITY_CONFIRM: {
-                  // Rejections could be handled here
+                  const resource = transcoder.decode<IResource<any>>(
+                    new Uint8Array(Object.values(msg))
+                  );
+
+                  await this.onCreateResource(resource);
+
+                  break;
+                }
+
+                case EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM: {
+                  const resource = transcoder.decode<IResource<any>>(
+                    new Uint8Array(Object.values(msg))
+                  );
+
+                  await this.onDeleteResource(resource);
 
                   break;
                 }
