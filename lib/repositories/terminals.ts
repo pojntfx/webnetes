@@ -32,7 +32,7 @@ export class Terminals {
     }
   }
 
-  async writeToStdout(id: string, msg: string) {
+  async write(id: string, msg: string) {
     if (this.terminals.has(id)) {
       return this.terminals.get(id)!.write(msg.replace(/\n/g, "\n\r")); // We check above
     } else {

@@ -52,11 +52,7 @@ export class Node {
       onStdin: (key: string) => Promise<void>,
       id: string
     ) => Promise<void>,
-    private onTerminalWriteToStdout: (id: string, msg: string) => Promise<void>,
-    private onTerminalWriteToStdin: (
-      resourceId: string,
-      data: string | Uint8Array
-    ) => Promise<void>,
+    private onTerminalWrite: (id: string, msg: string) => Promise<void>,
     private onTerminalDelete: (id: string) => Promise<void>
   ) {}
 
@@ -184,7 +180,7 @@ export class Node {
                 }
 
                 case EResourcesResources.TERMINAL_STDOUT: {
-                  await this.onTerminalWriteToStdout(
+                  await this.onTerminalWrite(
                     resourceId,
                     new TextDecoder().decode(new Uint8Array(Object.values(msg)))
                   );
@@ -194,7 +190,7 @@ export class Node {
 
                 case EResourcesResources.INPUT_DEVICE_INSTANCE: {
                   await this.onTerminalCreate(async (key) => {
-                    await this.onTerminalWriteToStdin(resourceId, key);
+                    await this.onTerminalWrite(resourceId, key);
 
                     await peersPipe.write(
                       EPeersResources.STDIN,
@@ -674,12 +670,7 @@ export class Node {
 
               switch (resourceType) {
                 case EPeersResources.MANAGEMENT_ENTITY_CONFIRM: {
-                  await this.onRejectResource({
-                    resourceType,
-                    resourceId,
-                    msg,
-                    nodeId,
-                  });
+                  // Rejections could be handled here
 
                   break;
                 }
@@ -762,7 +753,7 @@ export class Node {
     }
   }
 
-  async createResource(resources: string | IResource<any>[], nodeId: string) {
+  async createResources(resources: string | IResource<any>[], nodeId: string) {
     if (this.peers && this.transcoder) {
       if (typeof resources === "string") {
         resources = yaml.safeLoad(resources) as TNodeConfiguration;
@@ -781,7 +772,7 @@ export class Node {
     }
   }
 
-  async deleteResource(resources: string | IResource<any>[], nodeId: string) {
+  async deleteResources(resources: string | IResource<any>[], nodeId: string) {
     if (this.peers && this.transcoder) {
       if (typeof resources === "string") {
         resources = yaml.safeLoad(resources) as TNodeConfiguration;
