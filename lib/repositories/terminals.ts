@@ -1,7 +1,8 @@
+import Emittery from "emittery";
 import { Terminal } from "xterm";
-import { TerminalDoesNotExistError } from "../errors/terminal-does-not-exist";
 
 export class Terminals {
+  private bus = new Emittery();
   private terminals = new Map<string, Terminal>();
 
   async create(onStdin: (key: string) => Promise<void>, id: string) {
@@ -20,6 +21,7 @@ export class Terminals {
     });
 
     this.terminals.set(id, terminal);
+    await this.bus.emit(this.getExistsKey(id), true);
 
     return terminal;
   }
@@ -28,7 +30,9 @@ export class Terminals {
     if (this.terminals.has(id)) {
       return this.terminals.get(id)!.dispose(); // We check above
     } else {
-      throw new TerminalDoesNotExistError(id);
+      await this.bus.once(this.getExistsKey(id));
+
+      await this.delete(id);
     }
   }
 
@@ -36,7 +40,13 @@ export class Terminals {
     if (this.terminals.has(id)) {
       return this.terminals.get(id)!.write(msg.replace(/\n/g, "\n\r")); // We check above
     } else {
-      throw new TerminalDoesNotExistError(id);
+      await this.bus.once(this.getExistsKey(id));
+
+      await this.write(id, msg);
     }
+  }
+
+  private getExistsKey(id: string) {
+    return `exists id=${id}`;
   }
 }

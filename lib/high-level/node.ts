@@ -201,19 +201,26 @@ export class Node {
                 }
 
                 case EResourcesResources.PROCESS_STDIN: {
-                  await workloads.writeToStdin(
-                    resourceId,
-                    new Uint8Array(Object.values(msg))
-                  );
+                  // Process writes are non-blocking
+                  (async () => {
+                    await workloads.writeToStdin(
+                      resourceId,
+                      new Uint8Array(Object.values(msg))
+                    );
+                  })();
 
                   break;
                 }
 
                 case EResourcesResources.TERMINAL_STDOUT: {
-                  await this.onTerminalWrite(
-                    resourceId,
-                    new TextDecoder().decode(new Uint8Array(Object.values(msg)))
-                  );
+                  // Terminal writes are non-blocking
+                  (async () =>
+                    await this.onTerminalWrite(
+                      resourceId,
+                      new TextDecoder().decode(
+                        new Uint8Array(Object.values(msg))
+                      )
+                    ))();
 
                   break;
                 }
