@@ -3,77 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>webnetes Demo</title>
-    <link rel="stylesheet" href="https://unpkg.com/marx-css/css/marx.min.css" />
+    <title>Webnetes Demo</title>
   </head>
   <body>
-    <main>
-      <h1>Webnetes Demo</h1>
+    <h1>Webnetes Demo</h1>
 
-      <section id="manager">
-        <h2>Manager</h2>
+    <section id="prestart">
+      <h2>Node</h2>
+      <label for="node-config">Resources:</label>
+      <br />
+      <textarea id="node-config-input" placeholder="Resource YAML"></textarea>
+      <br />
+      <button id="load-example-node-config">Load Example Resources</button>
+      <br />
+      <button id="start-node">Start Node</button>
+    </section>
 
-        <label for="manager-config-input">Configuration:</label>
-        <br />
-        <textarea
-          id="manager-config-input"
-          placeholder="Resource YAML"
-        ></textarea>
+    <section id="poststart" style="display: none">
+      <h2>Resources</h2>
+      <label for="resources">Resources:</label>
+      <br />
+      <textarea id="resources" placeholder="Resource YAML"></textarea>
+      <br />
+      <button id="load-example-server-resources">
+        Load Example Server Resources
+      </button>
+      <button id="load-example-client-resources">
+        Load Example Client Resources
+      </button>
+      <br />
+      <label for="node-id">Node ID:</label>
+      <input type="text" id="node-id" />
+      <br />
+      <button id="create-resources">Create Resources</button>
+      <button id="delete-resources">Delete Resources</button>
 
-        <br />
+      <h2>Terminals</h2>
+      <div id="terminals"></div>
 
-        <button id="load-example-manager-config">
-          Load example manager config
-        </button>
-        <button id="start">Start</button>
-      </section>
+      <h2>Files</h2>
 
-      <section id="management" style="display: none">
-        <h2>Connected Nodes</h2>
+      <label for="seed-file-label">Label:</label>
+      <input type="text" id="seed-file-label" />
 
-        <ul id="node-list"></ul>
+      <label for="seed-file-name">Name:</label>
+      <input type="text" id="seed-file-name" />
 
-        <h2>Resources</h2>
+      <label for="seed-file-repo">Repo:</label>
+      <input type="text" id="seed-file-repo" />
 
-        <label for="resource-input">Definitions:</label>
-        <br />
-        <textarea id="resource-input" placeholder="Resource YAML"></textarea>
-        <br />
-        <button id="load-example-server-resources">
-          Load example server resources
-        </button>
-        <button id="load-example-client-resources">
-          Load example client resources
-        </button>
+      <label for="seed-file-file">File:</label>
+      <input type="file" id="seed-file-file" />
 
-        <br />
+      <button id="seed-file-start">Seed</button>
+    </section>
 
-        <label for="node-id-input">Node ID:</label>
-        <select id="node-id-input">
-          <option value="local">local</option>
-        </select>
-
-        <br />
-
-        <button id="create">Create</button>
-        <button id="delete">Delete</button>
-
-        <ul id="resource-list"></ul>
-
-        <h2>Seeded Files</h2>
-
-        <label for="seed-file-repository">File repository label:</label>
-        <input type="text" id="seed-file-repository" />
-
-        <label for="seed-file-input">File to seed:</label>
-        <input type="file" id="seed-file-input" />
-        <button id="seed-file-start">Start seeding</button>
-
-        <h2>Log</h2>
-
-        <div id="terminal"></div>
-      </section>
-    </main>
+    <h2>Log</h2>
+    <pre style="overflow-x: auto; background: black; color: white">
+<code id="log"></code>
+</pre>
 
     <script src="./main.ts"></script>
   </body>

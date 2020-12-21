@@ -263,7 +263,10 @@ export class Worker {
                 },
                 signaler.spec.urls[0],
                 signaler.spec.retryAfter,
-                subnetSpec.prefix
+                subnetSpec.prefix,
+                async () => {},
+                async () => {},
+                async () => {}
               );
 
               this.setInstance<NetworkInterface>(
