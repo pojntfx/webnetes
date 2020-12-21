@@ -115,7 +115,7 @@ spec:
   - twillio
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -207,12 +207,12 @@ spec:
   runtime: jssi_go
   capabilities:
   - bind_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_server
 `;
 
 const resourcesToDelete = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   label: echo_network
 ---
@@ -272,7 +272,7 @@ spec:
   retryAfter: 1000
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network

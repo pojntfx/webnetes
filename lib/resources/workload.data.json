@@ -9,7 +9,7 @@
     "file": "echo_server",
     "runtime": "generic_wasi",
     "capabilities": ["bind_alias"],
-    "subnet": "echo_network",
+    "networkInterface": "echo_network",
     "arguments": "echo_server"
   }
 }

@@ -108,8 +108,8 @@ export class Workloads extends Repository<
           async (capability) => await this.getCapability(capability)
         )
       ),
-      this.getNetworkInterface(spec.subnet),
-      this.getNetworkInterfaceInstance(spec.subnet),
+      this.getNetworkInterface(spec.networkInterface),
+      this.getNetworkInterfaceInstance(spec.networkInterface),
       this.getArguments(spec.arguments),
     ]);
 

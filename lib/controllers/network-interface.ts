@@ -22,7 +22,7 @@ export class NetworkInterface {
     private transporterConfig: ExtendedRTCConfiguration,
     private signalingServerConnectAddress: string,
     private reconnectTimeout: number,
-    private subnetPrefix: string,
+    private networkInterfacePrefix: string,
 
     private onNodeAcknowledged: (id: string) => Promise<void>,
     private onNodeJoin: (id: string) => Promise<void>,
@@ -46,12 +46,13 @@ export class NetworkInterface {
     const handleTransporterChannelOpen = async (id: string) => {
       this.logger.silly("Handling transporter connection open", { id });
 
-      if (id.startsWith(this.subnetPrefix)) await this.onNodeJoin(id);
+      if (id.startsWith(this.networkInterfacePrefix)) await this.onNodeJoin(id);
     };
     const handleTransporterChannelClose = async (id: string) => {
       this.logger.silly("Handling transporter connection close", { id });
 
-      if (id.startsWith(this.subnetPrefix)) await this.onNodeLeave(id);
+      if (id.startsWith(this.networkInterfacePrefix))
+        await this.onNodeLeave(id);
     };
 
     const transporter = new Transporter(
@@ -162,7 +163,7 @@ export class NetworkInterface {
     const signalingClient = new SignalingClient(
       this.signalingServerConnectAddress,
       this.reconnectTimeout,
-      this.subnetPrefix,
+      this.networkInterfacePrefix,
       handleConnect,
       handleDisconnect,
       handleAcknowledgement,

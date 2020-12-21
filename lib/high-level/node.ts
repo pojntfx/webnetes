@@ -25,7 +25,10 @@ import {
 import { Runtime } from "../resources/runtime";
 import { Signaler } from "../resources/signaler";
 import { StunServer } from "../resources/stunserver";
-import { INetworkInterfaceSpec, NetworkInterface } from "../resources/network-interface";
+import {
+  INetworkInterfaceSpec,
+  NetworkInterface,
+} from "../resources/network-interface";
 import { Tracker } from "../resources/tracker";
 import { TurnServer } from "../resources/turnserver";
 import { Workload } from "../resources/workload";
@@ -110,7 +113,7 @@ export class Node {
         candidate.apiVersion === API_VERSION &&
         candidate.kind === EResourceKind.SIGNALER
     ) as Signaler;
-    const subnet = resources.find(
+    const networkInterface = resources.find(
       (candidate) =>
         candidate.apiVersion === API_VERSION &&
         candidate.kind === EResourceKind.NETWORK_INTERFACE
@@ -119,7 +122,7 @@ export class Node {
     if (!stunServers && !turnServers)
       throw new ConfigMissingError("STUN server or TURN server");
     if (!signaler) throw new ConfigMissingError("signaler");
-    if (!subnet) throw new ConfigMissingError("subnet");
+    if (!networkInterface) throw new ConfigMissingError("networkInterface");
 
     const resourcesPipe = new Resources();
     const peersPipe = new Peers();
@@ -150,7 +153,7 @@ export class Node {
         signaler: {
           url: signaler.spec.urls[0],
           retryAfter: signaler.spec.retryAfter,
-          prefix: subnet.spec.prefix,
+          prefix: networkInterface.spec.prefix,
         },
         handlers: {
           onNodeAcknowledged: this.onManagementNodeAcknowledged,

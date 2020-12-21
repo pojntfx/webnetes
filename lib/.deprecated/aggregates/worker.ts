@@ -110,10 +110,10 @@ export class Worker {
         }
 
         case EResourceKind.NETWORK_INTERFACE: {
-          const subnet = resource as NetworkInterfaceResource;
+          const networkInterface = resource as NetworkInterfaceResource;
 
           this.resolveReference(
-            subnet.spec.network,
+            networkInterface.spec.network,
             API_VERSION,
             EResourceKind.NETWORK,
             "network"
@@ -166,10 +166,10 @@ export class Worker {
             "runtime"
           );
           this.resolveReference(
-            workload.spec.subnet,
+            workload.spec.networkInterface,
             API_VERSION,
             EResourceKind.NETWORK_INTERFACE,
-            "subnet"
+            "networkInterface"
           );
           this.resolveReference(
             workload.spec.arguments,
@@ -217,10 +217,11 @@ export class Worker {
 
           switch (resource.kind) {
             case EResourceKind.NETWORK_INTERFACE: {
-              const subnetSpec = (resource as NetworkInterfaceResource).spec;
+              const networkInterfaceSpec = (resource as NetworkInterfaceResource)
+                .spec;
 
               const network = this.resolveReference<INetworkSpec>(
-                subnetSpec.network,
+                networkInterfaceSpec.network,
                 API_VERSION,
                 EResourceKind.NETWORK,
                 "network"
@@ -263,7 +264,7 @@ export class Worker {
                 },
                 signaler.spec.urls[0],
                 signaler.spec.retryAfter,
-                subnetSpec.prefix,
+                networkInterfaceSpec.prefix,
                 async () => {},
                 async () => {},
                 async () => {}
@@ -398,8 +399,8 @@ export class Worker {
                 "arguments"
               );
 
-              const subnet = this.getInstance<NetworkInterface>(
-                workloadSpec.subnet,
+              const networkInterface = this.getInstance<NetworkInterface>(
+                workloadSpec.networkInterface,
                 API_VERSION,
                 EResourceKind.NETWORK_INTERFACE
               );
@@ -418,7 +419,7 @@ export class Worker {
                 vm
               );
 
-              const { memoryId, imports } = await subnet.getImports();
+              const { memoryId, imports } = await networkInterface.getImports();
 
               const { id, memory } = await vm.schedule(
                 `/bin/${resource.metadata.label}`,
@@ -430,7 +431,7 @@ export class Worker {
                 (runtimeMetadata.label as unknown) as ERuntimes // TODO: Validate above
               );
 
-              await subnet.setMemory(memoryId, memory);
+              await networkInterface.setMemory(memoryId, memory);
 
               (async () => await vm.start(id))();
 
@@ -472,13 +473,13 @@ export class Worker {
 
         switch (resource.kind) {
           case EResourceKind.NETWORK_INTERFACE: {
-            const subnet = this.getInstance<NetworkInterface>(
+            const networkInterface = this.getInstance<NetworkInterface>(
               resource.metadata.label,
               API_VERSION,
               EResourceKind.NETWORK_INTERFACE
             );
 
-            await subnet.close();
+            await networkInterface.close();
 
             this.deleteInstance(
               resource.metadata.label,
