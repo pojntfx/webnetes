@@ -36,6 +36,7 @@ export class VirtualMachine {
   ) {}
 
   async schedule(
+    path: string,
     bin: Uint8Array,
     args: string[],
     env: any,
@@ -44,7 +45,7 @@ export class VirtualMachine {
     runtime: ERuntimes
   ) {
     this.logger.debug("Scheduling", {
-      args,
+      args: [path, ...args],
       env,
       imports,
       capabilities,
@@ -75,8 +76,8 @@ export class VirtualMachine {
       case ERuntimes.WASI_GENERIC: {
         const wasmFs = new WasmFs();
         const wasi = new WASI({
-          args,
-          env: {},
+          args: [path, ...args],
+          env,
           bindings: {
             ...wasiBindings,
             fs: wasmFs.fs,
@@ -135,14 +136,17 @@ export class VirtualMachine {
       case ERuntimes.WASI_TINYGO: {
         const wasmFs = new WasmFs();
         const wasi = new WASI({
-          args,
-          env: {},
+          args: [path, ...args],
+          env,
           bindings: {
             ...wasiBindings,
             fs: wasmFs.fs,
           },
         });
         const go = new (require("../../vendor/tinygo/wasm_exec.js"))();
+
+        go.argv = [path, ...args];
+        go.env = env;
 
         let stdinReadCounter = 0;
         wasmFs.volume.fds[0].node.read = (buffer: Buffer | Uint8Array) => {
@@ -223,6 +227,9 @@ export class VirtualMachine {
           }
         ))();
 
+        go.argv = [path, ...args];
+        go.env = env;
+
         const module = await WebAssembly.compile(bin);
         const instance = await WebAssembly.instantiate(module, go.importObject);
 
@@ -270,6 +277,9 @@ export class VirtualMachine {
             },
           }
         ))();
+
+        go.argv = [path, ...args];
+        go.env = env;
 
         const module = await WebAssembly.compile(bin);
         const instance = await WebAssembly.instantiate(module, go.importObject);

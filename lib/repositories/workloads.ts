@@ -124,6 +124,7 @@ export class Workloads extends Repository<
     const { memoryId, imports } = await subnetInstance.getImports();
 
     const { id, memory } = await workloadInstance.schedule(
+      `/bin/${metadata.label}`,
       fileInstance,
       args.spec.argv,
       imports,
