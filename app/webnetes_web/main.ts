@@ -3,6 +3,7 @@ import { Node } from "../../lib/high-level/node";
 import { Terminals } from "../../lib/repositories/terminals";
 import { ISubnetSpec } from "../../lib/resources/subnet";
 import {
+  exampleCEchoClientResourcesToCreate,
   exampleCEchoServerResourcesToCreate,
   exampleGoEchoClientResourcesToCreate,
   exampleGoEchoServerResourcesToCreate,
@@ -122,6 +123,16 @@ document
       ((document.getElementById(
         "resources"
       ) as HTMLInputElement).value = exampleGoEchoClientResourcesToCreate)
+  );
+
+document
+  .getElementById("load-example-c-echo-client-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleCEchoClientResourcesToCreate)
   );
 
 document.getElementById("start-node")?.addEventListener("click", async () => {
