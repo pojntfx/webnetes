@@ -26,6 +26,7 @@ export class VirtualMachine {
   private containers = new Map<string, Container<any>>();
 
   private logger = getLogger();
+  private encoder = new TextEncoder();
 
   constructor(
     private onStdout: (id: string, content: Uint8Array) => Promise<void>,
@@ -80,13 +81,23 @@ export class VirtualMachine {
           },
         });
 
+        let stdinReadCounter = 0;
         wasmFs.volume.fds[0].node.read = (buffer: Buffer | Uint8Array) => {
-          const rawInput = prompt("value for stdin:");
-          const input = new TextEncoder().encode(rawInput + "\n");
+          // First read is string, second read is end of string
+          if (stdinReadCounter % 2 !== 0) {
+            stdinReadCounter++;
 
-          buffer.set(input);
+            return 0;
+          }
 
-          return buffer.length;
+          let rawStdin = prompt(`Please enter standard input for ${id}\n`);
+          if (rawStdin === null) return -1; // Canceled
+          rawStdin += "\n";
+
+          const stdin = this.encoder.encode(rawStdin);
+          buffer.set(stdin);
+
+          return stdin.length;
         };
         wasmFs.volume.fds[1].node.write = (buffer: Buffer | Uint8Array) => {
           this.onStdout(id, new Uint8Array(buffer));
