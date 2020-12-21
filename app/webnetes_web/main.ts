@@ -1,7 +1,7 @@
 import "xterm/css/xterm.css";
 import { Node } from "../../lib/high-level/node";
 import { Terminals } from "../../lib/repositories/terminals";
-import { ISubnetSpec } from "../../lib/resources/subnet";
+import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
 import {
   exampleCEchoClientResourcesToCreate,
   exampleCEchoClientResourcesToCreateFragment,
@@ -54,7 +54,7 @@ const node = new Node(
   async (metadata, spec, id) => {
     log("Resource node acknowledged", metadata, spec, id);
   },
-  async (metadata, spec: ISubnetSpec, id) => {
+  async (metadata, spec: INetworkInterfaceSpec, id) => {
     log("Resource node joined", metadata, spec, id);
   },
   async (metadata, spec, id) => {

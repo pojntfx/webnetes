@@ -16,7 +16,7 @@ import {
   IResourceMetadata,
 } from "../resources/resource";
 import { Runtime } from "../resources/runtime";
-import { Subnet } from "../resources/subnet";
+import { NetworkInterface as NetworkInterfaceResource } from "../resources/network-interface";
 import { IWorkloadSpec, Workload } from "../resources/workload";
 import { getLogger } from "../utils/logger";
 import { Repository } from "./repository";
@@ -48,9 +48,11 @@ export class Workloads extends Repository<
     private getCapability: (
       label: Capability["metadata"]["label"]
     ) => Promise<Capability>,
-    private getSubnet: (label: Subnet["metadata"]["label"]) => Promise<Subnet>,
-    private getSubnetInstance: (
-      label: Subnet["metadata"]["label"]
+    private getNetworkInterface: (
+      label: NetworkInterfaceResource["metadata"]["label"]
+    ) => Promise<NetworkInterfaceResource>,
+    private getNetworkInterfaceInstance: (
+      label: NetworkInterfaceResource["metadata"]["label"]
     ) => Promise<NetworkInterface>,
     private readFromStdinSync: (label: string) => Uint8Array | null
   ) {
@@ -106,8 +108,8 @@ export class Workloads extends Repository<
           async (capability) => await this.getCapability(capability)
         )
       ),
-      this.getSubnet(spec.subnet),
-      this.getSubnetInstance(spec.subnet),
+      this.getNetworkInterface(spec.subnet),
+      this.getNetworkInterfaceInstance(spec.subnet),
       this.getArguments(spec.arguments),
     ]);
 

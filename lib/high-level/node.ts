@@ -25,7 +25,7 @@ import {
 import { Runtime } from "../resources/runtime";
 import { Signaler } from "../resources/signaler";
 import { StunServer } from "../resources/stunserver";
-import { ISubnetSpec, Subnet } from "../resources/subnet";
+import { INetworkInterfaceSpec, NetworkInterface } from "../resources/network-interface";
 import { Tracker } from "../resources/tracker";
 import { TurnServer } from "../resources/turnserver";
 import { Workload } from "../resources/workload";
@@ -36,7 +36,7 @@ export type TNodeConfiguration = (
   | Signaler
   | StunServer
   | TurnServer
-  | Subnet
+  | NetworkInterface
 )[];
 
 export class Node {
@@ -59,17 +59,17 @@ export class Node {
 
     private onResourceNodeAcknowledged: (
       metadata: IResourceMetadata,
-      spec: ISubnetSpec,
+      spec: INetworkInterfaceSpec,
       id: string
     ) => Promise<void>,
     private onResourceNodeJoin: (
       metadata: IResourceMetadata,
-      spec: ISubnetSpec,
+      spec: INetworkInterfaceSpec,
       id: string
     ) => Promise<void>,
     private onResourceNodeLeave: (
       metadata: IResourceMetadata,
-      spec: ISubnetSpec,
+      spec: INetworkInterfaceSpec,
       id: string
     ) => Promise<void>,
 
@@ -113,8 +113,8 @@ export class Node {
     const subnet = resources.find(
       (candidate) =>
         candidate.apiVersion === API_VERSION &&
-        candidate.kind === EResourceKind.SUBNET
-    ) as Subnet;
+        candidate.kind === EResourceKind.NETWORK_INTERFACE
+    ) as NetworkInterface;
 
     if (!stunServers && !turnServers)
       throw new ConfigMissingError("STUN server or TURN server");
@@ -135,9 +135,9 @@ export class Node {
       async (label: string) => (await files.getFileInstance(label)).instance,
       async (label: string) => await processors.getRuntime(label),
       async (label: string) => await processors.getCapability(label),
-      async (label: string) => await subnets.getSubnet(label),
+      async (label: string) => await subnets.getNetworkInterface(label),
       async (label: string) =>
-        (await subnets.getSubnetInstance(label)).instance,
+        (await subnets.getNetworkInterfaceInstance(label)).instance,
       (label: string) => this.onTerminalReadSync(label)
     );
 
@@ -354,10 +354,10 @@ export class Node {
                         break;
                       }
 
-                      case EResourceKind.SUBNET: {
-                        const { metadata, spec } = resource as Subnet;
+                      case EResourceKind.NETWORK_INTERFACE: {
+                        const { metadata, spec } = resource as NetworkInterface;
 
-                        await subnets.createSubnet(
+                        await subnets.createNetworkInterface(
                           metadata,
                           spec,
                           this.onResourceNodeAcknowledged,
@@ -367,7 +367,7 @@ export class Node {
                         await peersPipe.write(
                           EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                           resourceId,
-                          transcoder.encode<Subnet>(resource),
+                          transcoder.encode<NetworkInterface>(resource),
                           nodeId
                         );
 
@@ -583,14 +583,14 @@ export class Node {
                         break;
                       }
 
-                      case EResourceKind.SUBNET: {
-                        const { metadata } = resource as Subnet;
+                      case EResourceKind.NETWORK_INTERFACE: {
+                        const { metadata } = resource as NetworkInterface;
 
-                        await subnets.deleteSubnet(metadata);
+                        await subnets.deleteNetworkInterface(metadata);
                         await peersPipe.write(
                           EPeersResources.MANAGEMENT_ENTITY_DELETION_CONFIRM,
                           resourceId,
-                          transcoder.encode<Subnet>(resource),
+                          transcoder.encode<NetworkInterface>(resource),
                           nodeId
                         );
 

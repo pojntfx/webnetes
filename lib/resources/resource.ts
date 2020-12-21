@@ -10,7 +10,7 @@ export enum EResourceKind {
   REPOSITORY = "Repository",
   SIGNALER = "Signaler",
   STUNSERVER = "StunServer",
-  SUBNET = "Subnet",
+  NETWORK_INTERFACE = "NetworkInterface",
   TRACKER = "Tracker",
   TURNSERVER = "TurnServer",
   WORKLOAD = "Workload",

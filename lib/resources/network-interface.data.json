@@ -1,6 +1,6 @@
 {
   "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
-  "kind": "Subnet",
+  "kind": "NetworkInterface",
   "metadata": {
     "name": "Echo Network",
     "label": "echo_network"

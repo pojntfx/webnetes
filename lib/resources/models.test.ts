@@ -8,7 +8,7 @@ import { EResourceKind, IResource } from "./resource";
 import { Runtime } from "./runtime";
 import { Signaler } from "./signaler";
 import { StunServer } from "./stunserver";
-import { Subnet } from "./subnet";
+import { NetworkInterface } from "./network-interface";
 import { Tracker } from "./tracker";
 import { TurnServer } from "./turnserver";
 import { Workload } from "./workload";
@@ -100,8 +100,8 @@ describe("Models", () => {
         break;
       }
 
-      case EResourceKind.SUBNET: {
-        actual = new Subnet(resource.metadata, resource.spec);
+      case EResourceKind.NETWORK_INTERFACE: {
+        actual = new NetworkInterface(resource.metadata, resource.spec);
 
         break;
       }

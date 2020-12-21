@@ -24,7 +24,7 @@ import {
 import { IRuntimeSpec } from "../../resources/runtime";
 import { ISignalerSpec } from "../../resources/signaler";
 import { IStunServerSpec } from "../../resources/stunserver";
-import { Subnet } from "../../resources/subnet";
+import { NetworkInterface as NetworkInterfaceResource } from "../../resources/network-interface";
 import { ITrackerSpec } from "../../resources/tracker";
 import { ITurnServerSpec } from "../../resources/turnserver";
 import { Workload } from "../../resources/workload";
@@ -109,8 +109,8 @@ export class Worker {
           break;
         }
 
-        case EResourceKind.SUBNET: {
-          const subnet = resource as Subnet;
+        case EResourceKind.NETWORK_INTERFACE: {
+          const subnet = resource as NetworkInterfaceResource;
 
           this.resolveReference(
             subnet.spec.network,
@@ -168,7 +168,7 @@ export class Worker {
           this.resolveReference(
             workload.spec.subnet,
             API_VERSION,
-            EResourceKind.SUBNET,
+            EResourceKind.NETWORK_INTERFACE,
             "subnet"
           );
           this.resolveReference(
@@ -205,7 +205,7 @@ export class Worker {
       } else {
         if (
           [
-            EResourceKind.SUBNET,
+            EResourceKind.NETWORK_INTERFACE,
             EResourceKind.REPOSITORY,
             EResourceKind.FILE,
             EResourceKind.WORKLOAD,
@@ -216,8 +216,8 @@ export class Worker {
           });
 
           switch (resource.kind) {
-            case EResourceKind.SUBNET: {
-              const subnetSpec = (resource as Subnet).spec;
+            case EResourceKind.NETWORK_INTERFACE: {
+              const subnetSpec = (resource as NetworkInterfaceResource).spec;
 
               const network = this.resolveReference<INetworkSpec>(
                 subnetSpec.network,
@@ -272,7 +272,7 @@ export class Worker {
               this.setInstance<NetworkInterface>(
                 resource.metadata.label,
                 resource.apiVersion,
-                EResourceKind.SUBNET,
+                EResourceKind.NETWORK_INTERFACE,
                 iface
               );
 
@@ -401,7 +401,7 @@ export class Worker {
               const subnet = this.getInstance<NetworkInterface>(
                 workloadSpec.subnet,
                 API_VERSION,
-                EResourceKind.SUBNET
+                EResourceKind.NETWORK_INTERFACE
               );
 
               const vm = new VirtualMachine(
@@ -461,7 +461,7 @@ export class Worker {
 
       if (
         [
-          EResourceKind.SUBNET,
+          EResourceKind.NETWORK_INTERFACE,
           EResourceKind.REPOSITORY,
           EResourceKind.FILE,
           EResourceKind.WORKLOAD,
@@ -470,11 +470,11 @@ export class Worker {
         this.logger.silly("Handling delete hooks for resource", { resource });
 
         switch (resource.kind) {
-          case EResourceKind.SUBNET: {
+          case EResourceKind.NETWORK_INTERFACE: {
             const subnet = this.getInstance<NetworkInterface>(
               resource.metadata.label,
               API_VERSION,
-              EResourceKind.SUBNET
+              EResourceKind.NETWORK_INTERFACE
             );
 
             await subnet.close();
@@ -482,7 +482,7 @@ export class Worker {
             this.deleteInstance(
               resource.metadata.label,
               API_VERSION,
-              EResourceKind.SUBNET
+              EResourceKind.NETWORK_INTERFACE
             );
 
             break;
