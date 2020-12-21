@@ -51,7 +51,8 @@ export class Workloads extends Repository<
     private getSubnet: (label: Subnet["metadata"]["label"]) => Promise<Subnet>,
     private getSubnetInstance: (
       label: Subnet["metadata"]["label"]
-    ) => Promise<NetworkInterface>
+    ) => Promise<NetworkInterface>,
+    private readFromStdinSync: (label: string) => Uint8Array | null
   ) {
     super();
   }
@@ -114,7 +115,8 @@ export class Workloads extends Repository<
 
     const workloadInstance = new VirtualMachine(
       async (_: string, content: Uint8Array) => await onStdout(content),
-      async (_: string) => await this.readFromStdin(spec.terminalLabel)
+      async (_: string) => await this.readFromStdin(spec.terminalLabel),
+      (_: string) => this.readFromStdinSync(spec.terminalLabel)
     );
 
     const { memoryId, imports } = await subnetInstance.getImports();

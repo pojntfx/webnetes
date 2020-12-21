@@ -78,7 +78,8 @@ export class Node {
       id: string
     ) => Promise<void>,
     private onTerminalWrite: (id: string, msg: string) => Promise<void>,
-    private onTerminalDelete: (id: string) => Promise<void>
+    private onTerminalDelete: (id: string) => Promise<void>,
+    private onTerminalReadSync: (id: string) => Uint8Array | null
   ) {}
 
   async open(resources: string | TNodeConfiguration) {
@@ -135,7 +136,9 @@ export class Node {
       async (label: string) => await processors.getRuntime(label),
       async (label: string) => await processors.getCapability(label),
       async (label: string) => await subnets.getSubnet(label),
-      async (label: string) => (await subnets.getSubnetInstance(label)).instance
+      async (label: string) =>
+        (await subnets.getSubnetInstance(label)).instance,
+      (label: string) => this.onTerminalReadSync(label)
     );
 
     await Promise.all([

@@ -1,5 +1,4 @@
 import { WASI } from "@wasmer/wasi";
-import { WASIBindings } from "@wasmer/wasi/lib";
 import { WasmFs } from "@wasmer/wasmfs";
 import * as Asyncify from "asyncify-wasm";
 import { v4 } from "uuid";
@@ -26,11 +25,14 @@ export class VirtualMachine {
   private containers = new Map<string, Container<any>>();
 
   private logger = getLogger();
+
   private encoder = new TextEncoder();
+  private decoder = new TextDecoder();
 
   constructor(
     private onStdout: (id: string, content: Uint8Array) => Promise<void>,
-    private onStdin: (id: string) => Promise<Uint8Array>
+    private onStdin: (id: string) => Promise<Uint8Array>,
+    private onStdinSync: (id: string) => Uint8Array | null
   ) {}
 
   async schedule(
@@ -90,9 +92,10 @@ export class VirtualMachine {
             return 0;
           }
 
-          let rawStdin = prompt(`Please enter standard input for ${id}\n`);
-          if (rawStdin === null) return -1; // Canceled
-          rawStdin += "\n";
+          let input = this.onStdinSync(id);
+          if (input === null) return -1; // Canceled
+
+          const rawStdin = this.decoder.decode(input) + "\n";
 
           const stdin = this.encoder.encode(rawStdin);
           buffer.set(stdin);

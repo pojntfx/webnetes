@@ -82,6 +82,13 @@ const node = new Node(
     await terminals.delete(id);
 
     document.getElementById(id)?.remove();
+  },
+  (id) => {
+    const rawInput = prompt(`Please enter standard input for ${id}\n`);
+
+    if (rawInput) return new TextEncoder().encode(rawInput);
+
+    return null;
   }
 );
 
