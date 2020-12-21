@@ -407,7 +407,8 @@ export class Worker {
               const vm = new VirtualMachine(
                 (_: string, content: Uint8Array) =>
                   this.onStdout(resource.metadata.label, content),
-                (_: string) => this.onStdin(resource.metadata.label)
+                (_: string) => this.onStdin(resource.metadata.label),
+                () => new Uint8Array()
               );
 
               this.setInstance<VirtualMachine>(
