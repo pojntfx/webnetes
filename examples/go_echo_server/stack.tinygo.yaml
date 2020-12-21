@@ -1,8 +1,8 @@
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Runtime
 metadata:
-  name: Go JSSI
-  label: jssi_go
+  name: TinyGo WASI
+  label: wasi_tinygo
 spec: {}
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
@@ -20,7 +20,7 @@ metadata:
   label: felixs_iphone
 spec:
   runtimes:
-    - jssi_go
+    - wasi_tinygo
   capabilities:
     - bind_alias
 ---
@@ -37,11 +37,11 @@ spec:
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: StunServer
 metadata:
-  name: Google STUN Server
-  label: google
+  name: TinyGoogle STUN Server
+  label: tinygoogle
 spec:
   urls:
-    - stun:stun.l.google.com:19302
+    - stun:stun.l.tinygoogle.com:19302
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: StunServer
@@ -93,7 +93,7 @@ metadata:
 spec:
   signaler: unisockets_public
   stunServers:
-    - google
+    - tinygoogle
     - twillio
   turnServers:
     - twillio_udp
@@ -103,8 +103,8 @@ spec:
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: NetworkInterface
 metadata:
-  name: Go Echo Network
-  label: go_echo_network
+  name: TinyGo Echo Network
+  label: tinygo_echo_network
 spec:
   network: unisockets_public
   prefix: 127.19.0
@@ -137,7 +137,7 @@ spec:
     - openwebtorrent
     - fastcast
   stunServers:
-    - google
+    - tinygoogle
     - twillio
   turnServers:
     - twillio_udp
@@ -147,17 +147,17 @@ spec:
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: File
 metadata:
-  name: Go Echo Server Binary
-  label: go_echo_server
+  name: TinyGo Echo Server Binary
+  label: tinygo_echo_server
 spec:
   repository: webtorrent_public
-  uri: 366f0160911e6fa7e060844bdf4bd9fa1d52f1de
+  uri: a4ab05700f2f7406ffbe423bcd289b0bc8bdbc1d
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Arguments
 metadata:
-  name: Go Echo Server Configuration
-  label: go_echo_server
+  name: TinyGo Echo Server Configuration
+  label: tinygo_echo_server
 spec:
   argv:
     - -laddr
@@ -166,14 +166,14 @@ spec:
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Workload
 metadata:
-  name: Go Echo Server
-  label: go_echo_server
+  name: TinyGo Echo Server
+  label: tinygo_echo_server
 spec:
-  file: go_echo_server
-  runtime: jssi_go
+  file: tinygo_echo_server
+  runtime: wasi_tinygo
   capabilities:
     - bind_alias
-  networkInterface: go_echo_network
-  arguments: go_echo_server
-  terminalLabel: go_echo_server
+  networkInterface: tinygo_echo_network
+  arguments: tinygo_echo_server
+  terminalLabel: tinygo_echo_server
   terminalHostNodeId: my_terminal_host_node_id

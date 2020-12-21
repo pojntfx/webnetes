@@ -143,7 +143,31 @@ export class VirtualMachine {
             fs: wasmFs.fs,
           },
         });
-        const go = new (require("../../vendor/tinygo/wasm_exec.js"))();
+        const go = new ((require("../../vendor/tinygo/wasm_exec.js") as any).default(
+          {
+            read: (
+              _: number,
+              buffer: Uint8Array,
+              ___: number,
+              ____: number,
+              _____: number,
+              callback: Function
+            ) => {
+              new Promise<Uint8Array>(async (res) => {
+                const input = await this.onStdin(id);
+
+                buffer.set(input);
+
+                res(input);
+              }).then((input) => callback(null, input.length));
+            },
+            writeSync: (_: number, buffer: Uint8Array) => {
+              this.onStdout(id, buffer);
+
+              return buffer.length;
+            },
+          }
+        ))();
 
         go.argv = [path, ...args];
         go.env = env;
@@ -252,7 +276,7 @@ export class VirtualMachine {
       }
 
       case ERuntimes.JSSI_TINYGO: {
-        const go = new ((require("../../vendor/go/wasm_exec.js") as any).default(
+        const go = new ((require("../../vendor/tinygo/wasm_exec.js") as any).default(
           {
             read: (
               _: number,
