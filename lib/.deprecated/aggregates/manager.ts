@@ -10,7 +10,7 @@ import { NodeNotKnownError } from "../../errors/unknown-node";
 import { EResourceKind, IResource } from "../../resources/resource";
 import { Signaler } from "../../resources/signaler";
 import { IStunServerSpec, StunServer } from "../../resources/stunserver";
-import { Subnet } from "../../resources/subnet";
+import { NetworkInterface } from "../../resources/network-interface";
 import { ITurnServerSpec, TurnServer } from "../../resources/turnserver";
 import { IModificationData, Modification } from "../operations/modification";
 import {
@@ -38,7 +38,7 @@ export class Manager {
 
   constructor(
     private networkConfig:
-      | (StunServer | TurnServer | Signaler | Subnet)[]
+      | (StunServer | TurnServer | Signaler | NetworkInterface)[]
       | string,
 
     private onNodeJoin: (id: string) => Promise<void>,
@@ -83,8 +83,8 @@ export class Manager {
     }
 
     const subnetConfig = this.networkConfig.find(
-      (c) => c.kind === EResourceKind.SUBNET
-    ) as Subnet;
+      (c) => c.kind === EResourceKind.NETWORK_INTERFACE
+    ) as NetworkInterface;
     if (!subnetConfig) {
       throw new ConfigMissingError("subnet");
     }

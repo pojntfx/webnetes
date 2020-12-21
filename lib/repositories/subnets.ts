@@ -8,13 +8,16 @@ import {
 } from "../resources/resource";
 import { ISignalerSpec, Signaler } from "../resources/signaler";
 import { IStunServerSpec, StunServer } from "../resources/stunserver";
-import { ISubnetSpec, Subnet } from "../resources/subnet";
+import {
+  INetworkInterfaceSpec,
+  NetworkInterface as NetworkInterfaceResource,
+} from "../resources/network-interface";
 import { ITurnServerSpec, TurnServer } from "../resources/turnserver";
 import { getLogger } from "../utils/logger";
 import { Repository } from "./repository";
 
 export class Subnets extends Repository<
-  StunServer | TurnServer | Signaler | Network | Subnet,
+  StunServer | TurnServer | Signaler | Network | NetworkInterfaceResource,
   IInstance<NetworkInterface>
 > {
   private logger = getLogger();
@@ -129,23 +132,23 @@ export class Subnets extends Repository<
     );
   }
 
-  async createSubnet(
+  async createNetworkInterface(
     metadata: IResourceMetadata,
-    spec: ISubnetSpec,
+    spec: INetworkInterfaceSpec,
 
     onNodeAcknowledged: (
       metadata: IResourceMetadata,
-      spec: ISubnetSpec,
+      spec: INetworkInterfaceSpec,
       id: string
     ) => Promise<void>,
     onNodeJoin: (
       metadata: IResourceMetadata,
-      spec: ISubnetSpec,
+      spec: INetworkInterfaceSpec,
       id: string
     ) => Promise<void>,
     onNodeLeave: (
       metadata: IResourceMetadata,
-      spec: ISubnetSpec,
+      spec: INetworkInterfaceSpec,
       id: string
     ) => Promise<void>
   ) {
@@ -171,7 +174,7 @@ export class Subnets extends Repository<
       await this.getSignaler(network.spec.signaler),
     ]);
 
-    const subnet = new Subnet(metadata, spec);
+    const ifaceResource = new NetworkInterfaceResource(metadata, spec);
 
     const iface = new NetworkInterface(
       {
@@ -179,7 +182,7 @@ export class Subnets extends Repository<
       },
       signaler.spec.urls[0],
       signaler.spec.retryAfter,
-      subnet.spec.prefix,
+      ifaceResource.spec.prefix,
       async (id: string) => await onNodeAcknowledged(metadata, spec, id),
       async (id: string) => await onNodeJoin(metadata, spec, id),
       async (id: string) => await onNodeLeave(metadata, spec, id)
@@ -190,24 +193,24 @@ export class Subnets extends Repository<
     })();
 
     await this.addInstance<IInstance<NetworkInterface>>(
-      subnet.apiVersion,
-      subnet.kind,
-      subnet.metadata,
+      ifaceResource.apiVersion,
+      ifaceResource.kind,
+      ifaceResource.metadata,
       iface
     );
 
-    await this.addResource<Subnet>(
-      subnet.apiVersion,
-      subnet.kind,
-      subnet.metadata,
-      subnet.spec
+    await this.addResource<NetworkInterfaceResource>(
+      ifaceResource.apiVersion,
+      ifaceResource.kind,
+      ifaceResource.metadata,
+      ifaceResource.spec
     );
   }
 
-  async deleteSubnet(metadata: IResourceMetadata) {
+  async deleteNetworkInterface(metadata: IResourceMetadata) {
     this.logger.debug("Deleting subnet", { metadata });
 
-    const subnet = new Subnet(metadata, {} as any);
+    const subnet = new NetworkInterfaceResource(metadata, {} as any);
 
     const subnetInstance = await this.findInstance<IInstance<NetworkInterface>>(
       subnet.apiVersion,
@@ -217,7 +220,7 @@ export class Subnets extends Repository<
 
     await subnetInstance.instance.close();
 
-    await this.removeResource<Subnet>(
+    await this.removeResource<NetworkInterfaceResource>(
       subnet.apiVersion,
       subnet.kind,
       subnet.metadata.label
@@ -270,20 +273,26 @@ export class Subnets extends Repository<
     );
   }
 
-  async getSubnet(label: Subnet["metadata"]["label"]) {
+  async getNetworkInterface(
+    label: NetworkInterfaceResource["metadata"]["label"]
+  ) {
     this.logger.debug("Getting subnet", { label });
 
-    return this.findResource<Subnet>(API_VERSION, EResourceKind.SUBNET, label);
+    return this.findResource<NetworkInterfaceResource>(
+      API_VERSION,
+      EResourceKind.NETWORK_INTERFACE,
+      label
+    );
   }
 
-  async getSubnetInstance(
+  async getNetworkInterfaceInstance(
     label: IInstance<NetworkInterface>["metadata"]["label"]
   ) {
     this.logger.debug("Getting subnet instance", { label });
 
     return this.findInstance<IInstance<NetworkInterface>>(
       API_VERSION,
-      EResourceKind.SUBNET,
+      EResourceKind.NETWORK_INTERFACE,
       label
     );
   }

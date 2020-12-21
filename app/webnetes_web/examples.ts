@@ -60,7 +60,7 @@ spec:
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Management Network
   label: management_network
@@ -172,7 +172,7 @@ spec:
   - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -353,7 +353,7 @@ spec:
   - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -533,7 +533,7 @@ spec:
   - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -713,7 +713,7 @@ spec:
   - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -893,7 +893,7 @@ spec:
   - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -1073,7 +1073,7 @@ spec:
   - twillio_tcp_fallback
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_network
@@ -1171,7 +1171,7 @@ spec:
     - connect_to_alias
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_client_network
@@ -1234,7 +1234,7 @@ spec:
     - connect_to_alias
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_client_network
@@ -1297,7 +1297,7 @@ spec:
     - connect_to_alias
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Subnet
+kind: NetworkInterface
 metadata:
   name: Echo Network
   label: echo_client_network
