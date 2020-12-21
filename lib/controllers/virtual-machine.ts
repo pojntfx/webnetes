@@ -88,6 +88,16 @@ export class VirtualMachine {
 
           return buffer.length;
         };
+        wasmFs.volume.fds[1].node.write = (buffer: Buffer | Uint8Array) => {
+          this.onStdout(id, new Uint8Array(buffer));
+
+          return buffer.length;
+        };
+        wasmFs.volume.fds[2].node.write = (buffer: Buffer | Uint8Array) => {
+          this.onStdout(id, new Uint8Array(buffer));
+
+          return buffer.length;
+        };
 
         const module = await WebAssembly.compile(await lowerI64Imports(bin));
         const instance = await Asyncify.instantiate(module, {
