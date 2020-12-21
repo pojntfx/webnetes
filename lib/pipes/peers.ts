@@ -171,7 +171,7 @@ export class Peers
     msg: Uint8Array,
     nodeId: string
   ) {
-    this.logger.debug("Writing to peers");
+    this.logger.debug("Writing to peers", { resourceType, resourceId, nodeId });
 
     if (
       resourceType === EPeersResources.MANAGEMENT_ENTITY ||
