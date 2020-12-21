@@ -181,31 +181,26 @@ export class Workloads extends Repository<
   }
 
   private async readFromStdin(label: string) {
-    let inputBuffer = "";
-    while (inputBuffer.slice(-1) !== "\n") {
-      let foundLabeledFrame: ILabeledFrame;
-      if (this.labeledFrames.find((candidate) => candidate.label === label)) {
-        foundLabeledFrame = this.labeledFrames.find(
-          (candidate) => candidate.label === label
-        )!; // We check above
-      } else {
-        const found = JSON.parse(
-          (await this.bus.once(this.getReadKey(label))!) as string
-        ) as ILabeledFrame;
+    let foundLabeledFrame: ILabeledFrame;
+    if (this.labeledFrames.find((candidate) => candidate.label === label)) {
+      foundLabeledFrame = this.labeledFrames.find(
+        (candidate) => candidate.label === label
+      )!; // We check above
+    } else {
+      const found = JSON.parse(
+        (await this.bus.once(this.getReadKey(label))!) as string
+      ) as ILabeledFrame;
 
-        found.msg = new Uint8Array(Object.values(found.msg));
+      found.msg = new Uint8Array(Object.values(found.msg));
 
-        foundLabeledFrame = found;
-      }
-
-      this.labeledFrames = this.labeledFrames.filter(
-        (candidate) => candidate.id !== foundLabeledFrame.id
-      );
-
-      inputBuffer += this.decoder.decode(foundLabeledFrame.msg);
+      foundLabeledFrame = found;
     }
 
-    return this.encoder.encode(inputBuffer);
+    this.labeledFrames = this.labeledFrames.filter(
+      (candidate) => candidate.id !== foundLabeledFrame.id
+    );
+
+    return foundLabeledFrame.msg;
   }
 
   async writeToStdin(label: string, msg: Uint8Array) {
