@@ -244,7 +244,7 @@ spec:
   runtime: jssi_go
   capabilities:
   - bind_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_server
   terminalLabel: echo_server
   terminalHostNodeId: my_terminal_host_node_id
@@ -425,7 +425,7 @@ spec:
   runtime: jssi_go
   capabilities:
   - connect_to_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_client
   terminalLabel: echo_client
   terminalHostNodeId: my_terminal_host_node_id
@@ -605,7 +605,7 @@ spec:
   runtime: wasi_generic
   capabilities:
   - bind_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_server
   terminalLabel: echo_server
   terminalHostNodeId: my_terminal_host_node_id
@@ -785,7 +785,7 @@ spec:
   runtime: wasi_generic
   capabilities:
   - connect_to_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_client
   terminalLabel: echo_client
   terminalHostNodeId: my_terminal_host_node_id
@@ -965,7 +965,7 @@ spec:
   runtime: wasi_tinygo
   capabilities:
   - bind_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_server
   terminalLabel: echo_server
   terminalHostNodeId: my_terminal_host_node_id
@@ -1145,7 +1145,7 @@ spec:
   runtime: wasi_tinygo
   capabilities:
   - connect_to_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: echo_client
   terminalLabel: echo_client
   terminalHostNodeId: my_terminal_host_node_id
@@ -1208,7 +1208,7 @@ spec:
   runtime: jssi_go
   capabilities:
     - connect_to_alias
-  subnet: echo_client_network
+  networkInterface: echo_client_network
   arguments: echo_client
   terminalLabel: echo_client
   terminalHostNodeId: my_terminal_host_node_id
@@ -1271,7 +1271,7 @@ spec:
   runtime: wasi_generic
   capabilities:
     - connect_to_alias
-  subnet: echo_client_network
+  networkInterface: echo_client_network
   arguments: echo_client
   terminalLabel: echo_client
   terminalHostNodeId: my_terminal_host_node_id
@@ -1334,7 +1334,7 @@ spec:
   runtime: wasi_tinygo
   capabilities:
     - connect_to_alias
-  subnet: echo_client_network
+  networkInterface: echo_client_network
   arguments: echo_client
   terminalLabel: echo_client
   terminalHostNodeId: my_terminal_host_node_id

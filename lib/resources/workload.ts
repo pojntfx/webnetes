@@ -9,7 +9,7 @@ export interface IWorkloadSpec {
   file: string;
   runtime: string;
   capabilities: string[];
-  subnet: string;
+  networkInterface: string;
   arguments: string;
   terminalLabel: string;
   terminalHostNodeId: string;

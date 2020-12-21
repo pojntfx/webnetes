@@ -173,7 +173,7 @@ spec:
   runtime: jssi_go
   capabilities:
     - connect_to_alias
-  subnet: echo_network
+  networkInterface: echo_network
   arguments: go_echo_client
   terminalLabel: go_echo_client
   terminalHostNodeId: my_terminal_host_node_id

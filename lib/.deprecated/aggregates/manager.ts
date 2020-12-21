@@ -82,11 +82,11 @@ export class Manager {
       throw new ConfigMissingError("signaler");
     }
 
-    const subnetConfig = this.networkConfig.find(
+    const networkInterfaceConfig = this.networkConfig.find(
       (c) => c.kind === EResourceKind.NETWORK_INTERFACE
     ) as NetworkInterface;
-    if (!subnetConfig) {
-      throw new ConfigMissingError("subnet");
+    if (!networkInterfaceConfig) {
+      throw new ConfigMissingError("networkInterface");
     }
 
     // State
@@ -296,7 +296,7 @@ export class Manager {
     const signalingClient = new SignalingClient(
       signalerConfig.spec.urls[0],
       signalerConfig.spec.retryAfter,
-      subnetConfig.spec.prefix,
+      networkInterfaceConfig.spec.prefix,
       handleConnect,
       handleDisconnect,
       handleAcknowledgement,

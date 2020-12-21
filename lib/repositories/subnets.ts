@@ -152,7 +152,7 @@ export class Subnets extends Repository<
       id: string
     ) => Promise<void>
   ) {
-    this.logger.debug("Creating subnet", { metadata });
+    this.logger.debug("Creating networkInterface", { metadata });
 
     const network = await this.getNetwork(spec.network);
 
@@ -208,28 +208,28 @@ export class Subnets extends Repository<
   }
 
   async deleteNetworkInterface(metadata: IResourceMetadata) {
-    this.logger.debug("Deleting subnet", { metadata });
+    this.logger.debug("Deleting networkInterface", { metadata });
 
-    const subnet = new NetworkInterfaceResource(metadata, {} as any);
+    const networkInterface = new NetworkInterfaceResource(metadata, {} as any);
 
     const subnetInstance = await this.findInstance<IInstance<NetworkInterface>>(
-      subnet.apiVersion,
-      subnet.kind,
-      subnet.metadata.label
+      networkInterface.apiVersion,
+      networkInterface.kind,
+      networkInterface.metadata.label
     );
 
     await subnetInstance.instance.close();
 
     await this.removeResource<NetworkInterfaceResource>(
-      subnet.apiVersion,
-      subnet.kind,
-      subnet.metadata.label
+      networkInterface.apiVersion,
+      networkInterface.kind,
+      networkInterface.metadata.label
     );
 
     await this.removeInstance<IInstance<NetworkInterface>>(
-      subnet.apiVersion,
-      subnet.kind,
-      subnet.metadata.label
+      networkInterface.apiVersion,
+      networkInterface.kind,
+      networkInterface.metadata.label
     );
   }
 
@@ -276,7 +276,7 @@ export class Subnets extends Repository<
   async getNetworkInterface(
     label: NetworkInterfaceResource["metadata"]["label"]
   ) {
-    this.logger.debug("Getting subnet", { label });
+    this.logger.debug("Getting networkInterface", { label });
 
     return this.findResource<NetworkInterfaceResource>(
       API_VERSION,
@@ -288,7 +288,7 @@ export class Subnets extends Repository<
   async getNetworkInterfaceInstance(
     label: IInstance<NetworkInterface>["metadata"]["label"]
   ) {
-    this.logger.debug("Getting subnet instance", { label });
+    this.logger.debug("Getting networkInterface instance", { label });
 
     return this.findInstance<IInstance<NetworkInterface>>(
       API_VERSION,
