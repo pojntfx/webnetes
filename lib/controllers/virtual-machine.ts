@@ -1,4 +1,5 @@
 import { WASI } from "@wasmer/wasi";
+import { WASIBindings } from "@wasmer/wasi/lib";
 import { WasmFs } from "@wasmer/wasmfs";
 import * as Asyncify from "asyncify-wasm";
 import { v4 } from "uuid";
@@ -51,16 +52,20 @@ export class VirtualMachine {
 
     let wasiBindings: any = {};
     if (typeof window !== "undefined") {
-      wasiBindings = await import("@wasmer/wasi/lib/bindings/browser");
+      wasiBindings = (await import("@wasmer/wasi/lib/bindings/browser"))
+        .default;
     }
 
     let lowerI64Imports: any = async () => {};
     if (typeof window === "undefined") {
-      lowerI64Imports = await import("@wasmer/wasm-transformer");
+      lowerI64Imports = (await import("@wasmer/wasm-transformer"))
+        .lowerI64Imports;
     } else {
-      lowerI64Imports = await import(
-        "@wasmer/wasm-transformer/lib/unoptimized/wasm-transformer.esm.js"
-      );
+      lowerI64Imports = (
+        await import(
+          "@wasmer/wasm-transformer/lib/unoptimized/wasm-transformer.esm.js"
+        )
+      ).lowerI64Imports;
     }
 
     switch (runtime) {
@@ -74,6 +79,15 @@ export class VirtualMachine {
             fs: wasmFs.fs,
           },
         });
+
+        wasmFs.volume.fds[0].node.read = (buffer: Buffer | Uint8Array) => {
+          const rawInput = prompt("value for stdin:");
+          const input = new TextEncoder().encode(rawInput + "\n");
+
+          buffer.set(input);
+
+          return buffer.length;
+        };
 
         const module = await WebAssembly.compile(await lowerI64Imports(bin));
         const instance = await Asyncify.instantiate(module, {
@@ -183,14 +197,18 @@ export class VirtualMachine {
           _____: number,
           callback: Function
         ) => {
-          new Promise<Uint8Array>((res) => {
-            const rawInput = prompt("value for stdin:");
-            const input = new TextEncoder().encode(rawInput + "\n");
+          new Promise<Uint8Array>(async (res) => {
+            const input = await this.onStdin(id);
 
             buffer.set(input);
 
             res(input);
           }).then((input) => callback(null, input.length));
+        };
+        (global as any).fs.writeSync = (_: number, buffer: Uint8Array) => {
+          this.onStdout(id, buffer);
+
+          return buffer.length;
         };
         (global as any).jssiImports = { ...imports, ...env };
 
