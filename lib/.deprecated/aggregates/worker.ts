@@ -421,6 +421,7 @@ export class Worker {
               const { memoryId, imports } = await subnet.getImports();
 
               const { id, memory } = await vm.schedule(
+                `/bin/${resource.metadata.label}`,
                 file,
                 argumentsSpec.spec.argv,
                 imports,
