@@ -20,6 +20,8 @@ To manage resources, the following protocol is used:
 
 [![Sequence Diagram](https://pojntfx.github.io/webnetes/media/sequence.svg)](https://pojntfx.github.io/webnetes/media/sequence.svg)
 
+Note that this protocol is currently being replaced with a new protocol (the "Pipe" protocol), to allow for a singular protocol to be used for both resource management with confirmations and UDP-style "send and forget" messages such as stdin/stdout pipes.
+
 ## Usage
 
 TODO: Add usage docs

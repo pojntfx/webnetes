@@ -1,36 +1,19 @@
-import { Manager } from "../../lib/.deprecated/aggregates/manager";
-import { Worker } from "../../lib/.deprecated/aggregates/worker";
-import { IResource } from "../../lib/resources/resource";
 import "xterm/css/xterm.css";
-import { Terminal } from "xterm";
-import Emittery from "emittery";
+import { Node } from "../../lib/high-level/node";
+import { Terminals } from "../../lib/repositories/terminals";
+import { ISubnetSpec } from "../../lib/resources/subnet";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
-const exampleServerResources = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Runtime
+const exampleNodeConfig = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Signaler
 metadata:
-  name: Go JSSI
-  label: jssi_go
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Capability
-metadata:
-  name: Binding aliases
-  label: bind_alias
+  name: Public unisockets Signaling Server
+  label: unisockets_public
 spec:
-  privileged: true
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Processor
-metadata:
-  name: Felix's iPhone
-  label: felixs_iphone
-spec:
-  runtimes:
-  - jssi_go
-  capabilities:
-  - bind_alias
+  urls:
+    - wss://unisockets.herokuapp.com
+  retryAfter: 1000
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: StunServer
@@ -84,14 +67,101 @@ spec:
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Subnet
+metadata:
+  name: Management Network
+  label: management_network
+spec:
+  network: ""
+  prefix: 127.0.0
+`;
+
+const exampleServerResourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Runtime
+metadata:
+  name: Go JSSI
+  label: jssi_go
+spec: {}
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Binding aliases
+  label: bind_alias
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Processor
+metadata:
+  name: Felix's iPhone
+  label: felixs_iphone
+spec:
+  runtimes:
+  - jssi_go
+  capabilities:
+  - bind_alias
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Signaler
 metadata:
   name: Public unisockets Signaling Server
   label: unisockets_public
 spec:
   urls:
-  - wss://unisockets.herokuapp.com
+    - wss://unisockets.herokuapp.com
   retryAfter: 1000
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Google STUN Server
+  label: google
+spec:
+  urls:
+  - stun:stun.l.google.com:19302
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+  - stun:global.stun.twilio.com:3478?transport=udp
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (UDP)
+  label: twillio_udp
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (TCP)
+  label: twillio_tcp
+spec:
+  urls:
+  - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server Fallback (TCP)
+  label: twillio_tcp_fallback
+spec:
+  urls:
+  - turn:global.turn.twilio.com:443?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Network
@@ -115,7 +185,7 @@ metadata:
   label: echo_network
 spec:
   network: unisockets_public
-  prefix: 127.0.0
+  prefix: 127.19.0
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Tracker
@@ -169,7 +239,7 @@ metadata:
 spec:
   argv:
   - "-laddr"
-  - 127.0.0.1:1234
+  - 127.19.0.1:1234
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Workload
@@ -183,13 +253,16 @@ spec:
   - bind_alias
   subnet: echo_network
   arguments: echo_server
+  terminalLabel: echo_server
+  terminalHostNodeId: my_terminal_host_node_id
 `;
 
-const exampleClientResources = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+const exampleClientResourcesToCreate = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Runtime
 metadata:
   name: Go JSSI
   label: jssi_go
+spec: {}
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Capability
@@ -209,6 +282,16 @@ spec:
   - jssi_go
   capabilities:
   - connect_to_alias
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+    - wss://unisockets.herokuapp.com
+  retryAfter: 1000
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: StunServer
@@ -262,16 +345,6 @@ spec:
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Signaler
-metadata:
-  name: Public unisockets Signaling Server
-  label: unisockets_public
-spec:
-  urls:
-  - wss://unisockets.herokuapp.com
-  retryAfter: 1000
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Network
 metadata:
   name: Public unisockets network
@@ -293,7 +366,7 @@ metadata:
   label: echo_network
 spec:
   network: unisockets_public
-  prefix: 127.0.0
+  prefix: 127.19.0
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Tracker
@@ -342,12 +415,12 @@ spec:
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Arguments
 metadata:
-  name: Echo Server Configuration
+  name: Echo Client Configuration
   label: echo_client
 spec:
   argv:
   - "-raddr"
-  - 127.0.0.1:1234
+  - 127.19.0.1:1234
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Workload
@@ -361,262 +434,164 @@ spec:
   - connect_to_alias
   subnet: echo_network
   arguments: echo_client
+  terminalLabel: echo_client
+  terminalHostNodeId: my_terminal_host_node_id
 `;
 
-const exampleManagerConfig = `apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  name: Google STUN Server
-  label: google
-spec:
-  urls:
-  - stun:stun.l.google.com:19302
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  name: Twillio STUN Server
-  label: twillio
-spec:
-  urls:
-  - stun:global.stun.twilio.com:3478?transport=udp
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: TurnServer
-metadata:
-  name: Twillio TURN Server (UDP)
-  label: twillio_udp
-spec:
-  urls:
-  - turn:global.turn.twilio.com:3478?transport=tcp
-  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
-  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: TurnServer
-metadata:
-  name: Twillio TURN Server (TCP)
-  label: twillio_tcp
-spec:
-  urls:
-  - turn:global.turn.twilio.com:3478?transport=tcp
-  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
-  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: TurnServer
-metadata:
-  name: Twillio TURN Server Fallback (TCP)
-  label: twillio_tcp_fallback
-spec:
-  urls:
-  - turn:global.turn.twilio.com:443?transport=tcp
-  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
-  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Signaler
-metadata:
-  name: Public unisockets Signaling Server
-  label: unisockets_public
-spec:
-  urls:
-  - wss://unisockets.herokuapp.com
-  retryAfter: 1000
----
-apiVersion: webnetes.felix.pojtinger.com/v1alpha1
-kind: Subnet
-metadata:
-  name: Echo Network
-  label: echo_network
-spec:
-  network: ""
-  prefix: 127.0.0`;
+const terminalsRoot = document.getElementById("terminals")!;
+const terminals = new Terminals();
+const logRoot = document.getElementById("log")!;
+const log = (msg: string, ...args: any) => {
+  const toAppend = `${new Date().toISOString()}\t${msg}\t${JSON.stringify(
+    args
+  )}`;
+
+  if (logRoot.textContent) {
+    logRoot.textContent += "\n" + toAppend;
+  } else {
+    logRoot.textContent = toAppend;
+  }
+};
+
+const node = new Node(
+  async (resource) => {
+    log("Created resource", resource);
+  },
+  async (resource) => {
+    log("Deleted resource", resource);
+  },
+  async (frame) => {
+    log("Rejected resource", frame);
+  },
+  async (id) => {
+    log("Management node acknowledged", id);
+  },
+  async (id) => {
+    log("Management node joined", id);
+  },
+  async (id) => {
+    log("Management node left", id);
+  },
+  async (metadata, spec, id) => {
+    log("Resource node acknowledged", metadata, spec, id);
+  },
+  async (metadata, spec: ISubnetSpec, id) => {
+    log("Resource node joined", metadata, spec, id);
+  },
+  async (metadata, spec, id) => {
+    log("Resource node left", metadata, spec, id);
+  },
+  async (onStdin: (key: string) => Promise<void>, id) => {
+    log("Creating terminal", id);
+
+    const terminal = await terminals.create(onStdin, id);
+
+    const terminalWrapper = document.createElement("div");
+    terminalWrapper.setAttribute("id", id);
+    terminalsRoot.appendChild(terminalWrapper);
+
+    const terminalHeader = document.createElement("h3");
+    terminalHeader.textContent = id;
+    terminalWrapper.appendChild(terminalHeader);
+
+    const terminalEl = document.createElement("div");
+    terminalWrapper.appendChild(terminalEl);
+
+    terminal.open(terminalEl);
+  },
+  async (id, msg) => {
+    await terminals.write(id, msg);
+  },
+  async (id) => {
+    log("Deleting terminal");
+
+    await terminals.delete(id);
+
+    document.getElementById(id)?.remove();
+  }
+);
 
 document
-  .getElementById("load-example-manager-config")
-  ?.addEventListener("click", async () => {
-    (document.getElementById(
-      "manager-config-input"
-    ) as HTMLTextAreaElement).value = exampleManagerConfig;
-  });
+  .getElementById("load-example-node-config")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "node-config-input"
+      ) as HTMLInputElement).value = exampleNodeConfig)
+  );
 
-document.getElementById("start")?.addEventListener("click", async () => {
-  (document.getElementById("management") as HTMLTextAreaElement).style.cssText =
-    "";
+document
+  .getElementById("load-example-server-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleServerResourcesToCreate)
+  );
 
-  const terminal = new Terminal();
-  const asyncResolver = new Emittery();
-  const encoder = new TextEncoder();
+document
+  .getElementById("load-example-client-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleClientResourcesToCreate)
+  );
 
-  let inputBuffer = "";
-  terminal.onData((key) => {
-    if (key.charCodeAt(0) === 13) {
-      // Return
-      inputBuffer += "\n";
-      terminal.write("\n\r");
+document.getElementById("start-node")?.addEventListener("click", async () => {
+  await node.open(
+    (document.getElementById("node-config-input") as HTMLInputElement).value
+  );
 
-      asyncResolver.emit("newline", true);
-    } else if (key.charCodeAt(0) === 127) {
-      // Backspace
-      inputBuffer = inputBuffer.substring(0, inputBuffer.length - 1);
+  document.getElementById("prestart")!.style.cssText = "display: none";
+  document.getElementById("poststart")!.style.cssText = "display: block";
 
-      terminal.write("\b \b");
-    } else {
-      // Anything else
-      inputBuffer += key;
-      terminal.write(key);
-    }
-  });
-
-  const worker = new Worker(
-    async () => window.location.reload(),
-    async (_: string, content: Uint8Array) => {
-      return new Promise((res) =>
-        terminal.write(
-          new TextDecoder().decode(content).replace(/\n/g, "\n\r"),
-          res
+  document
+    .getElementById("create-resources")
+    ?.addEventListener(
+      "click",
+      async () =>
+        await node.createResources(
+          (document.getElementById("resources") as HTMLInputElement).value,
+          (document.getElementById("node-id") as HTMLInputElement).value
         )
-      );
-    },
-    async (_: string) => {
-      if (inputBuffer.includes("\n")) {
-        const input = inputBuffer;
-
-        inputBuffer = "";
-
-        return encoder.encode(input);
-      } else {
-        terminal.focus();
-
-        await asyncResolver.once("newline");
-
-        const input = inputBuffer; // inputBuffer += key is already handled above, which will be called before this
-
-        inputBuffer = "";
-
-        return encoder.encode(input);
-      }
-    }
-  );
-  const manager = new Manager(
-    (document.getElementById(
-      "manager-config-input"
-    ) as HTMLTextAreaElement).value,
-    async (id: string) => {
-      console.log("Node joined", id);
-
-      const nodeText = document.createTextNode(id);
-      const nodeEl = document.createElement("li");
-      nodeEl.appendChild(nodeText);
-
-      const nodeOption = document.createElement("option");
-      nodeOption.setAttribute("value", id);
-      nodeOption.appendChild(nodeText.cloneNode());
-
-      document.getElementById("node-list")?.appendChild(nodeEl);
-      document.getElementById("node-id-input")?.appendChild(nodeOption);
-    },
-    async (id: string) => {
-      console.log("Node left", id);
-
-      document
-        .getElementById("node-list")
-        ?.childNodes.forEach(
-          (node) => node.textContent === id && node.remove()
-        );
-      document
-        .getElementById("node-id-input")
-        ?.childNodes.forEach(
-          (node) => (node as HTMLOptionElement).value === id && node.remove()
-        );
-    },
-    async (resources: IResource<any>[], remove: boolean, id: string) => {
-      console.log("Modifying resources", resources, remove, id);
-
-      if (remove) {
-        await worker.deleteResources(resources);
-
-        document.getElementById("resource-list")?.childNodes.forEach((node) => {
-          const resource = JSON.parse(node.textContent!) as IResource<any>;
-
-          resources.forEach((newResource: IResource<any>) => {
-            if (
-              newResource.apiVersion === resource.apiVersion &&
-              newResource.kind === resource.kind &&
-              newResource.metadata.label === resource.metadata.label
-            ) {
-              node.remove();
-            }
-          });
-        });
-      } else {
-        await worker.createResources(resources);
-
-        resources.forEach((newResource: IResource<any>) => {
-          const nodeText = document.createTextNode(JSON.stringify(newResource));
-          const nodeEl = document.createElement("li");
-          nodeEl.appendChild(nodeText);
-
-          document.getElementById("resource-list")?.appendChild(nodeEl);
-        });
-      }
-    }
-  );
-
-  await manager.open();
-
-  document.getElementById("create")?.addEventListener("click", async () => {
-    await manager.modifyResources(
-      (document.getElementById("resource-input") as HTMLTextAreaElement).value,
-      false,
-      (document.getElementById("node-id-input") as HTMLSelectElement).value
     );
-  });
-
-  document.getElementById("delete")?.addEventListener("click", async () => {
-    await manager.modifyResources(
-      (document.getElementById("resource-input") as HTMLTextAreaElement).value,
-      true,
-      (document.getElementById("node-id-input") as HTMLSelectElement).value
-    );
-  });
 
   document
-    .getElementById("load-example-server-resources")
-    ?.addEventListener("click", async () => {
-      (document.getElementById(
-        "resource-input"
-      ) as HTMLTextAreaElement).value = exampleServerResources;
-    });
-
-  document
-    .getElementById("load-example-client-resources")
-    ?.addEventListener("click", async () => {
-      (document.getElementById(
-        "resource-input"
-      ) as HTMLTextAreaElement).value = exampleClientResources;
-    });
+    .getElementById("delete-resources")
+    ?.addEventListener(
+      "click",
+      async () =>
+        await node.deleteResources(
+          (document.getElementById("resources") as HTMLInputElement).value,
+          (document.getElementById("node-id") as HTMLInputElement).value
+        )
+    );
 
   document
     .getElementById("seed-file-start")
     ?.addEventListener("click", async () => {
+      const label = (document.getElementById(
+        "seed-file-label"
+      ) as HTMLInputElement).value;
+      const name = (document.getElementById(
+        "seed-file-name"
+      ) as HTMLInputElement).value;
+      const repo = (document.getElementById(
+        "seed-file-repo"
+      ) as HTMLInputElement).value;
       const file = (document.getElementById(
-        "seed-file-input"
+        "seed-file-file"
       ) as HTMLInputElement)?.files![0];
 
-      const newResource = await worker.seed(
-        (document.getElementById("seed-file-repository") as HTMLInputElement)
-          .value,
+      await node.seedFile(
+        label,
+        name,
+        repo,
         new Uint8Array(await file.arrayBuffer())
       );
-
-      const nodeText = document.createTextNode(JSON.stringify(newResource));
-      const nodeEl = document.createElement("li");
-      nodeEl.appendChild(nodeText);
-
-      document.getElementById("resource-list")?.appendChild(nodeEl);
     });
-
-  terminal.open(document.getElementById("terminal")!);
 });

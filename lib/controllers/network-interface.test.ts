@@ -25,7 +25,10 @@ describe("NetworkInterface", () => {
       },
       `ws://${host}:${port}`,
       1000,
-      "127.0.0"
+      "127.0.0",
+      async () => {},
+      async () => {},
+      async () => {}
     );
   });
 

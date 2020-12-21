@@ -22,7 +22,6 @@
     "dev:lib": "rollup -c -w",
     "dev:app:node": "LOG_LEVEL=debug DEBUG='' ts-node-dev --files app/webnetes_node/main.ts",
     "dev:app:web": "LOG_LEVEL=debug DEBUG='' parcel --hmr-port 1235 --target webApp app/webnetes_web/index.html",
-    "dev:app:web:pipes_concept": "LOG_LEVEL=debug DEBUG='' parcel --hmr-port 1235 --target webApp app/pipes_concept/index.html",
     "start:app:node": "./dist/nodeApp/main.js",
     "start:app:web": "serve dist/webApp",
     "start:docs": "serve dist/docs"
