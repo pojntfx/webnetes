@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-(() => {
+// ADDITION: Make this re-usable
+export default (fsOverwrites) => {
 	// Map multiple JavaScript environments to a single common API,
 	// preferring web standards over Node.js API.
 	//
@@ -40,7 +41,8 @@
 		return err;
 	};
 
-	if (!global.fs) {
+	// ADDITION: Make this re-usable
+	// if (!global.fs) {
 		let outputBuf = "";
 		global.fs = {
 			constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
@@ -84,8 +86,10 @@
 			truncate(path, length, callback) { callback(enosys()); },
 			unlink(path, callback) { callback(enosys()); },
 			utimes(path, atime, mtime, callback) { callback(enosys()); },
+			...fsOverwrites // ADDITION: Make this re-usable
 		};
-	}
+	// }
+	// ADDITION: Make this re-usable
 
 	if (!global.process) {
 		global.process = {
@@ -623,5 +627,7 @@
 			process.exit(1);
 		});
 	}
-})();
-module.exports = Go
+
+	// ADDITION: Make this re-usable
+	return global.Go
+}
