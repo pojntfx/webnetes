@@ -144,6 +144,36 @@ export class VirtualMachine {
         });
         const go = new (require("../../vendor/tinygo/wasm_exec.js"))();
 
+        let stdinReadCounter = 0;
+        wasmFs.volume.fds[0].node.read = (buffer: Buffer | Uint8Array) => {
+          // First read is string, second read is end of string
+          if (stdinReadCounter % 2 !== 0) {
+            stdinReadCounter++;
+
+            return 0;
+          }
+
+          let input = this.onStdinSync(id);
+          if (input === null) return -1; // Canceled
+
+          const rawStdin = this.decoder.decode(input) + "\n";
+
+          const stdin = this.encoder.encode(rawStdin);
+          buffer.set(stdin);
+
+          return stdin.length;
+        };
+        wasmFs.volume.fds[1].node.write = (buffer: Buffer | Uint8Array) => {
+          this.onStdout(id, new Uint8Array(buffer));
+
+          return buffer.length;
+        };
+        wasmFs.volume.fds[2].node.write = (buffer: Buffer | Uint8Array) => {
+          this.onStdout(id, new Uint8Array(buffer));
+
+          return buffer.length;
+        };
+
         const module = await WebAssembly.compile(await lowerI64Imports(bin));
         const instance = await Asyncify.instantiate(module, {
           ...wasi.getImports(module),

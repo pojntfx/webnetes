@@ -8,6 +8,8 @@ import {
   exampleGoEchoClientResourcesToCreate,
   exampleGoEchoServerResourcesToCreate,
   exampleNodeConfig,
+  exampleTinyGoEchoClientResourcesToCreate,
+  exampleTinyGoEchoServerResourcesToCreate,
 } from "./examples";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -123,6 +125,16 @@ document
   );
 
 document
+  .getElementById("load-example-tinygo-echo-server-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleTinyGoEchoServerResourcesToCreate)
+  );
+
+document
   .getElementById("load-example-go-echo-client-resources")
   ?.addEventListener(
     "click",
@@ -140,6 +152,16 @@ document
       ((document.getElementById(
         "resources"
       ) as HTMLInputElement).value = exampleCEchoClientResourcesToCreate)
+  );
+
+document
+  .getElementById("load-example-tinygo-echo-client-resources")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleTinyGoEchoClientResourcesToCreate)
   );
 
 document.getElementById("start-node")?.addEventListener("click", async () => {
