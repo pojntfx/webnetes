@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// This file has been modified to allow file system overrides.
+
 // ADDITION: Make this re-usable
 export default (fsOverwrites) => {
 	// Map multiple JavaScript environments to a single common API,
