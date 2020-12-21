@@ -1,3 +1,4 @@
+import { InstanceDoesAlreadyExistError } from "../errors/instance-does-already-exist";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { IInstance } from "../resources/instance";
 import { IResource } from "../resources/resource";
@@ -16,7 +17,14 @@ export abstract class Repository<
     instance: R["instance"]
   ) {
     try {
-      await this.findInstance(apiVersion, kind, metadata.label);
+      const instance = await this.findInstance(
+        apiVersion,
+        kind,
+        metadata.label
+      );
+
+      if (instance)
+        throw new InstanceDoesAlreadyExistError(instance.metadata.label);
     } catch (e) {
       if (!(e instanceof InstanceDoesNotExistError)) throw e;
     }
