@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	laddr := flag.String("laddr", "127.0.0.1:1234", "Listen address")
+	laddr := flag.String("laddr", "127.0.0.1:1234", "Address to listen on")
 	flag.Parse()
 
 	lis, err := tinynet.Listen("tcp", *laddr)
