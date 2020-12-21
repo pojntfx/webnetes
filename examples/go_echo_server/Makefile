@@ -17,10 +17,8 @@ wasm-tinygo:
 clean:
 	@rm -rf out
 
-seed: seed-go seed-tinygo
-
 seed-go: wasm-go
-	@docker run -v ${PWD}/out:/out --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /out/go/*.wasm"
+	@docker run -it -v ${PWD}/out:/out --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /out/go/*.wasm"
 
 seed-tinygo: wasm-tinygo
-	@docker run -v ${PWD}/out:/out --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /out/tinygo/*.wasm"
+	@docker run -it -v ${PWD}/out:/out --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /out/tinygo/*.wasm"
