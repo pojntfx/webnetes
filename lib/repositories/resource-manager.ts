@@ -1,3 +1,4 @@
+import { ResourceDoesAlreadyExistError } from "../errors/resource-does-already-exist";
 import { ResourceDoesNotExistError } from "../errors/resource-does-not-exist";
 import { IResource } from "../resources/resource";
 
@@ -11,7 +12,14 @@ export abstract class ResourceManager<T extends IResource<any>> {
     spec: R["spec"]
   ) {
     try {
-      await this.findResource(apiVersion, kind, metadata.label);
+      const resource = await this.findResource(
+        apiVersion,
+        kind,
+        metadata.label
+      );
+
+      if (resource)
+        throw new ResourceDoesAlreadyExistError(resource.metadata.label);
     } catch (e) {
       if (!(e instanceof ResourceDoesNotExistError)) throw e;
     }

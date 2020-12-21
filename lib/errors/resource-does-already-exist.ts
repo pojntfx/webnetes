@@ -1,5 +1,5 @@
 export class ResourceDoesAlreadyExistError extends Error {
-  constructor() {
-    super("resource does already exist");
+  constructor(label: string) {
+    super(`resource ${label} does already exist`);
   }
 }
