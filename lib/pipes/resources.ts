@@ -45,7 +45,11 @@ export class Resources
     msg: Uint8Array,
     nodeId: string
   ) {
-    this.logger.debug("Writing to resources");
+    this.logger.debug("Writing to resources", {
+      resourceType,
+      resourceId,
+      nodeId,
+    });
 
     await this.queue({
       resourceType: (() => {
