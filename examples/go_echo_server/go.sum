@@ -1,0 +1,5 @@
+github.com/pojntfx/tinynet v0.0.0-20201221193624-5c28f49867fd h1:bPC/ox9ZJDqI5fl3VP4um/1BMWBVFyBrhRHrX/weOEQ=
+github.com/pojntfx/tinynet v0.0.0-20201221193624-5c28f49867fd/go.mod h1:Qvpqm4BhuCeLbbAiN0RNtJ2t1JBdB+y3QwXy36Z/aTE=
+github.com/pojntfx/unisockets v0.0.21 h1:KDPUTlLRs/zeZa8/VFjqYQE8p5L3IdJ0l3ZIQ7RJ88o=
+github.com/pojntfx/unisockets v0.0.21/go.mod h1:CEeZMjYln6NAZz+QJbAr4KiVxmtNqx2FgNVmBdil9lU=
+github.com/valyala/fastjson v1.6.3/go.mod h1:CLCAqky6SMuOcxStkYQvblddUtoRxhYMGLrsQns1aXY=
