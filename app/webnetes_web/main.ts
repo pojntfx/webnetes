@@ -4,11 +4,14 @@ import { Terminals } from "../../lib/repositories/terminals";
 import { ISubnetSpec } from "../../lib/resources/subnet";
 import {
   exampleCEchoClientResourcesToCreate,
+  exampleCEchoClientResourcesToCreateFragment,
   exampleCEchoServerResourcesToCreate,
   exampleGoEchoClientResourcesToCreate,
+  exampleGoEchoClientResourcesToCreateFragment,
   exampleGoEchoServerResourcesToCreate,
   exampleNodeConfig,
   exampleTinyGoEchoClientResourcesToCreate,
+  exampleTinyGoEchoClientResourcesToCreateFragment,
   exampleTinyGoEchoServerResourcesToCreate,
 } from "./examples";
 
@@ -162,6 +165,36 @@ document
       ((document.getElementById(
         "resources"
       ) as HTMLInputElement).value = exampleTinyGoEchoClientResourcesToCreate)
+  );
+
+document
+  .getElementById("load-example-go-echo-client-resources-fragment")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleGoEchoClientResourcesToCreateFragment)
+  );
+
+document
+  .getElementById("load-example-c-echo-client-resources-fragment")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleCEchoClientResourcesToCreateFragment)
+  );
+
+document
+  .getElementById("load-example-tinygo-echo-client-resources-fragment")
+  ?.addEventListener(
+    "click",
+    async () =>
+      ((document.getElementById(
+        "resources"
+      ) as HTMLInputElement).value = exampleTinyGoEchoClientResourcesToCreateFragment)
   );
 
 document.getElementById("start-node")?.addEventListener("click", async () => {
