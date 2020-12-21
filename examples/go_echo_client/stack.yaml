@@ -8,8 +8,8 @@ spec: {}
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Capability
 metadata:
-  name: Binding aliases
-  label: bind_alias
+  name: Connecting to aliases
+  label: connect_to_alias
 spec:
   privileged: true
 ---
@@ -22,7 +22,7 @@ spec:
   runtimes:
     - jssi_go
   capabilities:
-    - bind_alias
+    - connect_to_alias
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Signaler
@@ -147,33 +147,33 @@ spec:
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: File
 metadata:
-  name: Go Echo Server Binary
-  label: go_echo_server
+  name: Go Echo Client Binary
+  label: go_echo_client
 spec:
   repository: webtorrent_public
-  uri: 366f0160911e6fa7e060844bdf4bd9fa1d52f1de
+  uri: 9b3718c792b55c1d1af3fae00890c9fd9ceca767
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Arguments
 metadata:
-  name: Echo Server Configuration
-  label: go_echo_server
+  name: Echo Client Configuration
+  label: go_echo_client
 spec:
   argv:
-    - -laddr
+    - -raddr
     - 127.0.0.1:1234
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Workload
 metadata:
-  name: Go Echo Server
-  label: go_echo_server
+  name: Go Echo Client
+  label: go_echo_client
 spec:
-  file: go_echo_server
+  file: go_echo_client
   runtime: jssi_go
   capabilities:
-    - bind_alias
+    - connect_to_alias
   subnet: echo_network
-  arguments: go_echo_server
-  terminalLabel: go_echo_server
+  arguments: go_echo_client
+  terminalLabel: go_echo_client
   terminalHostNodeId: my_terminal_host_node_id

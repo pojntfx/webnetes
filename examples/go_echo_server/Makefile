@@ -9,5 +9,5 @@ wasm:
 clean:
 	@rm -rf out
 
-seed:
-	@docker run -it -v ${PWD}/out:/out --entrypoint=/bin/sh -p 19420:19420 schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid --port 19420 seed /out/*.wasm"
+seed: all
+	@docker run -it -v ${PWD}/out:/out --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /out/*.wasm"
