@@ -103,8 +103,8 @@ spec:
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: NetworkInterface
 metadata:
-  name: Echo Network
-  label: echo_network
+  name: Go Echo Network
+  label: go_echo_network
 spec:
   network: unisockets_public
   prefix: 127.19.0
@@ -156,7 +156,7 @@ spec:
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Arguments
 metadata:
-  name: Echo Client Configuration
+  name: Go Echo Client Configuration
   label: go_echo_client
 spec:
   argv:
@@ -173,7 +173,7 @@ spec:
   runtime: jssi_go
   capabilities:
     - connect_to_alias
-  networkInterface: echo_network
+  networkInterface: go_echo_network
   arguments: go_echo_client
   terminalLabel: go_echo_client
   terminalHostNodeId: my_terminal_host_node_id
