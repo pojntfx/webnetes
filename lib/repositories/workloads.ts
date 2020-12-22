@@ -1,22 +1,19 @@
 import Emittery from "emittery";
 import { v4 } from "uuid";
+import { filterImportsByCapabilities } from "../capabilities/filter";
 import { NetworkInterface } from "../controllers/network-interface";
-import {
-  ECapabilities,
-  ERuntimes,
-  VirtualMachine,
-} from "../controllers/virtual-machine";
+import { ERuntimes, VirtualMachine } from "../controllers/virtual-machine";
 import { Arguments, IArgumentsSpec } from "../resources/arguments";
 import { Capability } from "../resources/capability";
 import { File } from "../resources/file";
 import { IInstance } from "../resources/instance";
+import { NetworkInterface as NetworkInterfaceResource } from "../resources/network-interface";
 import {
   API_VERSION,
   EResourceKind,
   IResourceMetadata,
 } from "../resources/resource";
 import { Runtime } from "../resources/runtime";
-import { NetworkInterface as NetworkInterfaceResource } from "../resources/network-interface";
 import { IWorkloadSpec, Workload } from "../resources/workload";
 import { getLogger } from "../utils/logger";
 import { Repository } from "./repository";
@@ -34,8 +31,6 @@ export class Workloads extends Repository<
   private logger = getLogger();
   private bus = new Emittery();
   private labeledFrames = [] as ILabeledFrame[];
-  private decoder = new TextDecoder();
-  private encoder = new TextEncoder();
 
   constructor(
     private getFile: (label: File["metadata"]["label"]) => Promise<File>,
@@ -127,9 +122,11 @@ export class Workloads extends Repository<
       `/bin/${metadata.label}`,
       fileInstance,
       args.spec.argv,
-      imports,
+      filterImportsByCapabilities(
+        capabilities.map((capability) => capability.metadata.label),
+        imports
+      ),
       {},
-      (capabilities as unknown) as ECapabilities[],
       (runtime.metadata.label as unknown) as ERuntimes
     );
 

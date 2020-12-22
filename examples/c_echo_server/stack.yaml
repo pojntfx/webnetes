@@ -8,8 +8,48 @@ spec: {}
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Capability
 metadata:
-  name: Binding aliases
-  label: bind_alias
+  name: Creating a socket
+  label: net_socket
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Sending over a socket
+  label: net_send
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Receiving from a socket
+  label: net_receive
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Binding an alias to a socket
+  label: net_bind
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Listen on a socket
+  label: net_listen
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felix.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Accept on a socket
+  label: net_accept
 spec:
   privileged: true
 ---
@@ -22,7 +62,12 @@ spec:
   runtimes:
     - wasi_generic
   capabilities:
-    - bind_alias
+    - net_socket
+    - net_send
+    - net_receive
+    - net_bind
+    - net_listen
+    - net_accept
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Signaler
@@ -174,7 +219,12 @@ spec:
   file: c_echo_server
   runtime: wasi_generic
   capabilities:
-    - bind_alias
+    - net_socket
+    - net_send
+    - net_receive
+    - net_bind
+    - net_listen
+    - net_accept
   networkInterface: c_echo_network
   arguments: c_echo_server
   terminalLabel: c_echo_server

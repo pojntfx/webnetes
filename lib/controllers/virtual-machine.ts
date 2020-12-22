@@ -6,8 +6,6 @@ import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { UnimplementedRuntimeError } from "../errors/node-not-known";
 import { getLogger } from "../utils/logger";
 
-export enum ECapabilities {}
-
 export enum ERuntimes {
   WASI_GENERIC = "wasi_generic",
   WASI_TINYGO = "wasi_tinygo",
@@ -41,14 +39,12 @@ export class VirtualMachine {
     args: string[],
     env: any,
     imports: any,
-    capabilities: ECapabilities[], // TODO: Add privileged capabilites
     runtime: ERuntimes
   ) {
     this.logger.debug("Scheduling", {
       args: [path, ...args],
       env,
       imports,
-      capabilities,
       runtime,
     });
 
