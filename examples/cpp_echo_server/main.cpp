@@ -106,5 +106,27 @@ int main(int argc, char *argv[]) {
 
     std::cout << "[INFO] Accepted client " << client_address_readable
               << std::endl;
+
+    // Receive loop
+    int received_message_length = 1;
+    for (;;) {
+      char received_message[1024];
+      char sent_message[1038];
+
+      std::cout << "[DEBUG] Waiting for client " << client_address_readable
+                << " to send" << std::endl;
+
+      // Receive
+      if ((received_message_length = recv(client_socket, &received_message,
+                                          sizeof(received_message), 0)) == -1) {
+        std::cout << "[ERROR] Could not receive from client " << strerror(errno)
+                  << ", dropping message" << std::endl;
+      } else if (received_message_length == 0) {
+        break;
+      }
+
+      std::cout << "[DEBUG] Received " << received_message_length
+                << " bytes from " << client_address_readable << std::endl;
+    }
   }
 }
