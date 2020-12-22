@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <cstdint>
 #include <iostream>
+#include <iterator>
 #include <netinet/in.h>
 #include <stdexcept>
 #include <stdlib.h>
@@ -81,7 +82,6 @@ int main(int argc, char *argv[]) {
 
   // Accept loop
   for (;;) {
-
     std::cout << "[DEBUG] Accepting on " << server_address_readable
               << std::endl;
 
@@ -89,11 +89,22 @@ int main(int argc, char *argv[]) {
     int client_socket;
     sockaddr_in client_address;
     socklen_t client_address_length;
+
     if ((client_socket = accept(
              server_socket, reinterpret_cast<sockaddr *>(&client_address),
              &(client_address_length = sizeof(client_address)))) == -1) {
       std::cout << "[ERROR] Could not accept, continuing: " << strerror(errno)
                 << std::endl;
     }
+
+    char client_host[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &client_address.sin_addr, client_host,
+              sizeof(client_host));
+    std::string client_address_readable =
+        std::string(client_host) + ":" +
+        std::to_string(client_address.sin_port);
+
+    std::cout << "[INFO] Accepted client " << client_address_readable
+              << std::endl;
   }
 }
