@@ -2,18 +2,7 @@ import "xterm/css/xterm.css";
 import { Node } from "../../lib/high-level/node";
 import { Terminals } from "../../lib/repositories/terminals";
 import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
-import {
-  exampleCEchoClientResourcesToCreate,
-  exampleCEchoClientResourcesToCreateFragment,
-  exampleCEchoServerResourcesToCreate,
-  exampleGoEchoClientResourcesToCreate,
-  exampleGoEchoClientResourcesToCreateFragment,
-  exampleGoEchoServerResourcesToCreate,
-  exampleNodeConfig,
-  exampleTinyGoEchoClientResourcesToCreate,
-  exampleTinyGoEchoClientResourcesToCreateFragment,
-  exampleTinyGoEchoServerResourcesToCreate,
-} from "./examples";
+import { exampleNodeConfig } from "./config";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
@@ -105,96 +94,6 @@ document
       ((document.getElementById(
         "node-config-input"
       ) as HTMLInputElement).value = exampleNodeConfig)
-  );
-
-document
-  .getElementById("load-example-go-echo-server-resources")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleGoEchoServerResourcesToCreate)
-  );
-
-document
-  .getElementById("load-example-c-echo-server-resources")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleCEchoServerResourcesToCreate)
-  );
-
-document
-  .getElementById("load-example-tinygo-echo-server-resources")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleTinyGoEchoServerResourcesToCreate)
-  );
-
-document
-  .getElementById("load-example-go-echo-client-resources")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleGoEchoClientResourcesToCreate)
-  );
-
-document
-  .getElementById("load-example-c-echo-client-resources")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleCEchoClientResourcesToCreate)
-  );
-
-document
-  .getElementById("load-example-tinygo-echo-client-resources")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleTinyGoEchoClientResourcesToCreate)
-  );
-
-document
-  .getElementById("load-example-go-echo-client-resources-fragment")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleGoEchoClientResourcesToCreateFragment)
-  );
-
-document
-  .getElementById("load-example-c-echo-client-resources-fragment")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleCEchoClientResourcesToCreateFragment)
-  );
-
-document
-  .getElementById("load-example-tinygo-echo-client-resources-fragment")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "resources"
-      ) as HTMLInputElement).value = exampleTinyGoEchoClientResourcesToCreateFragment)
   );
 
 document.getElementById("start-node")?.addEventListener("click", async () => {

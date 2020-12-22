@@ -23,7 +23,5 @@ export const filterImportsByCapabilities = (
     }
   });
 
-  console.log(enabledImports);
-
   return enabledImports;
 };
