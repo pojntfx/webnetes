@@ -151,7 +151,7 @@ metadata:
   label: c_echo_server
 spec:
   repository: webtorrent_public
-  uri: 53068350a10506bf94041106ea34636994914da2
+  uri: b5cb853082417f5f77182c0306ce48cc487f8a6e
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Arguments
@@ -160,8 +160,10 @@ metadata:
   label: c_echo_server
 spec:
   argv:
-    - -laddr
-    - 127.0.0.1:1234
+    - -l
+    - 127.0.0.1
+    - -p
+    - 1234
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Workload

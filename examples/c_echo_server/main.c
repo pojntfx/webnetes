@@ -7,9 +7,8 @@
 #include <strings.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
-#define LOCAL_HOST "127.0.0.1"
-#define LOCAL_PORT 1234
 #define BACKLOG 5
 
 #define RECEIVED_MESSAGE_BUFFER_LENGTH 1024
@@ -17,7 +16,33 @@
 #define SENT_MESSAGE_BUFFER_LENGTH                                             \
   RECEIVED_MESSAGE_BUFFER_LENGTH + sizeof(SENT_MESSAGE_PREFIX)
 
-int main() {
+int main(int argc, char *argv[]) {
+  // Flags parsing
+  char *listen_host = "127.0.0.1";
+  int listen_port = 1234;
+  int opt;
+
+  while ((opt = getopt(argc, argv, "l:p:")) != -1) {
+    switch (opt) {
+    case 'l': {
+      listen_host = optarg;
+
+      break;
+    }
+
+    case 'p': {
+      listen_port = atoi(optarg);
+
+      break;
+    }
+
+    default:
+      fprintf(stderr, "Usage: %s [-lp]\n", argv[0]);
+
+      exit(EXIT_FAILURE);
+    }
+  }
+
   // Variables
   int server_sock;
   int client_sock;
@@ -36,19 +61,19 @@ int main() {
   char client_address_human_readable[INET_ADDRSTRLEN];
 
   // Logging
-  char server_address_readable[sizeof(LOCAL_HOST) + sizeof(LOCAL_PORT) + 1];
-  sprintf(server_address_readable, "%s:%d", LOCAL_HOST, LOCAL_PORT);
+  char server_address_readable[sizeof(listen_host) + sizeof(listen_port) + 1];
+  sprintf(server_address_readable, "%s:%d", listen_host, listen_port);
 
   memset(&server_address, 0, sizeof(server_address));
   memset(&client_address, 0, sizeof(client_address));
 
   // Create address
   server_address.sin_family = AF_INET;
-  server_address.sin_port = htons(LOCAL_PORT);
-  if (inet_pton(AF_INET, LOCAL_HOST, &server_address.sin_addr) == -1) {
+  server_address.sin_port = htons(listen_port);
+  if (inet_pton(AF_INET, listen_host, &server_address.sin_addr) == -1) {
     perror("[ERROR] Could not parse IP address:");
 
-    exit(-1);
+    exit(EXIT_FAILURE);
   }
 
   // Create socket
@@ -57,7 +82,7 @@ int main() {
 
     printf("[ERROR] Could not create socket %s\n", server_address_readable);
 
-    exit(-1);
+    exit(EXIT_FAILURE);
   }
 
   // Bind
@@ -67,7 +92,7 @@ int main() {
 
     printf("[ERROR] Could not bind to socket %s\n", server_address_readable);
 
-    exit(-1);
+    exit(EXIT_FAILURE);
   }
 
   // Listen
@@ -76,7 +101,7 @@ int main() {
 
     printf("[ERROR] Could not listen on socket %s\n", server_address_readable);
 
-    exit(-1);
+    exit(EXIT_FAILURE);
   }
 
   printf("[INFO] Listening on %s\n", server_address_readable);
@@ -93,7 +118,7 @@ int main() {
       continue;
     }
 
-    if (inet_pton(AF_INET, LOCAL_HOST, &server_address.sin_addr) == -1) {
+    if (inet_pton(AF_INET, listen_host, &server_address.sin_addr) == -1) {
       perror("[ERROR] Could not parse IP address:");
 
       continue;
