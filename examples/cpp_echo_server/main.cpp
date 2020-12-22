@@ -14,9 +14,8 @@ int main(int argc, char *argv[]) {
   std::string listen_host = "127.0.0.1";
   int listen_port = 1234;
 
-  int opt;
-  while ((opt = getopt(argc, argv, "l:p:") != -1)) {
-    switch (opt) {
+  for (;;) {
+    switch (getopt(argc, argv, "l:p:")) {
     case 'l': {
       listen_host = optarg;
 
@@ -35,6 +34,8 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
     }
+
+    break;
   }
 
   // Address
@@ -56,4 +57,24 @@ int main(int argc, char *argv[]) {
 
     return EXIT_FAILURE;
   }
+
+  // Bind
+  if ((bind(server_socket, reinterpret_cast<sockaddr *>(&server_address),
+            sizeof(server_address))) == -1) {
+    std::cout << "[ERROR] Could not bind to socket: " << strerror(errno)
+              << std::endl;
+
+    return EXIT_FAILURE;
+  }
+
+  // Listen
+  if ((listen(server_socket, 5)) == -1) {
+    std::cout << "[ERROR] Could not listen on socket: " << strerror(errno)
+              << std::endl;
+
+    return EXIT_FAILURE;
+  }
+
+  std::cout << "[INFO] Listening on " << listen_host << ":" << listen_port
+            << std::endl;
 }
