@@ -147,5 +147,15 @@ int main(int argc, char *argv[]) {
       std::cout << "[DEBUG] Sent " << sent_message_length << " bytes to "
                 << client_address_readable << std::endl;
     }
+
+    // Shutdown
+    if ((shutdown(client_socket, SHUT_RDWR)) == -1) {
+      std::cout << "[ERROR] Could not shutdown socket: " << strerror(errno)
+                << std::endl;
+
+      return EXIT_FAILURE;
+    }
   }
+
+  return EXIT_SUCCESS;
 }
