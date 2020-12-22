@@ -8,8 +8,32 @@ spec: {}
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Capability
 metadata:
-  name: Connecting to aliases
-  label: connect_to_alias
+  name: Creating a socket
+  label: net_socket
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Sending over a socket
+  label: net_send
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Receiving from a socket
+  label: net_receive
+spec:
+  privileged: true
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Connecting to a socket
+  label: net_connect
 spec:
   privileged: true
 ---
@@ -22,7 +46,10 @@ spec:
   runtimes:
     - wasi_tinygo
   capabilities:
-    - connect_to_alias
+    - net_socket
+    - net_send
+    - net_receive
+    - net_connect
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Signaler
@@ -172,7 +199,10 @@ spec:
   file: tinygo_echo_client
   runtime: wasi_tinygo
   capabilities:
-    - connect_to_alias
+    - net_socket
+    - net_send
+    - net_receive
+    - net_connect
   networkInterface: tinygo_echo_network
   arguments: tinygo_echo_client
   terminalLabel: tinygo_echo_client

@@ -1,11 +1,7 @@
 import yaml from "js-yaml";
 import { FileRepository } from "../../controllers/file-repository";
 import { NetworkInterface } from "../../controllers/network-interface";
-import {
-  ECapabilities,
-  ERuntimes,
-  VirtualMachine,
-} from "../../controllers/virtual-machine";
+import { ERuntimes, VirtualMachine } from "../../controllers/virtual-machine";
 import { DuplicateResourceError } from "../../errors/duplicate-resource";
 import { InstanceDoesNotExistError } from "../../errors/instance-does-not-exist";
 import { InvalidReferenceError } from "../../errors/invalid-reference";
@@ -14,6 +10,7 @@ import { IArgumentsSpec } from "../../resources/arguments";
 import { ICapabilitySpec } from "../../resources/capability";
 import { File } from "../../resources/file";
 import { INetworkSpec, Network } from "../../resources/network";
+import { NetworkInterface as NetworkInterfaceResource } from "../../resources/network-interface";
 import { Processor } from "../../resources/processor";
 import { IRepositorySpec, Repository } from "../../resources/repository";
 import {
@@ -24,7 +21,6 @@ import {
 import { IRuntimeSpec } from "../../resources/runtime";
 import { ISignalerSpec } from "../../resources/signaler";
 import { IStunServerSpec } from "../../resources/stunserver";
-import { NetworkInterface as NetworkInterfaceResource } from "../../resources/network-interface";
 import { ITrackerSpec } from "../../resources/tracker";
 import { ITurnServerSpec } from "../../resources/turnserver";
 import { Workload } from "../../resources/workload";
@@ -427,7 +423,6 @@ export class Worker {
                 argumentsSpec.spec.argv,
                 imports,
                 {},
-                (capabilities as unknown) as ECapabilities[], // TODO: Validate above
                 (runtimeMetadata.label as unknown) as ERuntimes // TODO: Validate above
               );
 
