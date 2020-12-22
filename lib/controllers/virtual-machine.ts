@@ -76,7 +76,7 @@ export class VirtualMachine {
       case ERuntimes.WASI_GENERIC: {
         const wasmFs = new WasmFs();
         const wasi = new WASI({
-          args: [path, ...args],
+          args: [path, ...args.map((arg) => arg.toString())],
           env,
           bindings: {
             ...wasiBindings,
@@ -136,7 +136,7 @@ export class VirtualMachine {
       case ERuntimes.WASI_TINYGO: {
         const wasmFs = new WasmFs();
         const wasi = new WASI({
-          args: [path, ...args],
+          args: [path, ...args.map((arg) => arg.toString())],
           env,
           bindings: {
             ...wasiBindings,
