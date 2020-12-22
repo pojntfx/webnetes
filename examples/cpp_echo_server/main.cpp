@@ -1,3 +1,6 @@
+extern "C" {
+#include "berkeley_sockets.h"
+}
 #include <arpa/inet.h>
 #include <cstdint>
 #include <iostream>
