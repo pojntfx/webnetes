@@ -378,16 +378,6 @@ export class Worker {
                 EResourceKind.RUNTIME,
                 "runtime"
               ).metadata;
-              const capabilities = workloadSpec.capabilities
-                .map((label) =>
-                  this.resolveReference<ICapabilitySpec>(
-                    label,
-                    API_VERSION,
-                    EResourceKind.CAPABILITY,
-                    "capabilites"
-                  )
-                )
-                .map((c) => c.metadata.label); // TODO: Handle privileged capabilities
               const argumentsSpec = this.resolveReference<IArgumentsSpec>(
                 workloadSpec.arguments,
                 API_VERSION,

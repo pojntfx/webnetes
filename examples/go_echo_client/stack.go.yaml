@@ -10,32 +10,28 @@ kind: Capability
 metadata:
   name: Creating a socket
   label: net_socket
-spec:
-  privileged: true
+spec: {}
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Capability
 metadata:
   name: Sending over a socket
   label: net_send
-spec:
-  privileged: true
+spec: {}
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Capability
 metadata:
   name: Receiving from a socket
   label: net_receive
-spec:
-  privileged: true
+spec: {}
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Capability
 metadata:
   name: Connecting to a socket
   label: net_connect
-spec:
-  privileged: true
+spec: {}
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Processor

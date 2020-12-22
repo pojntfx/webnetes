@@ -5,7 +5,5 @@
     "name": "Binding aliases",
     "label": "bind_alias"
   },
-  "spec": {
-    "privileged": true
-  }
+  "spec": {}
 }

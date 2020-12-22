@@ -5,9 +5,7 @@ import {
   IResourceMetadata,
 } from "./resource";
 
-export interface ICapabilitySpec {
-  privileged: boolean;
-}
+export interface ICapabilitySpec {}
 
 export class Capability implements IResource<ICapabilitySpec> {
   apiVersion = API_VERSION;
