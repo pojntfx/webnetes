@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
 
     return EXIT_FAILURE;
   }
+  std::string server_address_readable =
+      listen_host + ":" + std::to_string(listen_port);
 
   // Socket
   int server_socket;
@@ -75,6 +77,23 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  std::cout << "[INFO] Listening on " << listen_host << ":" << listen_port
-            << std::endl;
+  std::cout << "[INFO] Listening on " << server_address_readable << std::endl;
+
+  // Accept loop
+  for (;;) {
+
+    std::cout << "[DEBUG] Accepting on " << server_address_readable
+              << std::endl;
+
+    // Accept
+    int client_socket;
+    sockaddr_in client_address;
+    socklen_t client_address_length;
+    if ((client_socket = accept(
+             server_socket, reinterpret_cast<sockaddr *>(&client_address),
+             &(client_address_length = sizeof(client_address)))) == -1) {
+      std::cout << "[ERROR] Could not accept, continuing: " << strerror(errno)
+                << std::endl;
+    }
+  }
 }
