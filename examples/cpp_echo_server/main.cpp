@@ -10,6 +10,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+const int BUFLEN_IN = 1024;
+const int BUFLEN_OUT = 1038;
+
 int main(int argc, char *argv[]) {
   // Flags
   std::string listen_host = "127.0.0.1";
@@ -108,25 +111,41 @@ int main(int argc, char *argv[]) {
               << std::endl;
 
     // Receive loop
-    int received_message_length = 1;
     for (;;) {
-      char received_message[1024];
-      char sent_message[1038];
-
       std::cout << "[DEBUG] Waiting for client " << client_address_readable
                 << " to send" << std::endl;
 
       // Receive
-      if ((received_message_length = recv(client_socket, &received_message,
-                                          sizeof(received_message), 0)) == -1) {
-        std::cout << "[ERROR] Could not receive from client " << strerror(errno)
-                  << ", dropping message" << std::endl;
+      int received_message_length = 1;
+      char received_message[BUFLEN_IN] = "";
+      if ((received_message_length =
+               recv(client_socket, &received_message, BUFLEN_IN, 0)) == -1) {
+        std::cout << "[ERROR] Could not receive from client "
+                  << client_address_readable
+                  << ", dropping message: " << strerror(errno) << std::endl;
       } else if (received_message_length == 0) {
         break;
       }
 
       std::cout << "[DEBUG] Received " << received_message_length
                 << " bytes from " << client_address_readable << std::endl;
+
+      // Process
+      char sent_message[BUFLEN_OUT] = "";
+      sprintf((char *)(&sent_message), "You've sent: %s", received_message);
+      sent_message[BUFLEN_OUT - 1] = '\0';
+
+      // Send
+      int sent_message_length = 0;
+      if ((sent_message_length =
+               send(client_socket, sent_message, BUFLEN_OUT, 0)) == -1) {
+        std::cout << "[ERROR] Could not send to client "
+                  << client_address_readable
+                  << ", dropping message: " << strerror(errno) << std::endl;
+      }
+
+      std::cout << "[DEBUG] Sent " << sent_message_length << " bytes to "
+                << client_address_readable << std::endl;
     }
   }
 }
