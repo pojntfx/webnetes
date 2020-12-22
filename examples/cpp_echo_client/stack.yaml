@@ -1,0 +1,207 @@
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Runtime
+metadata:
+  name: Generic WASI
+  label: wasi_generic
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Creating a socket
+  label: net_socket
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Sending over a socket
+  label: net_send
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Receiving from a socket
+  label: net_receive
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Capability
+metadata:
+  name: Connecting to a socket
+  label: net_connect
+spec: {}
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Processor
+metadata:
+  name: Felicitas's iPhone
+  label: felicitass_iphone
+spec:
+  runtimes:
+    - wasi_generic
+  capabilities:
+    - net_socket
+    - net_send
+    - net_receive
+    - net_connect
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Signaler
+metadata:
+  name: Public unisockets Signaling Server
+  label: unisockets_public
+spec:
+  urls:
+    - wss://unisockets.herokuapp.com
+  retryAfter: 1000
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Cogle STUN Server
+  label: cogle
+spec:
+  urls:
+    - stun:stun.l.cogle.com:19302
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: StunServer
+metadata:
+  name: Twillio STUN Server
+  label: twillio
+spec:
+  urls:
+    - stun:global.stun.twilio.com:3478?transport=udp
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (UDP)
+  label: twillio_udp
+spec:
+  urls:
+    - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server (TCP)
+  label: twillio_tcp
+spec:
+  urls:
+    - turn:global.turn.twilio.com:3478?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: TurnServer
+metadata:
+  name: Twillio TURN Server Fallback (TCP)
+  label: twillio_tcp_fallback
+spec:
+  urls:
+    - turn:global.turn.twilio.com:443?transport=tcp
+  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
+  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Network
+metadata:
+  name: Public unisockets network
+  label: unisockets_public
+spec:
+  signaler: unisockets_public
+  stunServers:
+    - cogle
+    - twillio
+  turnServers:
+    - twillio_udp
+    - twillio_tcp
+    - twillio_tcp_fallback
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: NetworkInterface
+metadata:
+  name: C++ Echo Network
+  label: cpp_echo_network
+spec:
+  network: unisockets_public
+  prefix: 127.19.0
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Tracker
+metadata:
+  name: OpenWebTorrent
+  label: openwebtorrent
+spec:
+  urls:
+    - wss://tracker.openwebtorrent.com
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Tracker
+metadata:
+  name: Fastcast
+  label: fastcast
+spec:
+  urls:
+    - wss://tracker.fastcast.nz
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Repository
+metadata:
+  name: Public WebTorrent
+  label: webtorrent_public
+spec:
+  trackers:
+    - openwebtorrent
+    - fastcast
+  stunServers:
+    - cogle
+    - twillio
+  turnServers:
+    - twillio_udp
+    - twillio_tcp
+    - twillio_tcp_fallback
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: File
+metadata:
+  name: C++ Echo Client Binary
+  label: cpp_echo_client
+spec:
+  repository: webtorrent_public
+  uri: d45171a314bf659f902955fecfed8e4eb873fcb7
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Arguments
+metadata:
+  name: C++ Echo Client Configuration
+  label: cpp_echo_client
+spec:
+  argv:
+    - -c
+    - 127.0.0.1
+    - -p
+    - 1234
+---
+apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+kind: Workload
+metadata:
+  name: C++ Echo Client
+  label: cpp_echo_client
+spec:
+  file: cpp_echo_client
+  runtime: wasi_generic
+  capabilities:
+    - net_socket
+    - net_send
+    - net_receive
+    - net_connect
+  networkInterface: cpp_echo_network
+  arguments: cpp_echo_client
+  terminalLabel: cpp_echo_client
+  terminalHostNodeId: my_terminal_host_node_id
