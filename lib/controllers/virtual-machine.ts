@@ -54,6 +54,8 @@ export class VirtualMachine {
     if (typeof window !== "undefined") {
       wasiBindings = (await import("@wasmer/wasi/lib/bindings/browser"))
         .default;
+    } else {
+      wasiBindings = (await import("@wasmer/wasi/lib/bindings/node")).default;
     }
 
     let lowerI64Imports: any = async () => {};

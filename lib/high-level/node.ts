@@ -52,6 +52,8 @@ export class Node {
   private workloads?: Workloads;
 
   constructor(
+    private onOpen: () => Promise<void>,
+
     private onCreateResource: (resource: IResource<any>) => Promise<void>,
     private onDeleteResource: (resource: IResource<any>) => Promise<void>,
     private onRejectResource: (frame: Frame<EPeersResources>) => Promise<void>,
@@ -170,6 +172,8 @@ export class Node {
     this.subnets = subnets;
     this.files = files;
     this.workloads = workloads;
+
+    await this.onOpen();
 
     (async () => {
       await Promise.all([
@@ -673,8 +677,6 @@ export class Node {
                             new Uint8Array(),
                             spec.terminalHostNodeId
                           );
-
-                          setTimeout(() => window.location.reload(), 1000); // We can't manually stop WASM binaries, so we have to "restart" the node here
                         });
 
                         break;

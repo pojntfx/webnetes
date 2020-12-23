@@ -174,7 +174,7 @@ metadata:
   label: cpp_echo_client
 spec:
   repository: webtorrent_public
-  uri: 7f431cd021d846d5e2b0159371510129b85910b0
+  uri: 4cd3b05da0b5597f9749f04be62aec1e130c4b34
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Arguments
