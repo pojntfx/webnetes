@@ -8,5 +8,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Cache the build directories
+        uses: actions/cache@v2
+        with:
+          path: |
+            examples/*/out
+            examples/*/build
+            examples/*/.go
+          key: make-ci
       - name: Build with make
         run: sudo make -j$(nproc)
