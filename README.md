@@ -3,6 +3,7 @@
 Like Kubernetes, but built with WebAssembly, WebRTC (via [unisockets](https://github.com/pojntfx/unisockets/)) and [WebTorrent](https://webtorrent.io/).
 
 ![Yarn CI](https://github.com/pojntfx/webnetes/workflows/Yarn%20CI/badge.svg)
+![make CI](https://github.com/pojntfx/webnetes/workflows/make%20CI/badge.svg)
 ![Mirror](https://github.com/pojntfx/webnetes/workflows/Mirror/badge.svg)
 [![TypeDoc](https://img.shields.io/badge/TypeScript-Documentation-informational)](https://pojntfx.github.io/webnetes/)
 [![npm](https://img.shields.io/npm/v/@pojntfx/webnetes)](https://www.npmjs.com/package/@pojntfx/webnetes)
