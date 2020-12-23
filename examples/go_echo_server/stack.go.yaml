@@ -220,4 +220,4 @@ spec:
   networkInterface: go_echo_network
   arguments: go_echo_server
   terminalLabel: go_echo_server
-  terminalHostNodeId: local
+  terminalHostNodeId: localhost

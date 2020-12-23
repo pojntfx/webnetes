@@ -204,4 +204,4 @@ spec:
   networkInterface: c_echo_network
   arguments: c_echo_client
   terminalLabel: c_echo_client
-  terminalHostNodeId: local
+  terminalHostNodeId: localhost

@@ -204,4 +204,4 @@ spec:
   networkInterface: cpp_echo_network
   arguments: cpp_echo_client
   terminalLabel: cpp_echo_client
-  terminalHostNodeId: local
+  terminalHostNodeId: localhost
