@@ -14,6 +14,10 @@ import { Arguments } from "../resources/arguments";
 import { Capability } from "../resources/capability";
 import { File } from "../resources/file";
 import { Network } from "../resources/network";
+import {
+  INetworkInterfaceSpec,
+  NetworkInterface,
+} from "../resources/network-interface";
 import { Processor } from "../resources/processor";
 import { Repository } from "../resources/repository";
 import {
@@ -25,10 +29,6 @@ import {
 import { Runtime } from "../resources/runtime";
 import { Signaler } from "../resources/signaler";
 import { StunServer } from "../resources/stunserver";
-import {
-  INetworkInterfaceSpec,
-  NetworkInterface,
-} from "../resources/network-interface";
 import { Tracker } from "../resources/tracker";
 import { TurnServer } from "../resources/turnserver";
 import { Workload } from "../resources/workload";
@@ -52,8 +52,6 @@ export class Node {
   private workloads?: Workloads;
 
   constructor(
-    private onOpen: () => Promise<void>,
-
     private onCreateResource: (resource: IResource<any>) => Promise<void>,
     private onDeleteResource: (resource: IResource<any>) => Promise<void>,
     private onRejectResource: (frame: Frame<EPeersResources>) => Promise<void>,
@@ -172,8 +170,6 @@ export class Node {
     this.subnets = subnets;
     this.files = files;
     this.workloads = workloads;
-
-    await this.onOpen();
 
     (async () => {
       await Promise.all([

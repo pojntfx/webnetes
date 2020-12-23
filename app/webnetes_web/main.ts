@@ -23,9 +23,6 @@ const log = (msg: string, ...args: any) => {
 };
 
 const node = new Node(
-  async () => {
-    log("Opened");
-  },
   async (resource) => {
     log("Created resource", resource);
   },

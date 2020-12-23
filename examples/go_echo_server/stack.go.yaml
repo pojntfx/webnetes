@@ -190,7 +190,7 @@ metadata:
   label: go_echo_server
 spec:
   repository: webtorrent_public
-  uri: 0d4886497339f91b87bb97c123a5bfe9a6b9855b
+  uri: 64812aca08a6558d272316a1eee8147027dcb2d7
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Arguments
@@ -220,4 +220,4 @@ spec:
   networkInterface: go_echo_network
   arguments: go_echo_server
   terminalLabel: go_echo_server
-  terminalHostNodeId: my_terminal_host_node_id
+  terminalHostNodeId: local
