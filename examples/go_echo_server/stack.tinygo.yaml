@@ -190,7 +190,7 @@ metadata:
   label: tinygo_echo_server
 spec:
   repository: webtorrent_public
-  uri: a4ab05700f2f7406ffbe423bcd289b0bc8bdbc1d
+  uri: 756b4028088ec40b16c34d0b0c2e4a9691ae234c
 ---
 apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
 kind: Arguments
