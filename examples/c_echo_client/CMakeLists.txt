@@ -13,7 +13,7 @@ add_executable(echo_client "main.c")
 
 # WASI Config
 if(WASI)
-	set(CMAKE_C_FLAGS "-DIS_WASM -DBERKELEY_SOCKETS_WITH_ALIAS")
+	set(CMAKE_C_FLAGS "-DUNISOCKETS_WITH_ALIAS")
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-undefined")
 	set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 
