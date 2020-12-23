@@ -1,288 +1,66 @@
 #!/usr/bin/env node
 
 import { spawn } from "child_process";
-import { Manager } from "../../lib/.deprecated/aggregates/manager";
-import { Worker } from "../../lib/.deprecated/aggregates/worker";
-import { IResource } from "../../lib/resources/resource";
+import Emittery from "emittery";
+import fs from "fs";
+import yargs from "yargs";
+import { Node } from "../../lib/high-level/node";
+import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
+import { EResourceKind } from "../../lib/resources/resource";
 
-(window as any).setImmediate = window.setInterval; // Polyfill
+const { config, resources, seed, seedLabel, seedName, seedRepository } = yargs(
+  process.argv.slice(2)
+).options({
+  config: {
+    description: "Node config resources",
+    default: "node.yaml",
+  },
+  resources: {
+    description:
+      "Resources (see https://github.com/pojntfx/webnetes/tree/main/examples for examples)",
+    default: "stack.yaml",
+  },
+  seed: {
+    description: "Path to file to seed",
+    default: "",
+  },
+  seedLabel: {
+    description: "Label to give the file to seed",
+    default: "data",
+  },
+  seedName: {
+    description: "Name to give the file to seed",
+    default: "data",
+  },
+  seedRepository: {
+    description: "Repository to seed file from",
+    default: "webtorrent_public",
+  },
+}).argv;
 
-const resourcesToCreate = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Runtime
-metadata:
-  name: Generic WASI
-  label: wasi_generic
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Runtime
-metadata:
-  name: TinyGo WASI
-  label: wasi_tinygo
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Runtime
-metadata:
-  name: Go JSSI
-  label: jssi_go
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Runtime
-metadata:
-  name: TinyGo JSSI
-  label: jssi_tinygo
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Capability
-metadata:
-  name: Binding aliases
-  label: bind_alias
-spec:
-  privileged: true
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Capability
-metadata:
-  name: Connecting to aliases
-  label: connect_to_alias
-spec:
-  privileged: false
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Processor
-metadata:
-  name: Felicitas's iPhone
-  label: felicitass_iphone
-spec:
-  runtimes:
-  - wasi_generic
-  - wasi_tinygo
-  - jssi_go
-  - jssi_tinygo
-  capabilities:
-  - bind_alias
-  - connect_to_alias
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  name: Google STUN Server
-  label: google
-spec:
-  urls:
-  - stun:stun.l.google.com:19302
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  name: Twillio STUN Server
-  label: twillio
-spec:
-  urls:
-  - stun:global.stun.twilio.com:3478?transport=udp
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: TurnServer
-metadata:
-  name: Twillio TURN Server
-  label: twillio
-spec:
-  urls:
-  - turn:global.turn.twilio.com:3478?transport=tcp
-  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
-  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Signaler
-metadata:
-  name: Public unisockets Signaling Server
-  label: unisockets_public
-spec:
-  urls:
-  - wss://unisockets.herokuapp.com
-  retryAfter: 1000
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Network
-metadata:
-  name: Public unisockets network
-  label: unisockets_public
-spec:
-  signaler: unisockets_public
-  stunServers:
-  - google
-  - twillio
-  turnServers:
-  - twillio
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: NetworkInterface
-metadata:
-  name: Echo Network
-  label: echo_network
-spec:
-  network: unisockets_public
-  prefix: 127.0.0
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Tracker
-metadata:
-  name: OpenWebTorrent
-  label: openwebtorrent
-spec:
-  urls:
-  - wss://tracker.openwebtorrent.com
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Tracker
-metadata:
-  name: Fastcast
-  label: fastcast
-spec:
-  urls:
-  - wss://tracker.fastcast.nz
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Repository
-metadata:
-  name: Public WebTorrent
-  label: webtorrent_public
-spec:
-  trackers:
-  - openwebtorrent
-  - fastcast
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  name: C Echo Server Binary
-  label: c_echo_server
-spec:
-  repository: webtorrent_public
-  uri: magnet:?xt=urn:btih:9c2a3309dedf5a934569a40b0a739fb85e05f3ef&dn=echo_server_c.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  name: TinyGo WASI Echo Server Binary
-  label: tinygo_wasi_echo_server
-spec:
-  repository: webtorrent_public
-  uri: magnet:?xt=urn:btih:a035f32c84233c3b8f465d7b4ba3a08b31fb8a55&dn=echo_server_wasi.wasm&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  name: TinyGo JSSI Echo Server Binary
-  label: tinygo_jssi_echo_server
-spec:
-  repository: webtorrent_public
-  uri: magnet:?xt=urn:btih:fbe657b4f98ecc59c7af09af955f2bcde337cd71&dn=echo_server_jssi.wasm&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  name: Go Echo Server Binary
-  label: go_echo_server
-spec:
-  repository: webtorrent_public
-  uri: magnet:?xt=urn:btih:f5a6d3714d888711b32b32a5afff7f2db27113d7&dn=echo_server.wasm&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Arguments
-metadata:
-  name: Echo Server Configuration
-  label: echo_server
-spec:
-  argv:
-  - "-laddr"
-  - 127.0.0.1:1234
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Workload
-metadata:
-  name: Go Echo Server
-  label: go_echo_server
-spec:
-  file: go_echo_server
-  runtime: jssi_go
-  capabilities:
-  - bind_alias
-  networkInterface: echo_network
-  arguments: echo_server
-`;
+const log = (msg: string, ...args: any) => {
+  const toAppend = `${new Date().toISOString()}\t${msg}\t${JSON.stringify(
+    args
+  )}`;
 
-const resourcesToDelete = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: NetworkInterface
-metadata:
-  label: echo_network
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Repository
-metadata:
-  label: webtorrent_public
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: File
-metadata:
-  label: go_echo_server
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Workload
-metadata:
-  label: go_echo_server
-`;
+  console.log(toAppend);
+};
 
-const managerNetworkConfig = `apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  name: Google STUN Server
-  label: google
-spec:
-  urls:
-  - stun:stun.l.google.com:19302
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: StunServer
-metadata:
-  name: Twillio STUN Server
-  label: twillio
-spec:
-  urls:
-  - stun:global.stun.twilio.com:3478?transport=udp
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: TurnServer
-metadata:
-  name: Twillio TURN Server
-  label: twillio
-spec:
-  urls:
-  - turn:global.turn.twilio.com:3478?transport=tcp
-  username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
-  credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: Signaler
-metadata:
-  name: Public unisockets Signaling Server
-  label: unisockets_public
-spec:
-  urls:
-  - wss://unisockets.herokuapp.com
-  retryAfter: 1000
----
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
-kind: NetworkInterface
-metadata:
-  name: Echo Network
-  label: echo_network
-spec:
-  network: ""
-  prefix: 127.0.0`;
+const bus = new Emittery();
 
-(async () => {
-  const worker = new Worker(
-    async () => {
+const node = new Node(
+  async () => {
+    log("Opened");
+
+    await bus.emit("opened");
+  },
+  async (resource) => {
+    log("Created resource", resource);
+  },
+  async (resource) => {
+    log("Deleted resource", resource);
+
+    if (resource.kind === EResourceKind.WORKLOAD) {
       spawn(process.execPath, process.argv.slice(1), {
         cwd: process.cwd(),
         detached: true,
@@ -291,30 +69,68 @@ spec:
       }).unref();
 
       process.exit(0);
-    },
-    async (label: string, content: Uint8Array) => console.log(label, content),
-    async (label: string) => {
-      return new TextEncoder().encode(prompt(`stdin for workload ${label}:`)!);
     }
-  );
-  const manager = new Manager(
-    managerNetworkConfig,
-    async (id: string) => {
-      console.log("Node joined", id);
-    },
-    async (id: string) => {
-      console.log("Node left", id);
-    },
-    async (resources: IResource<any>[], remove: boolean, id: string) => {
-      console.log("Modifying resources", resources, remove, id);
+  },
+  async (frame) => {
+    log("Rejected resource", frame);
+  },
+  async (id) => {
+    log("Management node acknowledged", id);
 
-      if (remove) {
-        await worker.deleteResources(resources);
-      } else {
-        await worker.createResources(resources);
-      }
+    await bus.emit("acknowledged", id);
+  },
+  async (id) => {
+    log("Management node joined", id);
+  },
+  async (id) => {
+    log("Management node left", id);
+  },
+  async (metadata, spec, id) => {
+    log("Resource node acknowledged", metadata, spec, id);
+  },
+  async (metadata, spec: INetworkInterfaceSpec, id) => {
+    log("Resource node joined", metadata, spec, id);
+  },
+  async (metadata, spec, id) => {
+    log("Resource node left", metadata, spec, id);
+  },
+  async (onStdin: (key: string) => Promise<void>, id) => {
+    log("Creating terminal (STDOUT only)", id);
+  },
+  async (id, msg) => {
+    console.log("STDOUT", id, msg);
+  },
+  async (id) => {
+    log("Deleting terminal", id);
+  },
+  (id) => {
+    console.error("STDIN not supported on node");
+
+    process.exit(1);
+  }
+);
+
+(async () => {
+  (async () => {
+    const [id]: any = await Promise.all([
+      bus.once("acknowledged"),
+      bus.once("opened"),
+    ]);
+
+    await node.createResources(
+      new TextDecoder().decode(fs.readFileSync(resources)),
+      id as string
+    );
+
+    if (seed !== "") {
+      await node.seedFile(
+        seedLabel,
+        seedName,
+        seedRepository,
+        fs.readFileSync(seed)
+      );
     }
-  );
+  })();
 
-  await manager.open();
+  await node.open(new TextDecoder().decode(fs.readFileSync(config)));
 })();

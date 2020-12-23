@@ -2,6 +2,7 @@ import "xterm/css/xterm.css";
 import { Node } from "../../lib/high-level/node";
 import { Terminals } from "../../lib/repositories/terminals";
 import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
+import { EResourceKind } from "../../lib/resources/resource";
 import { exampleNodeConfig } from "./config";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
@@ -22,11 +23,16 @@ const log = (msg: string, ...args: any) => {
 };
 
 const node = new Node(
+  async () => {
+    log("Opened");
+  },
   async (resource) => {
     log("Created resource", resource);
   },
   async (resource) => {
     log("Deleted resource", resource);
+
+    if (resource.kind === EResourceKind.WORKLOAD) window.location.reload();
   },
   async (frame) => {
     log("Rejected resource", frame);
@@ -71,7 +77,7 @@ const node = new Node(
     await terminals.write(id, msg);
   },
   async (id) => {
-    log("Deleting terminal");
+    log("Deleting terminal", id);
 
     await terminals.delete(id);
 
