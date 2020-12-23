@@ -12,7 +12,6 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            node_modules
             examples/*/out
             examples/*/build
             examples/*/.go
