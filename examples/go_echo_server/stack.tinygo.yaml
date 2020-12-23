@@ -220,4 +220,4 @@ spec:
   networkInterface: tinygo_echo_network
   arguments: tinygo_echo_server
   terminalLabel: tinygo_echo_server
-  terminalHostNodeId: my_terminal_host_node_id
+  terminalHostNodeId: local

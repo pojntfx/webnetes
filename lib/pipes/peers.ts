@@ -180,7 +180,7 @@ export class Peers
       await this.managementEntityLock.acquire();
 
     if (Object.values(EPeersResources).includes(resourceType)) {
-      if (this.localNodeId === nodeId) {
+      if (this.localNodeId === nodeId || nodeId === "local") {
         await this.queue({
           resourceType,
           resourceId,

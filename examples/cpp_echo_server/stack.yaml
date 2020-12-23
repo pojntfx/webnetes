@@ -76,11 +76,11 @@ spec:
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: StunServer
 metadata:
-  name: Cogle STUN Server
-  label: cogle
+  name: Google STUN Server
+  label: google
 spec:
   urls:
-    - stun:stun.l.cogle.com:19302
+    - stun:stun.l.google.com:19302
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: StunServer
@@ -132,7 +132,7 @@ metadata:
 spec:
   signaler: unisockets_public
   stunServers:
-    - cogle
+    - google
     - twillio
   turnServers:
     - twillio_udp
@@ -176,7 +176,7 @@ spec:
     - openwebtorrent
     - fastcast
   stunServers:
-    - cogle
+    - google
     - twillio
   turnServers:
     - twillio_udp
@@ -222,4 +222,4 @@ spec:
   networkInterface: cpp_echo_network
   arguments: cpp_echo_server
   terminalLabel: cpp_echo_server
-  terminalHostNodeId: my_terminal_host_node_id
+  terminalHostNodeId: local

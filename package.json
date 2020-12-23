@@ -75,7 +75,6 @@
     "async-mutex": "^0.2.6",
     "asyncify-wasm": "^1.1.1",
     "emittery": "^0.7.2",
-    "end-of-stream": "1.4.1",
     "js-yaml": "^3.14.1",
     "uuid": "^8.3.2",
     "webtorrent": "^0.112.0",

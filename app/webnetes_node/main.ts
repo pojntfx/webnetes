@@ -8,19 +8,23 @@ import { Node } from "../../lib/high-level/node";
 import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
 import { EResourceKind } from "../../lib/resources/resource";
 
-const { config, resources, seed, seedLabel, seedName, seedRepository } = yargs(
-  process.argv.slice(2)
-).options({
-  config: {
+const {
+  nodeConfig,
+  seedConfig,
+  seedFile,
+  seedLabel,
+  seedName,
+  seedRepository,
+} = yargs(process.argv.slice(2)).options({
+  nodeConfig: {
     description: "Node config resources",
     default: "node.yaml",
   },
-  resources: {
-    description:
-      "Resources (see https://github.com/pojntfx/webnetes/tree/main/examples for examples)",
-    default: "stack.yaml",
+  seedConfig: {
+    description: "Seed config resources",
+    default: "seed.yaml",
   },
-  seed: {
+  seedFile: {
     description: "Path to file to seed",
     default: "",
   },
@@ -49,13 +53,12 @@ const log = (msg: string, ...args: any) => {
 const bus = new Emittery();
 
 const node = new Node(
-  async () => {
-    log("Opened");
-
-    await bus.emit("opened");
-  },
   async (resource) => {
     log("Created resource", resource);
+
+    if (resource.kind === EResourceKind.REPOSITORY) {
+      await bus.emit("open");
+    }
   },
   async (resource) => {
     log("Deleted resource", resource);
@@ -76,8 +79,6 @@ const node = new Node(
   },
   async (id) => {
     log("Management node acknowledged", id);
-
-    await bus.emit("acknowledged", id);
   },
   async (id) => {
     log("Management node joined", id);
@@ -98,39 +99,36 @@ const node = new Node(
     log("Creating terminal (STDOUT only)", id);
   },
   async (id, msg) => {
-    console.log("STDOUT", id, msg);
+    log("Writing to terminal (STDOUT only)", id, msg);
   },
   async (id) => {
     log("Deleting terminal", id);
   },
   (id) => {
-    console.error("STDIN not supported on node");
+    console.error("STDIN is not supported on node");
 
     process.exit(1);
   }
 );
 
 (async () => {
-  (async () => {
-    const [id]: any = await Promise.all([
-      bus.once("acknowledged"),
-      bus.once("opened"),
-    ]);
+  await node.open(new TextDecoder().decode(fs.readFileSync(nodeConfig)));
 
-    await node.createResources(
-      new TextDecoder().decode(fs.readFileSync(resources)),
-      id as string
-    );
+  if (seedFile !== "") {
+    (async () => {
+      await bus.once("open");
 
-    if (seed !== "") {
       await node.seedFile(
         seedLabel,
         seedName,
         seedRepository,
-        fs.readFileSync(seed)
+        fs.readFileSync(seedFile)
       );
-    }
-  })();
+    })();
 
-  await node.open(new TextDecoder().decode(fs.readFileSync(config)));
+    await node.createResources(
+      new TextDecoder().decode(fs.readFileSync(seedConfig)),
+      "local"
+    );
+  }
 })();
