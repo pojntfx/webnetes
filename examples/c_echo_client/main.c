@@ -17,24 +17,24 @@ int main(int argc, char *argv[]) {
   // Flags parsing
   char *connect_host = "127.0.0.1";
   int connect_port = 1234;
-  int opt;
 
+  int opt;
   while ((opt = getopt(argc, argv, "c:p:")) != -1) {
     switch (opt) {
-    case 'c': {
+    case 'l':
       connect_host = optarg;
 
-      break;
-    }
+      optind--;
 
-    case 'p': {
+      break;
+
+    case 'p':
       connect_port = atoi(optarg);
 
       break;
-    }
 
     default:
-      fprintf(stderr, "Usage: %s [-cp]\n", argv[0]);
+      fprintf(stderr, "Usage: %s -c HOST -p PORT\n", argv[0]);
 
       exit(EXIT_FAILURE);
     }

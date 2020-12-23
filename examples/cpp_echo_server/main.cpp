@@ -21,28 +21,26 @@ int main(int argc, char *argv[]) {
   std::string listen_host = "127.0.0.1";
   int listen_port = 1234;
 
-  for (;;) {
-    switch (getopt(argc, argv, "l:p:")) {
-    case 'l': {
+  int opt;
+  while ((opt = getopt(argc, argv, "l:p:")) != -1) {
+    switch (opt) {
+    case 'l':
       listen_host = optarg;
 
-      break;
-    }
+      optind--;
 
-    case 'p': {
+      break;
+
+    case 'p':
       listen_port = std::stoi(optarg);
 
       break;
-    }
 
-    default: {
-      std::cout << "Usage: " << argv[0] << " [-lp]" << std::endl;
+    default:
+      std::cout << "Usage: " << argv[0] << " -l HOST -p PORT" << std::endl;
 
       return EXIT_FAILURE;
     }
-    }
-
-    break;
   }
 
   // Address
