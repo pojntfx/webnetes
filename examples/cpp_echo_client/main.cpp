@@ -22,28 +22,26 @@ int main(int argc, char *argv[]) {
   std::string connect_host = "127.0.0.1";
   int connect_port = 1234;
 
-  for (;;) {
-    switch (getopt(argc, argv, "c:p:")) {
-    case 'c': {
+  int opt;
+  while ((opt = getopt(argc, argv, "c:p:")) != -1) {
+    switch (opt) {
+    case 'l':
       connect_host = optarg;
 
-      break;
-    }
+      optind--;
 
-    case 'p': {
+      break;
+
+    case 'p':
       connect_port = std::stoi(optarg);
 
       break;
-    }
 
-    default: {
-      std::cout << "Usage: " << argv[0] << " [-cp]" << std::endl;
+    default:
+      std::cout << "Usage: " << argv[0] << " -c HOST -p PORT" << std::endl;
 
       return EXIT_FAILURE;
     }
-    }
-
-    break;
   }
 
   // Address
