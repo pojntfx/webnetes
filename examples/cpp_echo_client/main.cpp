@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   int opt;
   while ((opt = getopt(argc, argv, "c:p:")) != -1) {
     switch (opt) {
-    case 'l':
+    case 'c':
       connect_host = optarg;
 
       optind--;
@@ -87,6 +87,17 @@ int main(int argc, char *argv[]) {
 
     std::cout << "[INFO] Connected to server " << server_address_readable
               << std::endl;
+
+    // Read loop
+    for (;;) {
+      std::cout << "[DEBUG] Waiting for user input" << std::endl;
+
+      std::string read_message;
+      std::getline(std::cin, read_message);
+      read_message += "\n";
+
+      std::cout << read_message;
+    }
   }
 
   std::cout << "[INFO] Disconnected from server " << server_address_readable

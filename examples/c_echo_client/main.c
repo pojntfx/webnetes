@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   int opt;
   while ((opt = getopt(argc, argv, "c:p:")) != -1) {
     switch (opt) {
-    case 'l':
+    case 'c':
       connect_host = optarg;
 
       optind--;
