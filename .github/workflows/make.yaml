@@ -8,15 +8,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Cache the build directories
-        uses: actions/cache@v2
-        with:
-          path: |
-            examples/*/out
-            examples/*/build
-            examples/*/.go
-          key: make-ci
       - name: Build with make
         run: make -j$(nproc)
-      - name: Fix permissions for caches
-        run: export CURRENT_USER=$(whoami) && sudo chown -R ${CURRENT_USER} .
