@@ -190,7 +190,7 @@ metadata:
   label: c_echo_server
 spec:
   repository: webtorrent_public
-  uri: b5cb853082417f5f77182c0306ce48cc487f8a6e
+  uri: df5b9a8695b10af8e9d2f0234356c11581bcfb8f
 ---
 apiVersion: webnetes.felix.pojtinger.com/v1alpha1
 kind: Arguments

@@ -13,8 +13,8 @@ extern "C" {
 #include <sys/socket.h>
 #include <unistd.h>
 
-const int BUFLEN_IN = 1024;
-const int BUFLEN_OUT = 1038;
+const int BUFLEN_OUT = 1024;
+const int BUFLEN_IN = 1038;
 const int RECONNECT_TIMEOUT = 2;
 
 int main(int argc, char *argv[]) {
@@ -92,11 +92,43 @@ int main(int argc, char *argv[]) {
     for (;;) {
       std::cout << "[DEBUG] Waiting for user input" << std::endl;
 
+      // Read
       std::string read_message;
       std::getline(std::cin, read_message);
       read_message += "\n";
 
-      std::cout << read_message;
+      // Send
+      int sent_message_length = 0;
+      if ((sent_message_length = send(server_socket, read_message.c_str(),
+                                      BUFLEN_OUT, 0)) == -1) {
+        std::cout << "[ERROR] Could not send to server "
+                  << server_address_readable
+                  << ", dropping message: " << strerror(errno) << std::endl;
+      }
+
+      std::cout << "[DEBUG] Sent " << sent_message_length << " bytes to "
+                << server_address_readable << std::endl;
+
+      std::cout << "[DEBUG] Waiting for server " << server_address_readable
+                << " to send" << std::endl;
+
+      // Receive
+      int received_message_length = 1;
+      char received_message[BUFLEN_IN] = "";
+      if ((received_message_length =
+               recv(server_socket, &received_message, BUFLEN_IN, 0)) == -1) {
+        std::cout << "[ERROR] Could not receive from service "
+                  << server_address_readable
+                  << ", dropping message: " << strerror(errno) << std::endl;
+      } else if (received_message_length == 0) {
+        break;
+      }
+
+      std::cout << "[DEBUG] Received " << received_message_length
+                << " bytes from " << server_address_readable << std::endl;
+
+      // Print
+      std::cout << received_message;
     }
   }
 
