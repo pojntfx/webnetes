@@ -30,6 +30,7 @@
     "weblet": "dist/nodeApp/main.js"
   },
   "files": [
+    "dist/nodeApp",
     "dist/nodeLib",
     "dist/webLib",
     "dist/index.d.ts"
@@ -66,7 +67,7 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@pojntfx/unisockets": "^0.0.21",
+    "@pojntfx/unisockets": "^0.0.23",
     "@wasmer/wasi": "^0.12.0",
     "@wasmer/wasm-transformer": "^0.12.0",
     "@wasmer/wasmfs": "^0.12.0",
