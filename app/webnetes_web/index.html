@@ -10,14 +10,18 @@
 
     <section id="prestart">
       <h2>Node</h2>
-      <label for="node-config">Resources:</label>
+      <label for="node-config">Node Config Resources:</label>
       <br />
       <textarea id="node-config-input" placeholder="Resource YAML"></textarea>
       <br />
-      <button id="load-example-node-config">
-        Load Example Node Config Resources
-      </button>
-      <br />
+      <p>
+        You can find an example in the
+        <a
+          href="https://github.com/pojntfx/webnetes/blob/main/app/webnetes_node/node.yaml"
+          target="_blank"
+          >GitHub Repository</a
+        >.
+      </p>
       <button id="start-node">Start Node</button>
     </section>
 
@@ -45,6 +49,16 @@
       <div id="terminals"></div>
 
       <h2>Files</h2>
+
+      <p>
+        Before you can seed, you'll have to create some required resources
+        above. You can find an example in the
+        <a
+          href="https://github.com/pojntfx/webnetes/blob/main/app/webnetes_node/seed.yaml"
+          target="_blank"
+          >GitHub Repository</a
+        >.
+      </p>
 
       <label for="seed-file-label">Label:</label>
       <input type="text" id="seed-file-label" />

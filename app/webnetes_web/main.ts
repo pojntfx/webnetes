@@ -3,7 +3,6 @@ import { Node } from "../../lib/high-level/node";
 import { Terminals } from "../../lib/repositories/terminals";
 import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
 import { EResourceKind } from "../../lib/resources/resource";
-import { exampleNodeConfig } from "./config";
 
 (window as any).setImmediate = window.setInterval; // Polyfill
 
@@ -88,16 +87,6 @@ const node = new Node(
     return null;
   }
 );
-
-document
-  .getElementById("load-example-node-config")
-  ?.addEventListener(
-    "click",
-    async () =>
-      ((document.getElementById(
-        "node-config-input"
-      ) as HTMLInputElement).value = exampleNodeConfig)
-  );
 
 document.getElementById("start-node")?.addEventListener("click", async () => {
   await node.open(
