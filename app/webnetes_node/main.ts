@@ -5,6 +5,7 @@ import Emittery from "emittery";
 import fs from "fs";
 import yargs from "yargs";
 import { Node } from "../../lib/high-level/node";
+import { LOCALHOST } from "../../lib/pipes/peers";
 import { INetworkInterfaceSpec } from "../../lib/resources/network-interface";
 import { EResourceKind } from "../../lib/resources/resource";
 
@@ -128,7 +129,7 @@ const node = new Node(
 
     await node.createResources(
       new TextDecoder().decode(fs.readFileSync(seedConfig)),
-      "local"
+      LOCALHOST
     );
   }
 })();

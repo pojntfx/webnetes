@@ -3,7 +3,7 @@ export { ClosedError } from "./lib/errors/closed";
 export { ConfigMissingError } from "./lib/errors/config-missing";
 export { ResourceNotImplementedError } from "./lib/errors/resource-not-implemented";
 export { Node } from "./lib/high-level/node";
-export { EPeersResources, Peers } from "./lib/pipes/peers";
+export { EPeersResources, LOCALHOST, Peers } from "./lib/pipes/peers";
 export { EResourcesResources, Resources } from "./lib/pipes/resources";
 export { Files } from "./lib/repositories/files";
 export { Processors } from "./lib/repositories/processors";

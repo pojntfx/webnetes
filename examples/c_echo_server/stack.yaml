@@ -222,4 +222,4 @@ spec:
   networkInterface: c_echo_network
   arguments: c_echo_server
   terminalLabel: c_echo_server
-  terminalHostNodeId: local
+  terminalHostNodeId: localhost

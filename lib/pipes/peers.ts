@@ -10,6 +10,8 @@ import { ResourceNotImplementedError } from "../errors/resource-not-implemented"
 import { getLogger } from "../utils/logger";
 import { IPipe, Pipe } from "./pipe";
 
+export const LOCALHOST = "localhost";
+
 export interface IPeersConfig {
   transporter: ExtendedRTCConfiguration;
   signaler: {
@@ -180,7 +182,7 @@ export class Peers
       await this.managementEntityLock.acquire();
 
     if (Object.values(EPeersResources).includes(resourceType)) {
-      if (this.localNodeId === nodeId || nodeId === "local") {
+      if (this.localNodeId === nodeId || nodeId === LOCALHOST) {
         await this.queue({
           resourceType,
           resourceId,
