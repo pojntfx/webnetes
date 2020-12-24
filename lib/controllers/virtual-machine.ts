@@ -2,6 +2,8 @@ import { WASI } from "@wasmer/wasi";
 import { WasmFs } from "@wasmer/wasmfs";
 import * as Asyncify from "asyncify-wasm";
 import { v4 } from "uuid";
+import Go from "../../vendor/go/wasm_exec.js";
+import TinyGo from "../../vendor/tinygo/wasm_exec.js";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { getLogger } from "../utils/logger";
@@ -141,31 +143,29 @@ export class VirtualMachine {
             fs: wasmFs.fs,
           },
         });
-        const go = new ((require("../../vendor/tinygo/wasm_exec.js") as any).default(
-          {
-            read: (
-              _: number,
-              buffer: Uint8Array,
-              ___: number,
-              ____: number,
-              _____: number,
-              callback: Function
-            ) => {
-              new Promise<Uint8Array>(async (res) => {
-                const input = await this.onStdin(id);
+        const go = new (TinyGo({
+          read: (
+            _: number,
+            buffer: Uint8Array,
+            ___: number,
+            ____: number,
+            _____: number,
+            callback: Function
+          ) => {
+            new Promise<Uint8Array>(async (res) => {
+              const input = await this.onStdin(id);
 
-                buffer.set(input);
+              buffer.set(input);
 
-                res(input);
-              }).then((input) => callback(null, input.length));
-            },
-            writeSync: (_: number, buffer: Uint8Array) => {
-              this.onStdout(id, buffer);
+              res(input);
+            }).then((input) => callback(null, input.length));
+          },
+          writeSync: (_: number, buffer: Uint8Array) => {
+            this.onStdout(id, buffer);
 
-              return buffer.length;
-            },
-          }
-        ))();
+            return buffer.length;
+          },
+        }))();
 
         go.argv = [path, ...args];
         go.env = env;
@@ -223,31 +223,29 @@ export class VirtualMachine {
       }
 
       case ERuntimes.JSSI_GO: {
-        const go = new ((require("../../vendor/go/wasm_exec.js") as any).default(
-          {
-            read: (
-              _: number,
-              buffer: Uint8Array,
-              ___: number,
-              ____: number,
-              _____: number,
-              callback: Function
-            ) => {
-              new Promise<Uint8Array>(async (res) => {
-                const input = await this.onStdin(id);
+        const go = new (Go({
+          read: (
+            _: number,
+            buffer: Uint8Array,
+            ___: number,
+            ____: number,
+            _____: number,
+            callback: Function
+          ) => {
+            new Promise<Uint8Array>(async (res) => {
+              const input = await this.onStdin(id);
 
-                buffer.set(input);
+              buffer.set(input);
 
-                res(input);
-              }).then((input) => callback(null, input.length));
-            },
-            writeSync: (_: number, buffer: Uint8Array) => {
-              this.onStdout(id, buffer);
+              res(input);
+            }).then((input) => callback(null, input.length));
+          },
+          writeSync: (_: number, buffer: Uint8Array) => {
+            this.onStdout(id, buffer);
 
-              return buffer.length;
-            },
-          }
-        ))();
+            return buffer.length;
+          },
+        }))();
 
         go.argv = [path, ...args];
         go.env = env;
@@ -274,31 +272,29 @@ export class VirtualMachine {
       }
 
       case ERuntimes.JSSI_TINYGO: {
-        const go = new ((require("../../vendor/tinygo/wasm_exec.js") as any).default(
-          {
-            read: (
-              _: number,
-              buffer: Uint8Array,
-              ___: number,
-              ____: number,
-              _____: number,
-              callback: Function
-            ) => {
-              new Promise<Uint8Array>(async (res) => {
-                const input = await this.onStdin(id);
+        const go = new (TinyGo({
+          read: (
+            _: number,
+            buffer: Uint8Array,
+            ___: number,
+            ____: number,
+            _____: number,
+            callback: Function
+          ) => {
+            new Promise<Uint8Array>(async (res) => {
+              const input = await this.onStdin(id);
 
-                buffer.set(input);
+              buffer.set(input);
 
-                res(input);
-              }).then((input) => callback(null, input.length));
-            },
-            writeSync: (_: number, buffer: Uint8Array) => {
-              this.onStdout(id, buffer);
+              res(input);
+            }).then((input) => callback(null, input.length));
+          },
+          writeSync: (_: number, buffer: Uint8Array) => {
+            this.onStdout(id, buffer);
 
-              return buffer.length;
-            },
-          }
-        ))();
+            return buffer.length;
+          },
+        }))();
 
         go.argv = [path, ...args];
         go.env = env;
