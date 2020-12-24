@@ -15,7 +15,7 @@
     "build:app:web": "parcel build --target webApp --no-scope-hoist app/webnetes_web/index.html",
     "build:diagram": "mkdir -p dist/media && tplant -p tsconfig.json -i 'lib/**/*.ts*' --output 'dist/media/diagram.svg'",
     "build:protocol": "mkdir -p dist/media && puml generate --svg protocol.puml -o dist/media/sequence.svg",
-    "build:docs": "mkdir -p dist/docs && typedoc --tsconfig tsconfig.json --mode file --outDir dist/docs --out dist/docs --media dist/media --exclude '+(node_modules|dist|examples)' .",
+    "build:docs": "mkdir -p dist/docs && typedoc --tsconfig tsconfig.json --mode file --outDir dist/docs --out dist/docs --media dist/media --exclude '+(node_modules|dist|examples|rollup.config.js)' .",
     "test": "jest || exit 0",
     "test:update": "jest --updateSnapshot || exit 0",
     "dev:tests": "jest ---watchAll",
