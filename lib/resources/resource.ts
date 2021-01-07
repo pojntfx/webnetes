@@ -14,6 +14,7 @@ export enum EResourceKind {
   TRACKER = "Tracker",
   TURNSERVER = "TurnServer",
   WORKLOAD = "Workload",
+  COORDINATES = "Coordinates",
 }
 
 export interface IResourceMetadata {

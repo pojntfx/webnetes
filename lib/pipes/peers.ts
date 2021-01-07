@@ -210,6 +210,10 @@ export class Peers
     }
   }
 
+  getLocalNodeId() {
+    return this.localNodeId;
+  }
+
   private getReadyKey() {
     return "ready";
   }

@@ -54,15 +54,15 @@ const log = (msg: string, ...args: any) => {
 const bus = new Emittery();
 
 const node = new Node(
-  async (resource) => {
-    log("Created resource", resource);
+  async (nodeId, resource) => {
+    log("Created resource", nodeId, resource);
 
     if (resource.kind === EResourceKind.REPOSITORY) {
       await bus.emit("open");
     }
   },
-  async (resource) => {
-    log("Deleted resource", resource);
+  async (nodeId, resource) => {
+    log("Deleted resource", nodeId, resource);
 
     if (resource.kind === EResourceKind.WORKLOAD) {
       spawn(process.execPath, process.argv.slice(1), {
