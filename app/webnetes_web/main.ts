@@ -22,11 +22,11 @@ const log = (msg: string, ...args: any) => {
 };
 
 const node = new Node(
-  async (resource) => {
-    log("Created resource", resource);
+  async (nodeId, resource) => {
+    log("Created resource", nodeId, resource);
   },
-  async (resource) => {
-    log("Deleted resource", resource);
+  async (nodeId, resource) => {
+    log("Deleted resource", nodeId, resource);
 
     if (resource.kind === EResourceKind.WORKLOAD) window.location.reload();
   },

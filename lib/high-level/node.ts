@@ -12,6 +12,7 @@ import { Subnets } from "../repositories/subnets";
 import { Workloads } from "../repositories/workloads";
 import { Arguments } from "../resources/arguments";
 import { Capability } from "../resources/capability";
+import { Coordinates } from "../resources/coordinates";
 import { File } from "../resources/file";
 import { Network } from "../resources/network";
 import {
@@ -52,8 +53,14 @@ export class Node {
   private workloads?: Workloads;
 
   constructor(
-    private onCreateResource: (resource: IResource<any>) => Promise<void>,
-    private onDeleteResource: (resource: IResource<any>) => Promise<void>,
+    private onCreateResource: (
+      nodeId: string,
+      resource: IResource<any>
+    ) => Promise<void>,
+    private onDeleteResource: (
+      nodeId: string,
+      resource: IResource<any>
+    ) => Promise<void>,
     private onRejectResource: (frame: Frame<EPeersResources>) => Promise<void>,
 
     private onManagementNodeAcknowledged: (id: string) => Promise<void>,
@@ -433,6 +440,21 @@ export class Node {
                         break;
                       }
 
+                      case EResourceKind.COORDINATES: {
+                        // For privacy reasons, coordinates, like other fingerprintable data, are never stored.
+                        // Handling coordinates should only happen in the `onCreateResource` handler.
+                        // Names & lables are ignored/to be implemented in the handler.
+
+                        await peersPipe.write(
+                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          resourceId,
+                          transcoder.encode<Coordinates>(resource),
+                          nodeId
+                        );
+
+                        break;
+                      }
+
                       case EResourceKind.WORKLOAD: {
                         const { metadata, spec } = resource as Workload;
 
@@ -471,7 +493,7 @@ export class Node {
                       }
                     }
 
-                    await this.onCreateResource(resource);
+                    await this.onCreateResource(nodeId, resource);
                   } else {
                     throw new APIVersionNotImplementedError(
                       resource.apiVersion
@@ -683,7 +705,7 @@ export class Node {
                       }
                     }
 
-                    await this.onDeleteResource(resource);
+                    await this.onDeleteResource(nodeId, resource);
                   } else {
                     throw new APIVersionNotImplementedError(
                       resource.apiVersion
@@ -721,7 +743,7 @@ export class Node {
                     new Uint8Array(Object.values(msg))
                   );
 
-                  await this.onCreateResource(resource);
+                  await this.onCreateResource(nodeId, resource);
 
                   break;
                 }
@@ -731,7 +753,7 @@ export class Node {
                     new Uint8Array(Object.values(msg))
                   );
 
-                  await this.onDeleteResource(resource);
+                  await this.onDeleteResource(nodeId, resource);
 
                   break;
                 }
@@ -800,7 +822,7 @@ export class Node {
     repository: string,
     fileInstance: Uint8Array
   ) {
-    if (this.files) {
+    if (this.files && this.peers) {
       const file = await this.files.seedFile(
         label,
         name,
@@ -808,9 +830,9 @@ export class Node {
         fileInstance
       );
 
-      await this.onCreateResource(file);
+      await this.onCreateResource(this.peers.getLocalNodeId(), file);
     } else {
-      throw new ClosedError("FileRepository");
+      throw new ClosedError("FileRepository or Peers");
     }
   }
 
