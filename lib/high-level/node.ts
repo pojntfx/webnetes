@@ -11,6 +11,7 @@ import { Processors } from "../repositories/processors";
 import { Subnets } from "../repositories/subnets";
 import { Workloads } from "../repositories/workloads";
 import { Arguments } from "../resources/arguments";
+import { BenchmarkScore } from "../resources/benchmark-score";
 import { Capability } from "../resources/capability";
 import { Coordinates } from "../resources/coordinates";
 import { File } from "../resources/file";
@@ -449,6 +450,21 @@ export class Node {
                           EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                           resourceId,
                           transcoder.encode<Coordinates>(resource),
+                          nodeId
+                        );
+
+                        break;
+                      }
+
+                      case EResourceKind.BENCHMARK_SCORE: {
+                        // For privacy reasons, benchmark scores, like other fingerprintable data, are never stored.
+                        // Handling benchmark scores should only happen in the `onCreateResource` handler.
+                        // Names & lables are ignored/to be implemented in the handler.
+
+                        await peersPipe.write(
+                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          resourceId,
+                          transcoder.encode<BenchmarkScore>(resource),
                           nodeId
                         );
 
