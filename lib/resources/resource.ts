@@ -15,6 +15,7 @@ export enum EResourceKind {
   TURNSERVER = "TurnServer",
   WORKLOAD = "Workload",
   COORDINATES = "Coordinates",
+  BENCHMARK_SCORE = "BenchmarkScore",
 }
 
 export interface IResourceMetadata {
