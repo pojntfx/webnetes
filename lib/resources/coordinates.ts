@@ -6,6 +6,7 @@ import {
 } from "./resource";
 
 export interface ICoordinatesSpec {
+  describes: string;
   latitude: number;
   longitude: number;
 }
