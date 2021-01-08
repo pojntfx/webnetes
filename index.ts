@@ -23,4 +23,10 @@ export { StunServer } from "./lib/resources/stunserver";
 export { Tracker } from "./lib/resources/tracker";
 export { TurnServer } from "./lib/resources/turnserver";
 export { Workload } from "./lib/resources/workload";
+export {
+  BenchmarkScore,
+  EBenchmarkKind,
+} from "./lib/resources/benchmark-score";
+export { PublicIP } from "./lib/resources/public-ip";
+export { Coordinates } from "./lib/resources/coordinates";
 export { ResourceTranscoder } from "./lib/utils/resource-transcoder";
