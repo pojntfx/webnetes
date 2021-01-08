@@ -11,6 +11,7 @@ export enum EBenchmarkKind {
 }
 
 export interface IBenchmarkScoreSpec {
+  describes: string;
   kind: EBenchmarkKind;
   score: number;
 }

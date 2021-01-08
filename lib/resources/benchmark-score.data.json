@@ -6,6 +6,7 @@
     "label": "cpu_benchmark_score"
   },
   "spec": {
+    "describes": "4.2.1.5",
     "kind": "CPU",
     "score": 1234
   }

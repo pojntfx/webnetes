@@ -6,6 +6,7 @@ import {
 } from "./resource";
 
 export interface IPublicIPSpec {
+  describes: string;
   publicIP: string;
 }
 

@@ -6,6 +6,7 @@
     "label": "public_ip"
   },
   "spec": {
+    "describes": "4.2.1.5",
     "publicIP": "8.8.8.8"
   }
 }
