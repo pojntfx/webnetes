@@ -1,6 +1,6 @@
 {
   "name": "@pojntfx/webnetes",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Like Kubernetes, but built with WebAssembly, WebRTC (via unisockets) and WebTorrent.",
   "source": "index.ts",
   "main": "dist/nodeLib/index.js",
