@@ -187,7 +187,7 @@ export class Peers
           resourceType,
           resourceId,
           msg,
-          nodeId,
+          nodeId: this.localNodeId,
         });
       } else {
         if (this.transporter) {
