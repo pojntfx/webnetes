@@ -1,0 +1,11 @@
+{
+  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "kind": "PublicIP",
+  "metadata": {
+    "name": "Public IP",
+    "label": "public_ip"
+  },
+  "spec": {
+    "publicIP": "8.8.8.8"
+  }
+}
