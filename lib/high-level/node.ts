@@ -21,6 +21,7 @@ import {
   NetworkInterface,
 } from "../resources/network-interface";
 import { Processor } from "../resources/processor";
+import { PublicIP } from "../resources/public-ip";
 import { Repository } from "../resources/repository";
 import {
   API_VERSION,
@@ -465,6 +466,21 @@ export class Node {
                           EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
                           resourceId,
                           transcoder.encode<BenchmarkScore>(resource),
+                          nodeId
+                        );
+
+                        break;
+                      }
+
+                      case EResourceKind.PUBLIC_IP: {
+                        // For privacy reasons, the public IP, like other fingerprintable data, are never stored.
+                        // Handling public IPs should only happen in the `onCreateResource` handler.
+                        // Names & lables are ignored/to be implemented in the handler.
+
+                        await peersPipe.write(
+                          EPeersResources.MANAGEMENT_ENTITY_CONFIRM,
+                          resourceId,
+                          transcoder.encode<PublicIP>(resource),
                           nodeId
                         );
 

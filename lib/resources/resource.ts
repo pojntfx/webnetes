@@ -16,6 +16,7 @@ export enum EResourceKind {
   WORKLOAD = "Workload",
   COORDINATES = "Coordinates",
   BENCHMARK_SCORE = "BenchmarkScore",
+  PUBLIC_IP = "PublicIP",
 }
 
 export interface IResourceMetadata {
