@@ -775,7 +775,9 @@ export class Node {
                     new Uint8Array(Object.values(msg))
                   );
 
-                  await this.onCreateResource(nodeId, resource);
+                  if (nodeId !== this.peers?.getLocalNodeId()) {
+                    await this.onCreateResource(nodeId, resource);
+                  }
 
                   break;
                 }
@@ -785,7 +787,9 @@ export class Node {
                     new Uint8Array(Object.values(msg))
                   );
 
-                  await this.onDeleteResource(nodeId, resource);
+                  if (nodeId !== this.peers?.getLocalNodeId()) {
+                    await this.onDeleteResource(nodeId, resource);
+                  }
 
                   break;
                 }
