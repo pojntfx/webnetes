@@ -11,7 +11,7 @@ wasm-go:
 
 wasm-tinygo:
 	@docker run -v ${PWD}:/src:z -v ${PWD}/.go:/root/go:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/echo_client_original.wasm main.go'
-	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/echo_client_original.wasm -o out/tinygo/echo_client.wasm'
+	@docker run -v ${PWD}:/src:z alphahorizonio/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/echo_client_original.wasm -o out/tinygo/echo_client.wasm'
 	@rm out/tinygo/echo_client_original.wasm
 
 clean:

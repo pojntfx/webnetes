@@ -1,5 +1,5 @@
 {
-  "apiVersion": "webnetes.felix.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Tracker",
   "metadata": {
     "name": "OpenWebTorrent",
