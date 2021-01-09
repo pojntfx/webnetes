@@ -2,7 +2,7 @@ import {
   ExtendedRTCConfiguration,
   SignalingClient,
   Transporter,
-} from "@pojntfx/unisockets";
+} from "@alphahorizonio/unisockets";
 import { Mutex, withTimeout } from "async-mutex";
 import { ClosedError } from "../errors/closed";
 import { CommunicationTimeoutError } from "../errors/communication-timeout";
@@ -28,15 +28,15 @@ export interface IPeersConfig {
 }
 
 export enum EPeersResources {
-  STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Stdout",
-  STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Stdin",
-  WORKLOAD = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Workload",
-  INPUT_DEVICE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDevice",
-  INPUT_DEVICE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDeviceDeletion",
-  MANAGEMENT_ENTITY = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntity",
-  MANAGEMENT_ENTITY_CONFIRM = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityConfirm",
-  MANAGEMENT_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletion",
-  MANAGEMENT_ENTITY_DELETION_CONFIRM = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityDeletionConfirm",
+  STDOUT = "schema.webnetes.dev/v1alpha1/raw/Stdout",
+  STDIN = "schema.webnetes.dev/v1alpha1/raw/Stdin",
+  WORKLOAD = "schema.webnetes.dev/v1alpha1/raw/Workload",
+  INPUT_DEVICE = "schema.webnetes.dev/v1alpha1/raw/InputDevice",
+  INPUT_DEVICE_DELETION = "schema.webnetes.dev/v1alpha1/raw/InputDeviceDeletion",
+  MANAGEMENT_ENTITY = "schema.webnetes.dev/v1alpha1/raw/ManagementEntity",
+  MANAGEMENT_ENTITY_CONFIRM = "schema.webnetes.dev/v1alpha1/raw/ManagementEntityConfirm",
+  MANAGEMENT_ENTITY_DELETION = "schema.webnetes.dev/v1alpha1/raw/ManagementEntityDeletion",
+  MANAGEMENT_ENTITY_DELETION_CONFIRM = "schema.webnetes.dev/v1alpha1/raw/ManagementEntityDeletionConfirm",
 }
 
 export class Peers

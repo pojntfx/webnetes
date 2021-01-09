@@ -1,4 +1,4 @@
-export const API_VERSION = "webnetes.felicitas.pojtinger.com/v1alpha1";
+export const API_VERSION = "schema.webnetes.dev/v1alpha1";
 
 export enum EResourceKind {
   RUNTIME = "Runtime",

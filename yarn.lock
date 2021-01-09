@@ -1942,9 +1942,9 @@
     chrome-trace-event "^1.0.2"
     nullthrows "^1.1.1"
 
-"@pojntfx/unisockets@^0.0.23":
+"@alphahorizonio/unisockets@^0.0.23":
   version "0.0.23"
-  resolved "https://registry.yarnpkg.com/@pojntfx/unisockets/-/unisockets-0.0.23.tgz#18bb4d611d5b0c6852b39079f48510b11548c2a3"
+  resolved "https://registry.yarnpkg.com/@alphahorizonio/unisockets/-/unisockets-0.0.23.tgz#18bb4d611d5b0c6852b39079f48510b11548c2a3"
   integrity sha512-A2n51VGyTNwDUdIGsJ5AW3QVJo3LMxOg7SKO8WA4DvBtLsAiYkFvPIracCptq95f2mKTgoma5aHFtk/CfxIw8w==
   dependencies:
     "@wasmer/wasi" "^0.12.0"

@@ -1,5 +1,5 @@
 {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "TurnServer",
   "metadata": {
     "name": "Twillio TURN Server",

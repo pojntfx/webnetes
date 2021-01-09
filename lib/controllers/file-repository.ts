@@ -1,4 +1,4 @@
-import { ExtendedRTCConfiguration } from "@pojntfx/unisockets";
+import { ExtendedRTCConfiguration } from "@alphahorizonio/unisockets";
 import WebTorrent from "webtorrent-hybrid";
 import { ClosedError } from "../errors/closed";
 import { FileNotInTorrentError } from "../errors/file-not-in-torrent";

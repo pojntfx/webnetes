@@ -5,25 +5,25 @@ import { IPipe, Pipe } from "./pipe";
 export interface IResourcesConfig {}
 
 export enum EResourcesResources {
-  PROCESS = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Process",
-  PROCESS_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ProcessInstance",
-  PROCESS_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ProcessStdout",
-  PROCESS_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ProcessStdin",
+  PROCESS = "schema.webnetes.dev/v1alpha1/raw/Process",
+  PROCESS_INSTANCE = "schema.webnetes.dev/v1alpha1/raw/ProcessInstance",
+  PROCESS_STDOUT = "schema.webnetes.dev/v1alpha1/raw/ProcessStdout",
+  PROCESS_STDIN = "schema.webnetes.dev/v1alpha1/raw/ProcessStdin",
 
-  TERMINAL = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/Terminal",
-  TERMINAL_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/TerminalInstance",
-  TERMINAL_INSTANCE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/TerminalInstanceDeletion",
-  TERMINAL_STDOUT = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/TerminalStdout",
-  TERMINAL_STDIN = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/TerminalStdin",
+  TERMINAL = "schema.webnetes.dev/v1alpha1/raw/Terminal",
+  TERMINAL_INSTANCE = "schema.webnetes.dev/v1alpha1/raw/TerminalInstance",
+  TERMINAL_INSTANCE_DELETION = "schema.webnetes.dev/v1alpha1/raw/TerminalInstanceDeletion",
+  TERMINAL_STDOUT = "schema.webnetes.dev/v1alpha1/raw/TerminalStdout",
+  TERMINAL_STDIN = "schema.webnetes.dev/v1alpha1/raw/TerminalStdin",
 
-  INPUT_DEVICE_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDeviceInstance",
-  INPUT_DEVICE_INSTANCE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/InputDeviceInstanceDeletion",
+  INPUT_DEVICE_INSTANCE = "schema.webnetes.dev/v1alpha1/raw/InputDeviceInstance",
+  INPUT_DEVICE_INSTANCE_DELETION = "schema.webnetes.dev/v1alpha1/raw/InputDeviceInstanceDeletion",
 
-  MANAGEMENT_ENTITY_INSTANCE = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityInstance",
-  MANAGEMENT_ENTITY_INSTANCE_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/ManagementEntityInstanceDeletion",
+  MANAGEMENT_ENTITY_INSTANCE = "schema.webnetes.dev/v1alpha1/raw/ManagementEntityInstance",
+  MANAGEMENT_ENTITY_INSTANCE_DELETION = "schema.webnetes.dev/v1alpha1/raw/ManagementEntityInstanceDeletion",
 
-  WEBNETES_ENTITY = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/WebnetesEntity",
-  WEBNETES_ENTITY_DELETION = "webnetes.felicitas.pojtinger.com/v1alpha1/raw/WebnetesEntityDeletion",
+  WEBNETES_ENTITY = "schema.webnetes.dev/v1alpha1/raw/WebnetesEntity",
+  WEBNETES_ENTITY_DELETION = "schema.webnetes.dev/v1alpha1/raw/WebnetesEntityDeletion",
 }
 
 export class Resources

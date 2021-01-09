@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Arguments',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Arguments {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Arguments",
   "metadata": Object {
     "label": "echo_server",
@@ -23,13 +23,13 @@ Arguments {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Capability',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Capability {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Capability",
   "metadata": Object {
     "label": "bind_alias",
@@ -42,13 +42,13 @@ Capability {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'File',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 File {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "File",
   "metadata": Object {
     "label": "echo_server",
@@ -62,13 +62,13 @@ File {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Network',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Network {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Network",
   "metadata": Object {
     "label": "unisockets_public",
@@ -88,13 +88,13 @@ Network {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Processor',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Processor {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Processor",
   "metadata": Object {
     "label": "felicitass_iphone",
@@ -113,13 +113,13 @@ Processor {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Repository',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Repository {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Repository",
   "metadata": Object {
     "label": "webtorrent_public",
@@ -136,12 +136,12 @@ Repository {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Runtime',
   metadata: [Object]
 } should be %s 1`] = `
 Runtime {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Runtime",
   "metadata": Object {
     "label": "generic_wasi",
@@ -152,13 +152,13 @@ Runtime {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Signaler',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Signaler {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Signaler",
   "metadata": Object {
     "label": "unisockets_public",
@@ -167,20 +167,20 @@ Signaler {
   "spec": Object {
     "retryAfter": 1000,
     "urls": Array [
-      "wss://unisockets.herokuapp.com",
+      "wss://signaler.webnetes.dev",
     ],
   },
 }
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'StunServer',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 StunServer {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "StunServer",
   "metadata": Object {
     "label": "google",
@@ -195,13 +195,13 @@ StunServer {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Subnet',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Subnet {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Subnet",
   "metadata": Object {
     "label": "echo_network",
@@ -215,13 +215,13 @@ Subnet {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Tracker',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Tracker {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Tracker",
   "metadata": Object {
     "label": "openwebtorrent",
@@ -236,13 +236,13 @@ Tracker {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'TurnServer',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 TurnServer {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "TurnServer",
   "metadata": Object {
     "label": "twillio",
@@ -259,13 +259,13 @@ TurnServer {
 `;
 
 exports[`Models {
-  apiVersion: 'webnetes.felicitas.pojtinger.com/v1alpha1',
+  apiVersion: 'schema.webnetes.dev/v1alpha1',
   kind: 'Workload',
   metadata: [Object],
   spec: [Object]
 } should be %s 1`] = `
 Workload {
-  "apiVersion": "webnetes.felicitas.pojtinger.com/v1alpha1",
+  "apiVersion": "schema.webnetes.dev/v1alpha1",
   "kind": "Workload",
   "metadata": Object {
     "label": "echo_server",

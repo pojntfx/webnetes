@@ -1,39 +1,39 @@
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Runtime
 metadata:
   name: TinyGo WASI
   label: wasi_tinygo
 spec: {}
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Capability
 metadata:
   name: Creating a socket
   label: net_socket
 spec: {}
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Capability
 metadata:
   name: Sending over a socket
   label: net_send
 spec: {}
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Capability
 metadata:
   name: Receiving from a socket
   label: net_receive
 spec: {}
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Capability
 metadata:
   name: Connecting to a socket
   label: net_connect
 spec: {}
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Processor
 metadata:
   name: Felicitas's iPhone
@@ -47,17 +47,17 @@ spec:
     - net_receive
     - net_connect
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Signaler
 metadata:
   name: Public unisockets Signaling Server
   label: unisockets_public
 spec:
   urls:
-    - wss://unisockets.herokuapp.com
+    - wss://signaler.webnetes.dev
   retryAfter: 1000
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: StunServer
 metadata:
   name: Google STUN Server
@@ -66,7 +66,7 @@ spec:
   urls:
     - stun:stun.l.google.com:19302
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: StunServer
 metadata:
   name: Twillio STUN Server
@@ -75,7 +75,7 @@ spec:
   urls:
     - stun:global.stun.twilio.com:3478?transport=udp
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: TurnServer
 metadata:
   name: Twillio TURN Server (UDP)
@@ -86,7 +86,7 @@ spec:
   username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: TurnServer
 metadata:
   name: Twillio TURN Server (TCP)
@@ -97,7 +97,7 @@ spec:
   username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: TurnServer
 metadata:
   name: Twillio TURN Server Fallback (TCP)
@@ -108,7 +108,7 @@ spec:
   username: f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d
   credential: w1uxM55V9yVoqyVFjt+mxDBV0F87AUCemaYVQGxsPLw=
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Network
 metadata:
   name: Public unisockets network
@@ -123,7 +123,7 @@ spec:
     - twillio_tcp
     - twillio_tcp_fallback
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: NetworkInterface
 metadata:
   name: TinyGo Echo Network
@@ -132,7 +132,7 @@ spec:
   network: unisockets_public
   prefix: 127.19.0
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Tracker
 metadata:
   name: OpenWebTorrent
@@ -141,7 +141,7 @@ spec:
   urls:
     - wss://tracker.openwebtorrent.com
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Tracker
 metadata:
   name: Fastcast
@@ -150,7 +150,7 @@ spec:
   urls:
     - wss://tracker.fastcast.nz
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Repository
 metadata:
   name: Public WebTorrent
@@ -167,7 +167,7 @@ spec:
     - twillio_tcp
     - twillio_tcp_fallback
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: File
 metadata:
   name: TinyGo Echo Client Binary
@@ -176,7 +176,7 @@ spec:
   repository: webtorrent_public
   uri: e87b4aae18af36d2cff77ba6b364d4c30be91da3
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Arguments
 metadata:
   name: TinyGo Echo Client Configuration
@@ -186,7 +186,7 @@ spec:
     - -raddr
     - 127.0.0.1:1234
 ---
-apiVersion: webnetes.felicitas.pojtinger.com/v1alpha1
+apiVersion: schema.webnetes.dev/v1alpha1
 kind: Workload
 metadata:
   name: TinyGo Echo Client
