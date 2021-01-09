@@ -3,8 +3,9 @@ import {
   SignalingClient,
   Transporter,
 } from "@pojntfx/unisockets";
-import { Mutex } from "async-mutex";
+import { Mutex, withTimeout } from "async-mutex";
 import { ClosedError } from "../errors/closed";
+import { CommunicationTimeoutError } from "../errors/communication-timeout";
 import { KnockRejectedError } from "../errors/knock-rejected";
 import { ResourceNotImplementedError } from "../errors/resource-not-implemented";
 import { getLogger } from "../utils/logger";
@@ -49,7 +50,11 @@ export class Peers
   private nodes = [] as string[];
   private localNodeId = "";
 
-  private managementEntityLock = new Mutex();
+  private managementEntityLock = withTimeout(
+    new Mutex(),
+    120000,
+    new CommunicationTimeoutError()
+  );
 
   async open(config: IPeersConfig) {
     this.logger.debug("Opening peers", { config });
