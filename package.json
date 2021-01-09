@@ -68,7 +68,7 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@alphahorizonio/unisockets": "^0.0.23",
+    "@alphahorizonio/unisockets": "^0.1.1",
     "@wasmer/wasi": "^0.12.0",
     "@wasmer/wasm-transformer": "^0.12.0",
     "@wasmer/wasmfs": "^0.12.0",

@@ -2,6 +2,25 @@
 # yarn lockfile v1
 
 
+"@alphahorizonio/unisockets@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@alphahorizonio/unisockets/-/unisockets-0.1.1.tgz#313cca90ddf536603427070e2b11c128911bb312"
+  integrity sha512-H0f5UR7+89KsfWQUqJtNV3rVOZ3lSarX51rOZMnf+tyrCibcEfnhkf8KjUFJNME6x5Ez46zodryuaOcIfG8T5Q==
+  dependencies:
+    "@wasmer/wasi" "^0.12.0"
+    "@wasmer/wasm-transformer" "^0.12.0"
+    "@wasmer/wasmfs" "^0.12.0"
+    async-mutex "^0.2.6"
+    asyncify-wasm "^1.1.1"
+    emittery "^0.7.2"
+    isomorphic-ws "^4.0.1"
+    serve "^11.3.2"
+    uuid "^8.3.1"
+    winston "^3.3.3"
+    wrtc "^0.4.6"
+    ws "^7.4.0"
+    yargs "^16.1.0"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -1941,25 +1960,6 @@
     "@parcel/utils" "2.0.0-nightly.488+f89e5ef8"
     chrome-trace-event "^1.0.2"
     nullthrows "^1.1.1"
-
-"@alphahorizonio/unisockets@^0.0.23":
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/@alphahorizonio/unisockets/-/unisockets-0.0.23.tgz#18bb4d611d5b0c6852b39079f48510b11548c2a3"
-  integrity sha512-A2n51VGyTNwDUdIGsJ5AW3QVJo3LMxOg7SKO8WA4DvBtLsAiYkFvPIracCptq95f2mKTgoma5aHFtk/CfxIw8w==
-  dependencies:
-    "@wasmer/wasi" "^0.12.0"
-    "@wasmer/wasm-transformer" "^0.12.0"
-    "@wasmer/wasmfs" "^0.12.0"
-    async-mutex "^0.2.6"
-    asyncify-wasm "^1.1.1"
-    emittery "^0.7.2"
-    isomorphic-ws "^4.0.1"
-    serve "^11.3.2"
-    uuid "^8.3.1"
-    winston "^3.3.3"
-    wrtc "^0.4.6"
-    ws "^7.4.0"
-    yargs "^16.1.0"
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
