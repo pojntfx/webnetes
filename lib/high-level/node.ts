@@ -525,7 +525,11 @@ export class Node {
                       }
                     }
 
-                    await this.onCreateResource(nodeId, resource);
+                    // Resource has been created locally
+                    await this.onCreateResource(
+                      this.peers!.getLocalNodeId(),
+                      resource
+                    ); // We set above
                   } else {
                     throw new APIVersionNotImplementedError(
                       resource.apiVersion
@@ -737,7 +741,11 @@ export class Node {
                       }
                     }
 
-                    await this.onDeleteResource(nodeId, resource);
+                    // Resource has been deleted locally
+                    await this.onDeleteResource(
+                      this.peers!.getLocalNodeId(),
+                      resource
+                    ); // We check above
                   } else {
                     throw new APIVersionNotImplementedError(
                       resource.apiVersion
@@ -776,6 +784,7 @@ export class Node {
                   );
 
                   if (nodeId !== this.peers?.getLocalNodeId()) {
+                    // Resource has been created remotely
                     await this.onCreateResource(nodeId, resource);
                   }
 
@@ -788,6 +797,7 @@ export class Node {
                   );
 
                   if (nodeId !== this.peers?.getLocalNodeId()) {
+                    // Resource has been created remotely
                     await this.onDeleteResource(nodeId, resource);
                   }
 
