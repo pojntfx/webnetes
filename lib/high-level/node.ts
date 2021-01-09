@@ -183,8 +183,8 @@ export class Node {
     (async () => {
       await Promise.all([
         (async () => {
-          try {
-            while (true) {
+          while (true) {
+            try {
               const {
                 resourceType,
                 resourceId,
@@ -759,17 +759,15 @@ export class Node {
                   throw new ResourceNotImplementedError(resourceType);
                 }
               }
+            } catch (e) {
+              console.error("could not read from resource pipe, continuing");
             }
-          } catch (e) {
-            throw e;
-          } finally {
-            await resourcesPipe.close();
           }
         })(),
 
         (async () => {
-          try {
-            while (true) {
+          while (true) {
+            try {
               const {
                 resourceType,
                 resourceId,
@@ -843,11 +841,9 @@ export class Node {
                   );
                 }
               }
+            } catch (e) {
+              console.error("could not read from peer pipe, continuing");
             }
-          } catch (e) {
-            throw e;
-          } finally {
-            await peersPipe.close();
           }
         })(),
       ]);
