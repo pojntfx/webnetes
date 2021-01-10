@@ -1,31 +1,30 @@
 # webnetes (w6s)
 
-Like Kubernetes, but built with WebAssembly, WebRTC (via [unisockets](https://github.com/alphahorizonio/unisockets/)) and [WebTorrent](https://webtorrent.io/).
+A peer-to-peer computing platform for the browser and node. It uses [WebAssembly](https://en.wikipedia.org/wiki/WebAssembly) for compute, [WebRTC](https://en.wikipedia.org/wiki/WebRTC) for networking and [WebTorrent](https://en.wikipedia.org/wiki/WebTorrent) for storage.
 
 ![Yarn CI](https://github.com/alphahorizonio/webnetes/workflows/Yarn%20CI/badge.svg)
 ![make CI](https://github.com/alphahorizonio/webnetes/workflows/make%20CI/badge.svg)
 ![Mirror](https://github.com/alphahorizonio/webnetes/workflows/Mirror/badge.svg)
 [![TypeDoc](https://img.shields.io/badge/TypeScript-Documentation-informational)](https://alphahorizonio.github.io/webnetes/)
 [![npm](https://img.shields.io/npm/v/@alphahorizonio/webnetes)](https://www.npmjs.com/package/@alphahorizonio/webnetes)
-[![Demo](https://img.shields.io/badge/Demo-webnetes.netlify.app-blueviolet)](https://webnetes.netlify.app/)
 
 ## Overview
 
-[![UML Diagram](https://alphahorizonio.github.io/webnetes/media/diagram.svg)](https://alphahorizonio.github.io/webnetes/media/diagram.svg)
-
-TODO: Add overview docs
-
-### Resource Modification Protocol
-
-To manage resources, the following protocol is used:
-
-[![Sequence Diagram](https://alphahorizonio.github.io/webnetes/media/sequence.svg)](https://alphahorizonio.github.io/webnetes/media/sequence.svg)
-
-Note that this protocol is currently being replaced with a new protocol (the "Pipe" protocol), to allow for a singular protocol to be used for both resource management with confirmations and UDP-style "send and forget" messages such as stdin/stdout pipes.
+Check out the [documentation](https://docs.webnetes.dev/).
 
 ## Usage
 
-TODO: Add usage docs
+### webnetesctl
+
+Recommended for most users.
+
+[<img src="https://github.com/alphahorizonio/webnetesctl/raw/main/img/launch.png" width="240">](https://webnetes.dev/)
+
+### webnetesctl Lite
+
+For advanced users who prefer something more lightweight.
+
+[![Lite](https://img.shields.io/badge/webnetesctl%20Lite-lite.webnetes.dev-blueviolet)](https://lite.webnetes.dev/)
 
 ## License
 
