@@ -9,8 +9,9 @@
   "binSource": "app/webnetes_node/main.ts",
   "binMain": "dist/nodeApp/main.js",
   "scripts": {
-    "build": "rm -rf dist && yarn build:lib && yarn build:app:node && yarn build:app:web && yarn build:docs",
+    "build": "rm -rf dist && yarn build:lib && yarn build:lib:web:iife && rm -rf .parcel-cache && yarn build:app:node && yarn build:app:web && rm -rf .parcel-cache && yarn build:docs",
     "build:lib": "rollup -c",
+    "build:lib:web:iife": "parcel build --target webLibIIFE --no-scope-hoist index.iife.ts",
     "build:app:node": "rollup -c && chmod +x dist/nodeApp/main.js",
     "build:app:web": "parcel build --target webApp --no-scope-hoist app/webnetes_web/index.html",
     "build:diagram": "mkdir -p dist/media && tplant -p tsconfig.json -i 'lib/**/*.ts*' --output 'dist/media/diagram.svg'",
@@ -33,6 +34,7 @@
     "dist/nodeApp",
     "dist/nodeLib",
     "dist/webLib",
+    "dist/webLibIIFE",
     "dist/index.d.ts"
   ],
   "repository": {
@@ -86,6 +88,12 @@
   "targets": {
     "webApp": {
       "distDir": "dist/webApp",
+      "engines": {
+        "browsers": ">=5%"
+      }
+    },
+    "webLibIIFE": {
+      "distDir": "dist/webLibIIFE",
       "engines": {
         "browsers": ">=5%"
       }
