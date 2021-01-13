@@ -1,6 +1,6 @@
 {
   "name": "@alphahorizonio/webnetes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A peer-to-peer computing platform for the browser and node.",
   "source": "index.ts",
   "main": "dist/nodeLib/index.js",
