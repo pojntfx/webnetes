@@ -4,6 +4,7 @@ import * as Asyncify from "asyncify-wasm";
 import { v4 } from "uuid";
 import Go from "../../vendor/go/wasm_exec.js";
 import TinyGo from "../../vendor/tinygo/wasm_exec.js";
+import TeaVM from "../../vendor/teavm/classes.wasm-runtime.js";
 import { InstanceDoesNotExistError } from "../errors/instance-does-not-exist";
 import { UnimplementedRuntimeError } from "../errors/unimplemented-runtime";
 import { getLogger } from "../utils/logger";
@@ -13,6 +14,7 @@ export enum ERuntimes {
   WASI_TINYGO = "wasi_tinygo",
   JSSI_GO = "jssi_go",
   JSSI_TINYGO = "jssi_tinygo",
+  JSSI_TEAVM = "jssi_teavm",
 }
 
 interface Container<T> {
@@ -320,6 +322,37 @@ export class VirtualMachine {
         };
       }
 
+      case ERuntimes.JSSI_TEAVM: {
+        const teavm = TeaVM((stdout: string) =>
+          this.onStdout(id, this.encoder.encode(stdout))
+        );
+
+        let importObject: any = {};
+        teavm.wasm.importDefaults(importObject);
+
+        const module = await WebAssembly.compile(bin);
+        const instance = await WebAssembly.instantiate(module, importObject);
+
+        importObject.teavm.logString.memory = instance.exports.memory;
+
+        (global as any).jssiImports = {
+          ...(global as any).jssiImports,
+          ...imports,
+          ...env,
+        };
+
+        this.containers.set(id, {
+          runtimeType: runtime,
+          instance,
+          runtime: teavm,
+        });
+
+        return {
+          id,
+          memory: instance.exports.memory,
+        };
+      }
+
       default: {
         throw new UnimplementedRuntimeError();
       }
@@ -353,6 +386,12 @@ export class VirtualMachine {
 
         case ERuntimes.JSSI_TINYGO: {
           await (container as Container<any>).runtime.run(container.instance);
+
+          break;
+        }
+
+        case ERuntimes.JSSI_TEAVM: {
+          ((container as Container<any>).instance.exports as any).main();
 
           break;
         }
