@@ -11,4 +11,4 @@ clean:
 	@rm -rf target
 
 seed: clean wasm
-	@docker run -it -v ${PWD}/target:/target --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /target/wasm32-wasi/release/*.wasm"
+	@docker run -it -v ${PWD}/target:/target:z --entrypoint=/bin/sh schaurian/webtorrent-hybrid -c "/usr/local/bin/webtorrent-hybrid seed /target/wasm32-wasi/release/*.wasm"
