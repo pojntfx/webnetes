@@ -1,4 +1,4 @@
-TARGETS=c_echo_client c_echo_server cpp_echo_client cpp_echo_server go_echo_client go_echo_server
+TARGETS=c_echo_client c_echo_server cpp_echo_client cpp_echo_server go_echo_client go_echo_server java-hello-world zig-hello-world
 
 all: $(TARGETS)
 

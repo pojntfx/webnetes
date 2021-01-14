@@ -142,7 +142,7 @@ metadata:
   label: java_hello_world
 spec:
   repository: webtorrent_public
-  uri: 67fe7f48b23b51463ef8a036adb479e6e05f13f0
+  uri: 2ee5277326219a2dd95bc8279d2a398fda7d0b1e
 ---
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: Arguments
