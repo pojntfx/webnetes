@@ -6,4 +6,4 @@ $(TARGETS):
 	@cd examples/$@ && $(MAKE)
 
 clean:
-	@rm -rf ./examples/*/{out,build,.go}
+	@rm -rf ./examples/*/{out,build,.go,target,.m2}
