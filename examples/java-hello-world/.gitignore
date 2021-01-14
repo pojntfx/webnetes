@@ -1,0 +1,10 @@
+target
+.classpath
+.project
+.settings
+.factorypath
+bin
+.theia
+.vscode
+.m2
+dependency-reduced-pom.xml
