@@ -94,8 +94,8 @@ spec:
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: NetworkInterface
 metadata:
-  name: C Hello World Network
-  label: c_hello_world_network
+  name: C++ Hello World Network
+  label: cpp_hello_world_network
 spec:
   network: unisockets_public
   prefix: 127.19.0
@@ -138,30 +138,30 @@ spec:
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: File
 metadata:
-  name: C Hello World Binary
-  label: c_hello_world
+  name: C++ Hello World Binary
+  label: cpp_hello_world
 spec:
   repository: webtorrent_public
-  uri: 76630044544d34c516c6f005f49c5a9f74896bf5
+  uri: 53b243079decc9f8635f5d65a9b7c342973f7e4c
 ---
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: Arguments
 metadata:
-  name: C Hello World Configuration
-  label: c_hello_world
+  name: C++ Hello World Configuration
+  label: cpp_hello_world
 spec:
   argv: []
 ---
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: Workload
 metadata:
-  name: C Hello World
-  label: c_hello_world
+  name: C++ Hello World
+  label: cpp_hello_world
 spec:
-  file: c_hello_world
+  file: cpp_hello_world
   runtime: wasi_generic
   capabilities: []
-  networkInterface: c_hello_world_network
-  arguments: c_hello_world
-  terminalLabel: c_hello_world
+  networkInterface: cpp_hello_world_network
+  arguments: cpp_hello_world
+  terminalLabel: cpp_hello_world
   terminalHostNodeId: localhost
