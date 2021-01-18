@@ -52,7 +52,7 @@ export class Peers
 
   private managementEntityLock = withTimeout(
     new Mutex(),
-    120000,
+    20000,
     new CommunicationTimeoutError()
   );
 
