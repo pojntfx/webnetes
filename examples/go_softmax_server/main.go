@@ -50,7 +50,6 @@ type Softmax struct {
 }
 
 func main() {
-	// There is no support for the `flag` package in TinyGo yet; set `laddr` manually instead
 	laddr := flag.String("laddr", "127.0.0.1:1234", "Address to listen on")
 	flag.Parse()
 
