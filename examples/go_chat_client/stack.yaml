@@ -174,7 +174,7 @@ metadata:
   label: go_chat_client
 spec:
   repository: webtorrent_public
-  uri: 345cbe2acca50894afbce8a75c9a1ebc937c8a44
+  uri: 26782c590e2e17a447919efee1dcd8ef91fc2c49
 ---
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: Arguments
