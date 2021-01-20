@@ -190,7 +190,7 @@ metadata:
   label: go_softmax_server
 spec:
   repository: webtorrent_public
-  uri: 550b393dc39bb9cc0e6d857b4e63427920574ff8
+  uri: 57277adf4e5ab24031ba652656aa5f7c6ccf7835
 ---
 apiVersion: schema.webnetes.dev/v1alpha1
 kind: Arguments
