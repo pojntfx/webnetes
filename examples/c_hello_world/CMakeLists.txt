@@ -13,7 +13,6 @@ add_executable(hello_world "main.c")
 
 # WASI Config
 if(WASI)
-	set(CMAKE_C_FLAGS "-DUNISOCKETS_WITH_ALIAS")
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-undefined")
 	set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 
