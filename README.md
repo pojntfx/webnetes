@@ -1,5 +1,7 @@
 # webnetes (w6s)
 
+[![webnetesctl start screen](https://docs.webnetes.dev/getting-started/img/start.png)](https://webnetes.dev/)
+
 A peer-to-peer computing platform for the browser and node. It uses [WebAssembly](https://en.wikipedia.org/wiki/WebAssembly) for compute, [WebRTC](https://en.wikipedia.org/wiki/WebRTC) for networking and [WebTorrent](https://en.wikipedia.org/wiki/WebTorrent) for storage.
 
 ![Yarn CI](https://github.com/alphahorizonio/webnetes/workflows/Yarn%20CI/badge.svg)
@@ -7,6 +9,7 @@ A peer-to-peer computing platform for the browser and node. It uses [WebAssembly
 ![Mirror](https://github.com/alphahorizonio/webnetes/workflows/Mirror/badge.svg)
 [![TypeDoc](https://img.shields.io/badge/TypeScript-Documentation-informational)](https://alphahorizonio.github.io/webnetes/)
 [![npm](https://img.shields.io/npm/v/@alphahorizonio/webnetes)](https://www.npmjs.com/package/@alphahorizonio/webnetes)
+[![Matrix](https://img.shields.io/matrix/webnetes-users:matrix.org)](https://matrix.to/#/#webnetes-users:matrix.org?via=matrix.org)
 
 ## Overview
 
