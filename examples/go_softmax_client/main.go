@@ -38,8 +38,8 @@ type EncodeJSONSoftmaxResult struct {
 }
 
 func main() {
-	var jsonSumInput [512]byte
-	var jsonSoftmaxInput [512]byte
+	var jsonSumInput [2048]byte
+	var jsonSoftmaxInput [2048]byte
 	var JSONArena fastjson.Arena
 
 	raddr := flag.String("raddr", "127.0.0.1:1234", "Address to connect to")
