@@ -1,5 +1,5 @@
 all:
-	@docker run -v ${PWD}:/src:z -v ${PWD}/.m2:/root/.m2:z maven sh -c 'cd /src && mvn clean install || true'
+	@docker run -v ${PWD}:/src:z -v ${PWD}/.m2:/root/.m2:z maven sh -c 'cd /src && mvn clean install'
 	@docker run -v ${PWD}:/src:z alphahorizonio/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O target/javascript/classes.wasm -o target/javascript/classes.wasm'
 
 clean:
