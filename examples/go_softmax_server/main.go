@@ -59,7 +59,7 @@ func main() {
 	ln, err := tinynet.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 
-	inputArray := []float64{1, 1, 3}
+	inputArray := []float64{0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 0, 1, 1, 2, 3, 5, 8, 13, 21, 34}
 	var data = Softmax{make([]float64, len(inputArray)), make([]float64, len(inputArray)), 0, inputArray, 0}
 
 	var wgSum sync.WaitGroup
@@ -114,7 +114,7 @@ func manager(wgSum *sync.WaitGroup, wgSoftmax *sync.WaitGroup, data *Softmax, wg
 }
 
 func handleConnection(conn *tinynet.TCPConn, wgSum *sync.WaitGroup, wgSoftmax *sync.WaitGroup, id int, data *Softmax, wgStart *sync.WaitGroup, wgStart2 *sync.WaitGroup) {
-	var input [512]byte
+	var input [2048]byte
 	var JSONArena fastjson.Arena
 
 	n, err := conn.Read(input[0:])
