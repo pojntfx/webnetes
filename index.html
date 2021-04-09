@@ -1,0 +1,473 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>@alphahorizonio/webnetes</title>
+	<meta name="description" content="Documentation for @alphahorizonio/webnetes">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">@alphahorizonio/webnetes</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>@alphahorizonio/webnetes</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#webnetes-w6s" id="webnetes-w6s" style="color: inherit; text-decoration: none;">
+					<h1>webnetes (w6s)</h1>
+				</a>
+				<p><a href="https://webnetes.dev/"><img src="https://docs.webnetes.dev/getting-started/img/start.png" alt="webnetesctl start screen"></a></p>
+				<p>A peer-to-peer computing platform for the browser and node. It uses <a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a> for compute, <a href="https://en.wikipedia.org/wiki/WebRTC">WebRTC</a> for networking and <a href="https://en.wikipedia.org/wiki/WebTorrent">WebTorrent</a> for storage.</p>
+				<p><img src="https://github.com/alphahorizonio/webnetes/workflows/Yarn%20CI/badge.svg" alt="Yarn CI">
+					<img src="https://github.com/alphahorizonio/webnetes/workflows/make%20CI/badge.svg" alt="make CI">
+					<img src="https://github.com/alphahorizonio/webnetes/workflows/Mirror/badge.svg" alt="Mirror">
+					<a href="https://alphahorizonio.github.io/webnetes/"><img src="https://img.shields.io/badge/TypeScript-Documentation-informational" alt="TypeDoc"></a>
+					<a href="https://www.npmjs.com/package/@alphahorizonio/webnetes"><img src="https://img.shields.io/npm/v/@alphahorizonio/webnetes" alt="npm"></a>
+				<a href="https://matrix.to/#/#webnetes-users:matrix.org?via=matrix.org"><img src="https://img.shields.io/matrix/webnetes-users:matrix.org" alt="Matrix"></a></p>
+				<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
+					<h2>Overview</h2>
+				</a>
+				<p>Check out the <a href="https://docs.webnetes.dev/">documentation</a>.</p>
+				<p>We also created a short demo video which shows an example application being deployed to webnetes:</p>
+				<p><a href="https://www.youtube.com/watch?v=W0PayDQ7RIg"><img src="https://img.youtube.com/vi/W0PayDQ7RIg/0.jpg" width="512" alt="YouTube video" title="YouTube video"></a></p>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<a href="#webnetesctl" id="webnetesctl" style="color: inherit; text-decoration: none;">
+					<h3>webnetesctl</h3>
+				</a>
+				<p>Recommended for most users.</p>
+				<p><a href="https://webnetes.dev/"><img src="https://github.com/alphahorizonio/webnetesctl/raw/main/img/launch.png" width="240"></a></p>
+				<a href="#webnetesctl-lite" id="webnetesctl-lite" style="color: inherit; text-decoration: none;">
+					<h3>webnetesctl Lite</h3>
+				</a>
+				<p>For advanced users who prefer something more lightweight.</p>
+				<p><a href="https://lite.webnetes.dev/"><img src="https://img.shields.io/badge/webnetesctl%20Lite-lite.webnetes.dev-blueviolet" alt="Lite"></a></p>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p>webnetes (c) 2021 Felicitas Pojtinger and contributors</p>
+				<p>SPDX-License-Identifier: AGPL-3.0</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/ebenchmarkkind.html" class="tsd-kind-icon">EBenchmark<wbr>Kind</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/epeersresources.html" class="tsd-kind-icon">EPeers<wbr>Resources</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/eresourcekind.html" class="tsd-kind-icon">EResource<wbr>Kind</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/eresourcesresources.html" class="tsd-kind-icon">EResources<wbr>Resources</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/eruntimes.html" class="tsd-kind-icon">ERuntimes</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/apiversionnotimplementederror.html" class="tsd-kind-icon">APIVersion<wbr>Not<wbr>Implemented<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/aliasdoesnotexisterror.html" class="tsd-kind-icon">Alias<wbr>Does<wbr>Not<wbr>Exist<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/arguments.html" class="tsd-kind-icon">Arguments</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/benchmarkscore.html" class="tsd-kind-icon">Benchmark<wbr>Score</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/capability.html" class="tsd-kind-icon">Capability</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/capabilitynotimplementederror.html" class="tsd-kind-icon">Capability<wbr>Not<wbr>Implemented<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/closederror.html" class="tsd-kind-icon">Closed<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/communicationtimeouterror.html" class="tsd-kind-icon">Communication<wbr>Timeout<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/configmissingerror.html" class="tsd-kind-icon">Config<wbr>Missing<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/coordinates.html" class="tsd-kind-icon">Coordinates</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/file.html" class="tsd-kind-icon">File</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/filenotintorrenterror.html" class="tsd-kind-icon">File<wbr>Not<wbr>InTorrent<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/filerepository.html" class="tsd-kind-icon">File<wbr>Repository</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/files.html" class="tsd-kind-icon">Files</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/frametranscoder.html" class="tsd-kind-icon">Frame<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/instancedoesalreadyexisterror.html" class="tsd-kind-icon">Instance<wbr>Does<wbr>Already<wbr>Exist<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/instancedoesnotexisterror.html" class="tsd-kind-icon">Instance<wbr>Does<wbr>Not<wbr>Exist<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/knockrejectederror.html" class="tsd-kind-icon">Knock<wbr>Rejected<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/network.html" class="tsd-kind-icon">Network</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/networkinterface.html" class="tsd-kind-icon">Network<wbr>Interface</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/node.html" class="tsd-kind-icon">Node</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/peers.html" class="tsd-kind-icon">Peers</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/pipe.html" class="tsd-kind-icon">Pipe</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/processor.html" class="tsd-kind-icon">Processor</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/processors.html" class="tsd-kind-icon">Processors</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/publicip.html" class="tsd-kind-icon">PublicIP</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/repository.html" class="tsd-kind-icon">Repository</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/resourcedoesalreadyexisterror.html" class="tsd-kind-icon">Resource<wbr>Does<wbr>Already<wbr>Exist<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/resourcedoesnotexisterror.html" class="tsd-kind-icon">Resource<wbr>Does<wbr>Not<wbr>Exist<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/resourcemanager.html" class="tsd-kind-icon">Resource<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/resourcenotimplementederror.html" class="tsd-kind-icon">Resource<wbr>Not<wbr>Implemented<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/resourcetranscoder.html" class="tsd-kind-icon">Resource<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/resources.html" class="tsd-kind-icon">Resources</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/runtime.html" class="tsd-kind-icon">Runtime</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/signaler.html" class="tsd-kind-icon">Signaler</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/stunserver.html" class="tsd-kind-icon">Stun<wbr>Server</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/subnets.html" class="tsd-kind-icon">Subnets</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/terminals.html" class="tsd-kind-icon">Terminals</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tracker.html" class="tsd-kind-icon">Tracker</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/turnserver.html" class="tsd-kind-icon">Turn<wbr>Server</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/unimplementedruntimeerror.html" class="tsd-kind-icon">Unimplemented<wbr>Runtime<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/virtualmachine.html" class="tsd-kind-icon">Virtual<wbr>Machine</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/workload.html" class="tsd-kind-icon">Workload</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/workloads.html" class="tsd-kind-icon">Workloads</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/container.html" class="tsd-kind-icon">Container</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/frame.html" class="tsd-kind-icon">Frame</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iargumentsspec.html" class="tsd-kind-icon">IArguments<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ibenchmarkscorespec.html" class="tsd-kind-icon">IBenchmark<wbr>Score<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icapabilityspec.html" class="tsd-kind-icon">ICapability<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icoordinatesspec.html" class="tsd-kind-icon">ICoordinates<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifilespec.html" class="tsd-kind-icon">IFile<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/iinstance.html" class="tsd-kind-icon">IInstance</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ilabeledframe.html" class="tsd-kind-icon">ILabeled<wbr>Frame</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/inetworkinterfacespec.html" class="tsd-kind-icon">INetwork<wbr>Interface<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/inetworkspec.html" class="tsd-kind-icon">INetwork<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ipeersconfig.html" class="tsd-kind-icon">IPeers<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/ipipe.html" class="tsd-kind-icon">IPipe</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iprocessorspec.html" class="tsd-kind-icon">IProcessor<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ipublicipspec.html" class="tsd-kind-icon">IPublicIPSpec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/irepositoryspec.html" class="tsd-kind-icon">IRepository<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/iresource.html" class="tsd-kind-icon">IResource</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iresourcemetadata.html" class="tsd-kind-icon">IResource<wbr>Metadata</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iresourcesconfig.html" class="tsd-kind-icon">IResources<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iruntimespec.html" class="tsd-kind-icon">IRuntime<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/isignalerspec.html" class="tsd-kind-icon">ISignaler<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/istunserverspec.html" class="tsd-kind-icon">IStun<wbr>Server<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/itrackerspec.html" class="tsd-kind-icon">ITracker<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iturnserverspec.html" class="tsd-kind-icon">ITurn<wbr>Server<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iworkloadspec.html" class="tsd-kind-icon">IWorkload<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#tnodeconfiguration" class="tsd-kind-icon">TNode<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#api_version" class="tsd-kind-icon">API_<wbr>VERSION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#file_name" class="tsd-kind-icon">FILE_<wbr>NAME</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#localhost" class="tsd-kind-icon">LOCALHOST</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#argumentsdata" class="tsd-kind-icon">arguments<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#bus" class="tsd-kind-icon">bus</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#capabilitydata" class="tsd-kind-icon">capability<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#filedata" class="tsd-kind-icon">file<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#logroot" class="tsd-kind-icon">log<wbr>Root</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#networkdata" class="tsd-kind-icon">network<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#node" class="tsd-kind-icon">node</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#nodeconfig" class="tsd-kind-icon">node<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#processordata" class="tsd-kind-icon">processor<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#repositorydata" class="tsd-kind-icon">repository<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#runtimedata" class="tsd-kind-icon">runtime<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#seedconfig" class="tsd-kind-icon">seed<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#seedfile" class="tsd-kind-icon">seed<wbr>File</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#seedlabel" class="tsd-kind-icon">seed<wbr>Label</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#seedname" class="tsd-kind-icon">seed<wbr>Name</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#seedrepository" class="tsd-kind-icon">seed<wbr>Repository</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#signalerdata" class="tsd-kind-icon">signaler<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#stunserverdata" class="tsd-kind-icon">stunserver<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#subnetdata" class="tsd-kind-icon">subnet<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#terminals" class="tsd-kind-icon">terminals</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#terminalsroot" class="tsd-kind-icon">terminals<wbr>Root</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#testtrackers" class="tsd-kind-icon">test<wbr>Trackers</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#trackerdata" class="tsd-kind-icon">tracker<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#turnserverdata" class="tsd-kind-icon">turnserver<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#workloaddata" class="tsd-kind-icon">workload<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#filterimportsbycapabilities" class="tsd-kind-icon">filter<wbr>Imports<wbr>ByCapabilities</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#getlogger" class="tsd-kind-icon">get<wbr>Logger</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#log" class="tsd-kind-icon">log</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
