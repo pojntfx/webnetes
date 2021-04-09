@@ -15,6 +15,10 @@ A peer-to-peer computing platform for the browser and node. It uses [WebAssembly
 
 Check out the [documentation](https://docs.webnetes.dev/).
 
+We also created a short demo video which shows an example application being deployed to webnetes:
+
+[<img src="https://img.youtube.com/vi/W0PayDQ7RIg/0.jpg" width="512" alt="YouTube video" title="YouTube video">](https://www.youtube.com/watch?v=W0PayDQ7RIg)
+
 ## Usage
 
 ### webnetesctl
